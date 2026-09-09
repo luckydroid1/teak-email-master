@@ -1,0 +1,22 @@
+{
+  "name": "codeinbox-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for CodeInbox — AI agents can list inboxes, read emails, and grab OTPs.",
+  "type": "module",
+  "bin": {
+    "codeinbox-mcp": "index.js"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "express": "^4.21.0",
+    "zod": "^3.24.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

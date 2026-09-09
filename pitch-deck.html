@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mail Admin — Pitch Deck</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { 
+  width: 100%;
+  background: #0a0a0f;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #f1f5f9;
+}
+
+/* === SLIDE CONTAINER === */
+.slides {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.slide {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #0f172a 0%, #1a1a2e 50%, #0f172a 100%);
+  border-radius: 20px;
+  margin-bottom: 24px;
+  padding: 48px 64px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+}
+
+/* Decorative elements */
+.slide::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.slide::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -5%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Slide number */
+.slide-number {
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.15);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* === TYPOGRAPHY === */
+.badge {
+  display: inline-block;
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: #93c5fd;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  max-width: 85%;
+}
+
+h1 .highlight {
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+}
+
+h2 .highlight {
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  max-width: 75%;
+  margin-top: 12px;
+}
+
+p {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  line-height: 1.65;
+}
+
+/* === GRID / CARD === */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.metric-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 20px 24px;
+  transition: border-color 0.2s;
+}
+
+.metric-card:hover {
+  border-color: rgba(59,130,246,0.2);
+}
+
+.metric-card .number {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-card .label {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.metric-card .desc {
+  font-size: 0.78rem;
+  color: #475569;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* === COMPARISON TABLE === */
+.comparison {
+  margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.comparison th {
+  text-align: left;
+  padding: 10px 14px;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.comparison td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: #cbd5e1;
+}
+
+.comparison td:first-child {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.comparison .check { color: #22c55e; }
+.comparison .cross { color: #ef4444; opacity: 0.5; }
+.comparison .highlight-row td {
+  background: rgba(59,130,246,0.06);
+  border-color: rgba(59,130,246,0.15);
+}
+
+/* === TIMELINE === */
+.timeline {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 20px;
+  padding: 14px 0;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  padding-left: 20px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 18px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.timeline-item .date {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.timeline-item .event {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+}
+
+.timeline-item .event strong {
+  color: #f1f5f9;
+}
+
+/* === PAIN LIST === */
+.pain-list {
+  list-style: none;
+  margin-top: 16px;
+}
+
+.pain-list li {
+  padding: 10px 0 10px 28px;
+  position: relative;
+  color: #94a3b8;
+  font-size: 0.92rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.pain-list li::before {
+  content: '✕';
+  position: absolute;
+  left: 0;
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.pain-list li.solved::before {
+  content: '✓';
+  color: #22c55e;
+}
+
+/* === FAQ FORMAT === */
+.faq-item {
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 10px;
+}
+
+.faq-item .q {
+  font-weight: 600;
+  color: #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.faq-item .a {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* === BOTTOM FOCUS === */
+.focus-box {
+  margin-top: auto;
+  background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.08));
+  border: 1px solid rgba(139,92,246,0.15);
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.focus-box .emoji {
+  font-size: 1.5rem;
+}
+
+.focus-box .text {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.focus-box .text strong {
+  color: #f1f5f9;
+}
+
+/* === TITLE SLIDE === */
+.title-slide {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px 80px;
+}
+.title-slide h1 {
+  font-size: 4rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.title-slide .subtitle {
+  max-width: 65%;
+  margin: 16px auto 0;
+}
+.title-slide .investor-note {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.12);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* === Section Header === */
+.section-slide {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.section-slide h2 {
+  font-size: 2.8rem;
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+/* === ASK SLIDE === */
+.ask-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.ask-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.ask-box h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+}
+
+.ask-box .price {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ask-box .detail {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+.use-list {
+  list-style: none;
+  margin-top: 8px;
+}
+.use-list li {
+  padding: 4px 0 4px 20px;
+  position: relative;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+.use-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #3b82f6;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .slide {
+    padding: 32px 24px;
+    aspect-ratio: auto;
+    min-height: 500px;
+  }
+  h1 { font-size: 1.8rem; max-width: 100%; }
+  h2 { font-size: 1.4rem; }
+  .subtitle { max-width: 100%; font-size: 0.95rem; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .title-slide h1 { font-size: 2.2rem; }
+  .ask-grid { grid-template-columns: 1fr; }
+  .comparison { font-size: 0.7rem; }
+  .comparison th, .comparison td { padding: 6px 8px; }
+  .timeline-item { grid-template-columns: 1fr; gap: 4px; }
+  .slide-number { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================================================ -->
+<div class="slide title-slide">
+  <div class="badge">SaaS Pitch · July 2026</div>
+  <h1>Mail Admin<br><span class="highlight">The Missing UI for Mailcow</span></h1>
+  <p class="subtitle">A single-panel email management system for agencies who run Mailcow. <strong>25+ domains, 1 login, zero cPanel.</strong></p>
+  <div class="investor-note">For Skeptical Investors · Honest Assessment</div>
+  <span class="slide-number">01 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: PROBLEM -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">The Problem</div>
+  <h2>Managing client emails is<br><span class="highlight">a nightmare of context-switching</span></h2>
+  <p class="subtitle">Every agency owner knows this dance — and it costs them hours every week.</p>
+
+  <ul class="pain-list">
+    <li><strong>7 clicks</strong> to create one mailbox in Mailcow admin — do that ×20 clients</li>
+    <li>cPanel license = <strong>$15–20/month</strong> just for email management</li>
+    <li>Google Workspace = <strong>$72/user/year</strong> — but client only needs email, not the full suite</li>
+    <li>Adding a new domain means: Cloudflare DNS → Mailcow domain → DKIM → SPF → MX → verify → <strong>30 minutes gone</strong></li>
+    <li>No unified view: bounce between Cloudflare dashboard, Mailcow admin, SSH terminal, and webmail</li>
+  </ul>
+
+  <div class="focus-box">
+    <span class="emoji">💸</span>
+    <div class="text"><strong>The hidden tax:</strong> A 20-client agency loses ~8–12 hours/month on email ops. At $75/hr, that's <strong>$600–900/month burned</strong> on work that adds zero client value.</div>
+  </div>
+  <span class="slide-number">02 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: THE COST OF ALTERNATIVES -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">Market Reality</div>
+  <h2>The alternatives are all<br><span class="highlight">overpriced or overengineered</span></h2>
+  <p class="subtitle">What agencies actually pay today for email — and what they get for it.</p>
+
+  <table class="comparison">
+    <thead>
+      <tr>
+        <th style="width:18%">Solution</th>
+        <th style="width:14%">Cost</th>
+        <th style="width:12%">Setup</th>
+        <th style="width:14%">Multi-domain</th>
+        <th style="width:14%">Bulk Create</th>
+        <th style="width:14%">Inbox View</th>
+        <th style="width:14%">Self-Hosted</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Google Workspace</td>
+        <td>$72/user/yr</td>
+        <td><span class="cross">✦</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="cross">✦</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="cross">✦</span></td>
+      </tr>
+      <tr>
+        <td>cPanel + Mailcow</td>
+        <td>$15–25/mo</td>
+        <td><span class="cross">✦</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="cross">✦</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>Mailcow Admin (raw)</td>
+        <td>$0 (self-host)</td>
+        <td><span class="cross">✦</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="cross">✦</span></td>
+        <td><span class="cross">✦</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr class="highlight-row">
+        <td><strong>Mail Admin</strong></td>
+        <td><strong>$0 (self-host)</strong></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="focus-box" style="margin-top:16px">
+    <span class="emoji">🎯</span>
+    <div class="text"><strong>The gap we fill:</strong> Raw Mailcow is powerful but has a terrible admin UX for multi-domain management. We add the 20% UI layer that makes it 80% more productive — without the cPanel tax.</div>
+  </div>
+  <span class="slide-number">03 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: SOLUTION -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">The Solution</div>
+  <h2>A single PHP file that turns<br><span class="highlight">Mailcow into a multi-domain powerhouse</span></h2>
+  <p class="subtitle">One `index.php` deployed on your Mailcow server. No dependencies, no framework, no subscription.</p>
+
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="label" style="font-size:0.85rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">👁️ Unified Dashboard</div>
+      <div class="desc">All Cloudflare domains auto-listed. Active in Mailcow = blue. Not added yet = gray + one-click add.</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="font-size:0.85rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">⚡ 1-Click Create</div>
+      <div class="desc">Select domain → type local-part → hit create. Auto-sets sender_acl, DKIM-ready attributes, Maildir format. 15 seconds vs 5 minutes in raw Mailcow UI.</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="font-size:0.85rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">📥 Live Inbox View</div>
+      <div class="desc">Click the inbox icon on any mailbox — see emails in real-time via Doveadm. Client calls asking "did I get that email?" → answer in 2 seconds.</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:12px">
+    <div class="metric-card">
+      <div class="label" style="font-size:0.85rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">🌐 Cloudflare Native</div>
+      <div class="desc">Auto-fetches all zones via CF API. No manual domain entry. 25+ domains, one list, zero config.</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="font-size:0.85rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">🔐 Session Security</div>
+      <div class="desc">Rate-limited login, HttpOnly+Secure+SameSite cookies, 1-hour session timeout, auto-logout on inactivity.</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="font-size:0.85rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">💰 Total Cost</div>
+      <div class="desc"><strong>$0</strong> for the software. Runs on your existing Mailcow VPS. Zero monthly fee. Zero per-user fee. Zero vendor lock-in.</div>
+    </div>
+  </div>
+  <span class="slide-number">04 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: MARKET -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">Market Sizing</div>
+  <h2>The Mailcow ecosystem is<br><span class="highlight">larger than most people realize</span></h2>
+  <p class="subtitle">Mailcow has 14,000+ GitHub stars and runs on an estimated 50,000+ servers worldwide. Every single one is a potential customer.</p>
+
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="number">50K+</div>
+      <div class="label">Mailcow instances</div>
+      <div class="desc">Self-hosted mail servers worldwide — growing with the privacy movement</div>
+    </div>
+    <div class="metric-card">
+      <div class="number">~40%</div>
+      <div class="label">Multi-domain setup</div>
+      <div class="desc">Percentage of Mailcow installs managing ≥3 domains (our TAM)</div>
+    </div>
+    <div class="metric-card">
+      <div class="number">$49–149</div>
+      <div class="label">Price per license</div>
+      <div class="desc">One-time payment, self-hosted. No ongoing infra cost for us.</div>
+    </div>
+    <div class="metric-card">
+      <div class="number">$1.5M+</div>
+      <div class="label">Addressable Market</div>
+      <div class="desc">20,000 potential buyers × $75 average price point</div>
+    </div>
+  </div>
+
+  <div class="focus-box" style="margin-top:16px">
+    <span class="emoji">📊</span>
+    <div class="text"><strong>Trend tailwind:</strong> Privacy regulations (GDPR, CCPA) + Big Tech email price hikes + self-hosted resurgence = Mailcow adoption accelerating. Every new Mailcow user is a potential Mail Admin buyer.</div>
+  </div>
+  <span class="slide-number">05 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: HONEST SWOT -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">Honest Assessment</div>
+  <h2>What we have — and what we<br><span class="highlight">still need to build</span></h2>
+  <p class="subtitle">Transparency: this is a functional MVP, not a finished product. Here's the honest picture.</p>
+
+  <div class="grid-2">
+    <div class="metric-card" style="border-color:rgba(34,197,94,0.15);background:rgba(34,197,94,0.03)">
+      <div class="label" style="color:#22c55e;font-weight:700;font-size:0.85rem">✅ SHIPPED & WORKING</div>
+      <ul class="use-list">
+        <li>Single-password admin login</li>
+        <li>Auto-list all Cloudflare domains</li>
+        <li>One-click domain add to Mailcow</li>
+        <li>Mailbox create (auto sender_acl + DKIM)</li>
+        <li>Inbox viewer via Doveadm</li>
+        <li>Mailbox delete</li>
+        <li>Rate-limited login + session security</li>
+        <li>SQL injection protection</li>
+      </ul>
+    </div>
+    <div class="metric-card" style="border-color:rgba(250,204,21,0.15);background:rgba(250,204,21,0.03)">
+      <div class="label" style="color:#eab308;font-weight:700;font-size:0.85rem">🔄 NEEDED BEFORE SELLING</div>
+      <ul class="use-list">
+        <li><strong>Multi-user auth</strong> — admin + viewer roles (2-3 days)</li>
+        <li><strong>CSRF protection</strong> — token-based (0.5 day)</li>
+        <li><strong>White-label branding</strong> — logo/name/color config (1 day)</li>
+        <li><strong>Setup wizard</strong> — no base64/SSH (1 day)</li>
+        <li><strong>REST API</strong> — create/delete via API (2 days)</li>
+        <li><strong>Password change UI</strong> — not hardcoded (0.5 day)</li>
+        <li><strong>Favicon + 404 page</strong> (0.5 day)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="focus-box">
+    <span class="emoji">⏱️</span>
+    <div class="text"><strong>Estimated build time to sellable product: ~10 days</strong> for a single full-stack developer. After that, it's a sellable license.</div>
+  </div>
+  <span class="slide-number">06 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: BUSINESS MODEL -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">Business Model</div>
+  <h2>Three-tier licensing with<br><span class="highlight">$0 server cost to us</span></h2>
+  <p class="subtitle">Self-hosted PHP script = no AWS bill, no container orchestration, no devops overhead. We sell a ZIP file.</p>
+
+  <div class="grid-2">
+    <div class="ask-box">
+      <h3>🥇 Starter</h3>
+      <div class="price">$49</div>
+      <div class="detail">one-time<br>Up to 5 domains, 1 admin user. Perfect for freelancers with a handful of clients.</div>
+    </div>
+    <div class="ask-box" style="border-color:rgba(59,130,246,0.2)">
+      <h3>🚀 Agency</h3>
+      <div class="price">$149</div>
+      <div class="detail">one-time<br>Unlimited domains, up to 5 admin users. For agencies managing 10–50 client domains.</div>
+    </div>
+    <div class="ask-box" style="border-color:rgba(139,92,246,0.2)">
+      <h3>🏢 Reseller</h3>
+      <div class="price">$299</div>
+      <div class="detail">one-time<br>White-label + custom branding. Resell to your own clients under your brand. Unlimited domains & users.</div>
+    </div>
+    <div class="ask-box" style="border-color:rgba(34,197,94,0.15)">
+      <h3>📈 SaaS (Future)</h3>
+      <div class="price">$9–49/mo</div>
+      <div class="detail">Optional hosted version. Wait until self-hosted traction validates demand before building this.</div>
+    </div>
+  </div>
+
+  <div class="focus-box">
+    <span class="emoji">📐</span>
+    <div class="text"><strong>Unit economics:</strong> At $149/license, we need 34 sales/month to hit $5K MRR. Zero COGS (customer hosts it). Support via email + docs. 80% gross margin from day one.</div>
+  </div>
+  <span class="slide-number">07 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: BUDGET -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">Financial Projection</div>
+  <h2>Conservative 12-month<br><span class="highlight">bootstrapped forecast</span></h2>
+  <p class="subtitle">No outside capital required. This is a lifestyle-business-sized opportunity that can scale.</p>
+
+  <div class="grid-3" style="margin-top:16px">
+    <div class="metric-card">
+      <div class="label" style="color:#60a5fa;font-weight:700;font-size:0.8rem;text-transform:uppercase">Scenario</div>
+      <div class="number" style="font-size:1.1rem;background:none;color:#f1f5f9;-webkit-text-fill-color:#f1f5f9">Conservative</div>
+      <div class="desc">5 sales/month @ avg $99</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="color:#60a5fa;font-weight:700;font-size:0.8rem;text-transform:uppercase">Scenario</div>
+      <div class="number" style="font-size:1.1rem;background:none;color:#f1f5f9;-webkit-text-fill-color:#f1f5f9">Moderate</div>
+      <div class="desc">15 sales/month @ avg $99</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="color:#60a5fa;font-weight:700;font-size:0.8rem;text-transform:uppercase">Scenario</div>
+      <div class="number" style="font-size:1.1rem;background:none;color:#f1f5f9;-webkit-text-fill-color:#f1f5f9">Strong</div>
+      <div class="desc">30 sales/month @ avg $99</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:8px">
+    <div class="metric-card">
+      <div class="label" style="color:#64748b;font-size:0.75rem">Year 1 Revenue</div>
+      <div class="number" style="font-size:1.6rem">$6K</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="color:#64748b;font-size:0.75rem">Year 1 Revenue</div>
+      <div class="number" style="font-size:1.6rem">$18K</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="color:#64748b;font-size:0.75rem">Year 1 Revenue</div>
+      <div class="number" style="font-size:1.6rem">$36K</div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;padding:12px 20px;background:rgba(255,255,255,0.02);border-radius:10px;font-size:0.82rem;color:#64748b;line-height:1.6">
+    <strong style="color:#94a3b8">Why we're not projecting millions:</strong> This is a niche tool for a niche audience within a niche market. That's a feature, not a bug. The total addressable market is ~20,000 buyers. At $99 average, that's a <strong>$2M lifetime ceiling</strong> without expansion — enough for a comfortable solo business or small team, not a VC-backed unicorn. If you're looking for 100x returns, this isn't it. If you're looking for a <strong>capital-efficient, high-margin niche SaaS</strong> that covers lifestyle costs from month one — this works.
+  </div>
+  <span class="slide-number">08 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: COMPETITION -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">Competitive Landscape</div>
+  <h2>No one owns this specific niche<br><span class="highlight">— and that's both good and risky</span></h2>
+  <p class="subtitle">The market is fragmented between expensive enterprise tools and DIY complexity.</p>
+
+  <div class="grid-2">
+    <div class="metric-card">
+      <div class="label" style="color:#ef4444;font-weight:700;font-size:0.8rem">COMPETITIVE THREATS</div>
+      <ul class="use-list">
+        <li><strong>Mailcow SOGo UI</strong> — free, but clunky. Requires navigating multiple tabs.</li>
+        <li><strong>cPanel / WHM</strong> — $15-25/mo. Better UI but expensive for just email.</li>
+        <li><strong>Google Workspace reseller</strong> — $72/user/yr. Too expensive for low-value mailboxes.</li>
+        <li><strong>Mail-in-a-Box</strong> — simple but single-domain. Doesn't scale.</li>
+        <li><strong>Built-in Mailcow API users</strong> — power users script their own solutions.</li>
+      </ul>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="color:#22c55e;font-weight:700;font-size:0.8rem">OUR MOAT</div>
+      <ul class="use-list">
+        <li>✅ <strong>First mover</strong> in Mailcow-specific admin tools</li>
+        <li>✅ <strong>Cloudflare native</strong> — auto-integration no competitor offers</li>
+        <li>✅ <strong>One PHP file</strong> — zero dependencies, zero deployment friction</li>
+        <li>✅ <strong>Self-hosted</strong> — no data leaves your server (GDPR selling point)</li>
+        <li>✅ <strong>Price</strong> — $49–149 one-time beats every recurring option</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="focus-box">
+    <span class="emoji">⚠️</span>
+    <div class="text"><strong>The real risk:</strong> Mailcow could improve their admin UI. Or a competitor could fork this and undercut. Our defense: build an active community (GitHub + forum presence) and move fast on feature requests. Speed + niche focus = moat for a product this size.</div>
+  </div>
+  <span class="slide-number">09 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: GO-TO-MARKET -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">Go-to-Market</div>
+  <h2>Distribution without a<br><span class="highlight">marketing budget</span></h2>
+  <p class="subtitle">The target audience is concentrated in specific communities. No paid ads needed — just being present.</p>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="metric-card">
+      <div class="label" style="color:#60a5fa;font-weight:700;font-size:0.8rem;text-transform:uppercase">🔥 Hot Channel</div>
+      <div class="desc" style="margin-top:8px"><strong>r/Mailcow</strong> (Reddit) + <strong>LowEndTalk</strong> — These communities have concentrated Mailcow users actively looking for better admin tools. One well-written post = hundreds of targeted views.</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="color:#60a5fa;font-weight:700;font-size:0.8rem;text-transform:uppercase">🌱 Organic Channel</div>
+      <div class="desc" style="margin-top:8px"><strong>GitHub repo + Mailcow docs</strong> — Publish as open-core (free basic version + paid pro features). Let the GitHub stars bring traffic. Mailcow itself grew this way.</div>
+    </div>
+    <div class="metric-card">
+      <div class="label" style="color:#60a5fa;font-weight:700;font-size:0.8rem;text-transform:uppercase">🎯 Niche Channel</div>
+      <div class="desc" style="margin-top:8px"><strong>Web hosting FB groups + WHMCS communities</strong> — Agency owners and hosting resellers with exactly this pain point. One shared post in a 50K-member group = 10-20 leads.</div>
+    </div>
+  </div>
+
+  <table class="comparison" style="margin-top:12px">
+    <thead>
+      <tr><th>Channel</th><th>Cost</th><th>Effort</th><th>Expected Sales/Mo</th><th>Time to First Sale</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Reddit (r/Mailcow, r/webhosting)</td><td>$0</td><td>2 hrs/wk</td><td>5-15</td><td>1-2 weeks</td></tr>
+      <tr><td>LowEndTalk forum</td><td>$0</td><td>3 hrs/wk</td><td>10-20</td><td>2-4 weeks</td></tr>
+      <tr><td>GitHub open-core release</td><td>$0</td><td>1 day setup</td><td>5-10</td><td>1-3 months</td></tr>
+      <tr><td>Facebook hosting groups</td><td>$0</td><td>2 hrs/wk</td><td>3-8</td><td>2-4 weeks</td></tr>
+    </tbody>
+  </table>
+  <span class="slide-number">10 / 11</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: THE ASK -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="badge">The Ask</div>
+  <h2>We're not asking for millions.<br><span class="highlight">We're asking for the right thing.</span></h2>
+  <p class="subtitle">This isn't a VC-scale business — and we're not pretending it is. Here's what we actually need.</p>
+
+  <div class="ask-grid">
+    <div class="ask-box" style="grid-column:1">
+      <h3>💰 What We Need</h3>
+      <div class="price" style="font-size:1.6rem">$5K</div>
+      <div class="detail" style="margin-top:4px">seed funding — OR —</div>
+      <div class="price" style="font-size:1.6rem;margin-top:8px">10 beta customers</div>
+      <div class="detail" style="margin-top:4px">at $49 each (pre-launch discount)</div>
+    </div>
+    <div class="ask-box" style="grid-column:2">
+      <h3>🎯 What For</h3>
+      <ul class="use-list">
+        <li>10 days dev time → sellable v1.0</li>
+        <li>Landing page + Gumroad/Lemonsqueezy payment</li>
+        <li>Demo video + documentation</li>
+        <li>First Reddit/HN post campaign</li>
+      </ul>
+    </div>
+    <div style="grid-column:1/-1;background:rgba(255,255,255,0.02);border-radius:10px;padding:16px 20px">
+      <div class="label" style="color:#94a3b8;font-size:0.85rem;line-height:1.6">
+        <strong style="color:#f1f5f9">The honest pitch:</strong> This is a niche tool with a $2M lifetime ceiling. It won't make you 100× on your investment. What it <em>will</em> do is generate <strong>cash-positive revenue from month one</strong> with zero burn rate. If you want a capital-efficient micro-SaaS that pays for itself within the first 3 months — this is it. If you're looking for a unicorn — this isn't, and that's okay.
+      </div>
+    </div>
+  </div>
+
+  <div class="focus-box" style="margin-top:16px">
+    <span class="emoji">📬</span>
+    <div class="text"><strong>Ready to discuss?</strong> We can ship v1.0 in 10 days. First 10 beta customers locked in at $49. From there, revenue funds everything. No dilution needed — just the right launch push.</div>
+  </div>
+  <span class="slide-number">11 / 11</span>
+</div>
+
+</div>
+</body>
+</html>

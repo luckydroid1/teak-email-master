@@ -1,0 +1,14 @@
+# Jangan commit credentials
+app/src/config.php
+*.local.php
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Deploy artifacts
+*.tar.gz
+deploy/

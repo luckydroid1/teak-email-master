@@ -1,0 +1,21 @@
+const page = 26;
+const t0 = Date.now();
+const snap = await browser.observe(page).snapshot();
+const stext = snap.text || '';
+if (!stext.includes('Stop')) return JSON.stringify({ err: 'no-stop-btn' });
+let stopRef = null;
+const m = stext.match(/Stop[^\n]*?ref=(e\d+)/i) || stext.match(/ref=(e\d+)[^\n]*?"?Stop/i);
+if (m) stopRef = m[1];
+if (!stopRef) return JSON.stringify({ err: 'no-stop-ref' });
+await browser.input(page).click(stopRef);
+await browser.wait(page, { value: 2500 });
+const snap2 = await browser.observe(page).snapshot();
+const t2 = snap2.text || '';
+let yesRef = null;
+const m2 = t2.match(/ref=(e\d+)[^\n]*?Yes/i) || t2.match(/Yes[^\n]*?ref=(e\d+)/i) || t2.match(/ref=(e\d+)[^\n]*?continue/i);
+if (m2) yesRef = m2[1];
+let confirmed = false;
+if (yesRef) { await browser.input(page).click(yesRef); confirmed = true; }
+await browser.wait(page, { value: 6000 });
+const status = await browser.grep(page, { pattern: '(?i)(running|stopped|offline|shutting)' });
+return JSON.stringify({ stopRef, yesRef, confirmed, status: status.slice(0, 300), elapsed: Date.now() - t0 });

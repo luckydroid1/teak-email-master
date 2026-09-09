@@ -1,0 +1,16 @@
+[Unit]
+Description=CodeInbox MCP Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/codeinbox/mcp-server
+Environment=CODEINBOX_API_URL=https://inbox.pesat.ai/api
+Environment=CODEINBOX_API_KEY=REPLACE_WITH_API_KEY
+ExecStart=/usr/bin/node /opt/codeinbox/mcp-server/index.js
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

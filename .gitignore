@@ -1,0 +1,41 @@
+# Secrets & credentials - NEVER commit
+.ops/
+ops/
+*.env
+.env*
+secrets.env
+config.php
+*.local.php
+
+# SSH keys
+id_*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+.npm/
+
+# Deploy artifacts
+*.tar.gz
+deploy/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Mimosa security scan cache
+.mimosa/
+
+# Playwright MCP
+.playwright-mcp/
