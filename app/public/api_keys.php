@@ -122,12 +122,31 @@ print("Active inboxes:", inboxes)</div>
   "mcpServers": {
     "teak-email": {
       "command": "npx",
-      "args": ["-y", "@teak/mcp-server"],
+      "args": ["-y", "codeinbox-mcp"],
       "env": {
-        "TEAK_API_KEY": "<?= htmlspecialchars($new_key ?? 'YOUR_API_KEY') ?>"
+        "CODEINBOX_API_KEY": "<?= htmlspecialchars($new_key ?? 'YOUR_API_KEY') ?>",
+        "CODEINBOX_API_URL": "<?= htmlspecialchars($app_url) ?>/api"
       }
     }
   }
+}</div>
+  </div>
+
+  <!-- Webhook Integration Card -->
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid #1f2937">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:.84rem;font-weight:700;color:#cbd5e1">🔗 Inbound Webhook JSON Spec (Real-Time Push)</span>
+      <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhook-code').innerText, this)">Copy Payload Spec</button>
+    </div>
+    <p style="font-size:.8rem;color:#94a3b8;margin:0 0 8px">When a new email is received, our webhook engine pushes this standardized event to your agent endpoint:</p>
+    <div class="code" id="webhook-code">{
+  "event": "email.received",
+  "inbox": "test@teak.email",
+  "from": "Auth Service <security@app.com>",
+  "subject": "Your verification code: 998877",
+  "otp": "998877",
+  "date": "2026-09-11T08:00:00Z",
+  "text": "Your one-time code is 998877..."
 }</div>
   </div>
 </div>
