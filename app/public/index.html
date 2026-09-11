@@ -13,57 +13,143 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📬</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,system-ui,sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.6}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0e1a;color:#e2e8f0;line-height:1.6}
+a{color:#60a5fa}
+
+/* Navbar */
+.nav-header{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+.nav-inner{max-width:1050px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:60px}
+.nav-brand{font-weight:800;font-size:1.15rem;color:#f8fafc;text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-actions{display:flex;align-items:center;gap:12px}
+
+/* Hero */
 .hero{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);color:#fff;padding:80px 20px 70px;text-align:center}
-.hero h1{font-size:clamp(2rem,4.5vw,3rem);max-width:780px;margin:0 auto 16px;font-weight:800;line-height:1.2}
-.hero p{font-size:1.1rem;opacity:.92;max-width:660px;margin:0 auto}
-.badge{display:inline-block;background:#f59e0b;color:#000;font-size:.78rem;font-weight:800;padding:5px 16px;border-radius:20px;text-transform:uppercase;margin-bottom:16px;letter-spacing:0.5px}
-.main{max-width:920px;margin:0 auto;padding:48px 20px 60px}
-.card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:26px;margin-bottom:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.2)}
+.hero h1{font-size:clamp(2.1rem,4.5vw,3.2rem);max-width:820px;margin:0 auto 16px;font-weight:800;line-height:1.2}
+.hero p{font-size:1.15rem;opacity:.92;max-width:680px;margin:0 auto}
+.badge{display:inline-flex;align-items:center;gap:6px;background:#f59e0b;color:#000;font-size:.78rem;font-weight:800;padding:5px 16px;border-radius:20px;text-transform:uppercase;margin-bottom:18px;letter-spacing:0.5px}
+.main{max-width:960px;margin:0 auto;padding:48px 20px 60px}
+
+/* Cards */
+.card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:26px;margin-bottom:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.2)}
 .card h2{color:#f8fafc;margin-bottom:10px;font-size:1.3rem}
 .card p{color:#94a3b8;font-size:.95rem}
-.pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:24px 0}
-.tier{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:22px 18px;text-align:center;position:relative}
-.tier.pop{border-color:#3b82f6;box-shadow:0 0 0 1px #3b82f6}
+
+/* Live Demo Box */
+.demo-box{background:#0a0e1a;border:1px solid #334155;border-radius:12px;padding:20px;margin:24px 0}
+.demo-badge{background:#064e3b;border:1px solid #059669;color:#6ee7b7;padding:8px 20px;border-radius:10px;font-size:1.5rem;font-weight:800;font-family:monospace;letter-spacing:4px;display:inline-block;margin:8px 0}
+
+/* Pricing Grid */
+.pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:24px 0}
+.tier{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:22px 18px;text-align:center;position:relative;display:flex;flex-direction:column;justify-content:space-between}
+.tier.pop{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,0.4)}
 .tier .price{font-size:1.8rem;font-weight:800;color:#60a5fa}
 .tier .name{font-size:.88rem;color:#94a3b8;margin-bottom:8px;font-weight:700}
-.tier ul{list-style:none;font-size:.82rem;color:#cbd5e1;margin-top:12px;text-align:left}
+.tier ul{list-style:none;font-size:.82rem;color:#cbd5e1;margin:14px 0;text-align:left}
 .tier ul li{padding:4px 0;display:flex;align-items:center;gap:6px}
 .tier ul li::before{content:"✓";color:#22c55e;font-weight:bold}
 .tier .badge-pop{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#000;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:10px;text-transform:uppercase}
-.cta{display:inline-flex;align-items:center;justify-content:center;background:#3b82f6;color:#fff;text-decoration:none;font-weight:700;padding:12px 28px;border-radius:8px;margin-top:8px;transition:all .15s}
+
+/* Buttons */
+.cta{display:inline-flex;align-items:center;justify-content:center;background:#3b82f6;color:#fff;text-decoration:none;font-weight:700;padding:12px 28px;border-radius:8px;transition:all .15s}
 .cta:hover{background:#2563eb;transform:translateY(-1px)}
-.features{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:640px){.features{grid-template-columns:1fr}}
+.btn-line{display:inline-flex;align-items:center;justify-content:center;border:1px solid #3b82f6;color:#60a5fa;text-decoration:none;font-weight:600;padding:10px 20px;border-radius:8px;transition:all .15s}
+.btn-line:hover{background:rgba(59,130,246,0.1)}
+.btn-copy{background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:.78rem;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s}
+.btn-copy:hover{background:#334155;color:#f8fafc}
+
+/* Features */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:640px){.features{grid-template-columns:1fr}}
 .feat{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:20px}
-.feat h3{font-size:1rem;color:#f8fafc;margin-bottom:6px}
+.feat h3{font-size:1.05rem;color:#f8fafc;margin-bottom:6px}
 .feat p{font-size:.88rem;color:#94a3b8}
+
+/* FAQ */
 .faq details{background:#111827;border:1px solid #1f2937;border-radius:10px;margin-bottom:12px;padding:16px 20px}
 .faq summary{cursor:pointer;font-weight:600;font-size:.95rem;color:#f8fafc}
 .faq details p{margin-top:10px;color:#94a3b8;font-size:.9rem;line-height:1.6}
-.btn-line{display:inline-flex;align-items:center;justify-content:center;border:1px solid #3b82f6;color:#60a5fa;text-decoration:none;font-weight:600;padding:12px 24px;border-radius:8px;margin-left:8px;transition:all .15s}
-.btn-line:hover{background:rgba(59,130,246,0.1)}
+
+/* Status Bar */
+.status-pill{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;background:rgba(34,197,94,0.15);color:#86efac;padding:4px 10px;border-radius:12px;border:1px solid rgba(34,197,94,0.3)}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;display:inline-block}
+
+/* Code Snippet */
+.code-block{background:#0a0e1a;border:1px solid #1f2937;padding:14px 16px;border-radius:8px;font-family:'SF Mono',Menlo,monospace;font-size:.82rem;color:#93c5fd;overflow-x:auto;text-align:left;position:relative}
+
 footer{text-align:center;padding:36px 20px;color:#64748b;font-size:.85rem;border-top:1px solid #1f2937}
 footer a{color:#94a3b8;text-decoration:none}
 footer a:hover{color:#f8fafc}
 </style>
+<script>
+function copySnippet(id, btn) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.innerText;
+    btn.innerText = "✓ Copied!";
+    setTimeout(() => btn.innerText = orig, 1800);
+  });
+}
+</script>
 </head>
 <body>
+
+<!-- Navigation -->
+<header class="nav-header">
+  <div class="nav-inner">
+    <a href="https://mail.148.230.103.98.sslip.io/" class="nav-brand">📬 Teak Email</a>
+    <div class="nav-actions">
+      <div class="status-pill"><span class="pulse-dot"></span> Live Beta 1.0</div>
+      <a href="https://mail.148.230.103.98.sslip.io/login.php" class="btn-line" style="padding:6px 14px;font-size:.85rem">Log In</a>
+      <a href="https://mail.148.230.103.98.sslip.io/signup.php" class="cta" style="padding:6px 16px;font-size:.85rem">Get Started</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section -->
 <div class="hero">
-  <span class="badge">🎁 Lifetime Deal · No Monthly Subscription</span>
+  <span class="badge">🎁 Lifetime Deal · No Recurring Monthly Fee</span>
   <h1>Clean email inboxes for builders & AI agents.</h1>
-  <p>Create a fresh inbox in 2 clicks. Use it yourself or with your AI agent via API & MCP. Custom clean domains, no CAPTCHA wall, no blocklists.</p>
-  <p style="margin-top:28px">
+  <p>Create a dedicated inbox in 2 clicks. Grab OTP verification codes automatically with MCP or REST API on custom clean domains.</p>
+  <p style="margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
     <a href="https://mail.148.230.103.98.sslip.io/signup.php" class="cta">🚀 Create Free Account</a>
-    <a href="https://mail.148.230.103.98.sslip.io/login.php" class="btn-line">Log In</a>
-    <a href="https://mail.148.230.103.98.sslip.io/dashboard.php" class="btn-line" style="border-color:#10b981;color:#34d399">📬 Open Dashboard</a>
+    <a href="https://mail.148.230.103.98.sslip.io/dashboard.php" class="btn-line" style="border-color:#10b981;color:#34d399">📬 Open Live App</a>
+    <a href="https://mail.148.230.103.98.sslip.io/api/healthz" target="_blank" class="btn-line" style="border-color:#a78bfa;color:#c4b5fd">⚡ API Healthz (200 OK)</a>
   </p>
   <p class="sub" style="text-align:center;margin-top:18px;color:#86efac;font-size:.92rem;max-width:520px;margin-left:auto;margin-right:auto">✨ Live Beta is open — start receiving OTPs in 30 seconds.</p>
 </div>
 
 <div class="main">
-  <div class="card" style="border-left:4px solid #3b82f6">
-    <h2>Why Teak Email?</h2>
-    <p>Your AI agent needs an email to verify accounts and grab OTPs. Gmail blocks automation. Temp mail is banned everywhere. Teak Email gives you clean, dedicated inboxes on custom domains — readable by humans or by your agent through a simple API.</p>
+  <!-- Interactive Live Simulator Showcase -->
+  <div class="card" style="border-left:4px solid #10b981;text-align:center;background:linear-gradient(180deg,#111827 0%,#0a0e1a 100%)">
+    <h2 style="margin-bottom:4px">⚡ Real-Time OTP & Verification Code Extraction</h2>
+    <p class="sub" style="margin-bottom:16px">Our built-in engine parses plain text & HTML emails, extracting OTPs instantly for AI agent workflows.</p>
+    
+    <div class="demo-box" style="max-width:540px;margin:0 auto 16px">
+      <div style="font-size:.8rem;color:#94a3b8">Incoming Verification Mail Example:</div>
+      <div style="font-size:.88rem;color:#f8fafc;margin:6px 0;font-weight:600">From: Auth Service &lt;security@service.com&gt;</div>
+      <div class="demo-badge">998877</div>
+      <div style="font-size:.78rem;color:#6ee7b7">✓ Automatically parsed & available via MCP / REST API in &lt;50ms</div>
+    </div>
+  </div>
+
+  <!-- MCP & Developer Snippet -->
+  <div class="card" style="border-left:4px solid #8b5cf6">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">🤖 Connect with Claude Desktop & Cursor (MCP)</h2>
+      <button class="btn-copy" onclick="copySnippet('mcp-snippet', this)">Copy MCP Config</button>
+    </div>
+    <p class="sub" style="margin-bottom:14px">Paste this configuration into Claude Desktop or Cursor to let your AI read emails in natural language:</p>
+    <div class="code-block" id="mcp-snippet">{
+  "mcpServers": {
+    "teak-email": {
+      "command": "npx",
+      "args": ["-y", "codeinbox-mcp"],
+      "env": {
+        "CODEINBOX_API_KEY": "YOUR_API_KEY",
+        "CODEINBOX_API_URL": "https://mail.148.230.103.98.sslip.io/api"
+      }
+    }
+  }
+}</div>
   </div>
 
   <h2 style="margin:32px 0 8px;font-size:1.4rem;color:#f8fafc">Lifetime Access + Included Credits</h2>
@@ -71,34 +157,44 @@ footer a:hover{color:#f8fafc}
 
   <div class="pricing">
     <div class="tier">
-      <div class="name">Tier 1</div>
-      <div class="price">$37</div>
-      <ul><li>1,000 credits</li><li>1 inbox slot</li><li>Basic REST API</li><li>7-day retention</li></ul>
+      <div>
+        <div class="name">Tier 1</div>
+        <div class="price">$37</div>
+        <ul><li>1,000 credits</li><li>1 inbox slot</li><li>Basic REST API</li><li>7-day retention</li></ul>
+      </div>
       <a class="cta" style="font-size:.85rem;padding:8px 16px;width:100%" href="https://mail.148.230.103.98.sslip.io/redeem.php">Redeem Code</a>
     </div>
     <div class="tier">
-      <div class="name">Tier 2</div>
-      <div class="price">$67</div>
-      <ul><li>2,500 credits</li><li>3 inboxes</li><li>Basic REST API</li><li>14-day retention</li></ul>
+      <div>
+        <div class="name">Tier 2</div>
+        <div class="price">$67</div>
+        <ul><li>2,500 credits</li><li>3 inboxes</li><li>Basic REST API</li><li>14-day retention</li></ul>
+      </div>
       <a class="cta" style="font-size:.85rem;padding:8px 16px;width:100%" href="https://mail.148.230.103.98.sslip.io/redeem.php">Redeem Code</a>
     </div>
     <div class="tier pop">
       <span class="badge-pop">Most Popular</span>
-      <div class="name">Tier 3</div>
-      <div class="price">$97</div>
-      <ul><li>6,000 credits</li><li>8 inboxes</li><li>Full API + MCP</li><li>30-day retention</li></ul>
+      <div>
+        <div class="name">Tier 3</div>
+        <div class="price">$97</div>
+        <ul><li>6,000 credits</li><li>8 inboxes</li><li>Full API + MCP</li><li>30-day retention</li></ul>
+      </div>
       <a class="cta" style="font-size:.85rem;padding:8px 16px;width:100%" href="https://mail.148.230.103.98.sslip.io/redeem.php">Redeem Code</a>
     </div>
     <div class="tier">
-      <div class="name">Tier 4</div>
-      <div class="price">$147</div>
-      <ul><li>12,000 credits</li><li>20 inboxes</li><li>Full API + MCP</li><li>45-day retention</li></ul>
+      <div>
+        <div class="name">Tier 4</div>
+        <div class="price">$147</div>
+        <ul><li>12,000 credits</li><li>20 inboxes</li><li>Full API + MCP</li><li>45-day retention</li></ul>
+      </div>
       <a class="cta" style="font-size:.85rem;padding:8px 16px;width:100%" href="https://mail.148.230.103.98.sslip.io/redeem.php">Redeem Code</a>
     </div>
     <div class="tier">
-      <div class="name">Tier 5</div>
-      <div class="price">$197</div>
-      <ul><li>25,000 credits</li><li>50 inboxes</li><li>Priority API + MCP</li><li>60-day retention</li></ul>
+      <div>
+        <div class="name">Tier 5</div>
+        <div class="price">$197</div>
+        <ul><li>25,000 credits</li><li>50 inboxes</li><li>Priority API + MCP</li><li>60-day retention</li></ul>
+      </div>
       <a class="cta" style="font-size:.85rem;padding:8px 16px;width:100%" href="https://mail.148.230.103.98.sslip.io/redeem.php">Redeem Code</a>
     </div>
   </div>
@@ -119,6 +215,7 @@ footer a:hover{color:#f8fafc}
   </div>
 </div>
 
-<footer>© 2026 Teak Email · Built for builders & AI agents · <a href="https://mail.148.230.103.98.sslip.io/login.php" style="color:#60a5fa">Client Login</a></footer>
+<footer>© 2026 Teak Email · Built for builders & AI agents · <a href="https://mail.148.230.103.98.sslip.io/login.php" style="color:#60a5fa">Client Login</a> · <a href="https://mail.148.230.103.98.sslip.io/dashboard.php" style="color:#a78bfa">Dashboard</a></footer>
 </body>
 </html>
+
