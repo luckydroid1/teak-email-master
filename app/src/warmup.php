@@ -78,11 +78,13 @@ function warmup_tick(): array {
     }
 
     $sent = 0;
+    $n = count($active);
 
-    // Pair up mailboxes and send between them
-    for ($i = 0; $i < count($active) - 1; $i += 2) {
+    // Ring pairing: each mailbox sends to the next mailbox in the ring
+    for ($i = 0; $i < $n; $i++) {
         $from = $active[$i];
-        $to = $active[$i + 1];
+        $to = $active[($i + 1) % $n];
+        if ($from === $to) continue;
 
         // Generate warmup email
         $subjects = [
@@ -139,5 +141,5 @@ function warmup_tick(): array {
     // Update reputation scores
     $pdo->exec('UPDATE ia_warmup SET score = LEAST(100, emails_sent + emails_received) WHERE enabled = 1');
 
-    return ['ok' => true, 'sent' => $sent, 'pairs' => intdiv(count($active), 2)];
+    return ['ok' => true, 'sent' => $sent, 'active' => $n];
 }

@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['complete_onboarding']
 // Calculate progress
 $steps_done = 1; // Step 1 always done (logged in)
 if ($has_inbox) $steps_done = 2;
-if ($user['onboarding_completed']) $steps_done = 3;
+if (!empty($user['onboarding_completed'])) $steps_done = 3;
 
 page_header('Getting Started', $user);
 ?>
@@ -108,7 +108,7 @@ page_header('Getting Started', $user);
         <p style="margin:0;font-size:.8rem;color:#64748b">Start using Teak Email</p>
       </div>
     </div>
-    <?php if ($steps_done >= 2 && !$user['onboarding_completed']): ?>
+    <?php if ($steps_done >= 2 && empty($user['onboarding_completed'])): ?>
       <p style="font-size:.85rem;color:#94a3b8;margin:8px 0">Your inbox is ready. Go to your dashboard to see incoming emails and extract OTP codes.</p>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
         <a href="/dashboard.php" class="btn" style="text-decoration:none;font-size:.85rem">Go to Dashboard →</a>
@@ -128,19 +128,18 @@ page_header('Getting Started', $user);
   </div>
 
   <!-- Quick links -->
-  <div style="margin-top:24px;padding:16px;background:#1e293b;border-radius:12px;border:1px solid #334155">
-    <p style="font-size:.85rem;color:#64748b;margin-bottom:10px;font-weight:600">Quick Links</p>
-    <div style="display:flex;gap:16px;flex-wrap:wrap">
-      <a href="/api_keys.php" style="color:#3b82f6;font-size:.85rem;text-decoration:none">🔑 API Keys</a>
-      <a href="/mcp_setup.php" style="color:#3b82f6;font-size:.85rem;text-decoration:none">🤖 MCP Setup</a>
-      <a href="/redeem.php" style="color:#3b82f6;font-size:.85rem;text-decoration:none">🎟️ Redeem Code</a>
-      <a href="/privacy.php" style="color:#64748b;font-size:.85rem;text-decoration:none">📄 Privacy</a>
+  <div style="margin-top:24px;padding:16px;background:#111827;border-radius:12px;border:1px solid #1f2937">
+    <p style="font-size:.85rem;color:#94a3b8;margin-bottom:10px;font-weight:600">Explore Key Features</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="/api_keys.php" class="btn btn-sm btn-ghost">🔑 API Keys & Code</a>
+      <a href="/mcp_setup.php" class="btn btn-sm btn-ghost">🤖 MCP Agent Guide</a>
+      <a href="/redeem.php" class="btn btn-sm btn-ghost">🎁 Redeem AppSumo Code</a>
     </div>
   </div>
 
   <!-- Help -->
-  <div style="text-align:center;margin-top:20px">
-    <p style="font-size:.8rem;color:#475569">Need help? <a href="mailto:support@teak.email" style="color:#3b82f6">support@teak.email</a></p>
+  <div style="text-align:center;margin-top:24px">
+    <p style="font-size:.82rem;color:#64748b">Need help with setup? Contact our team at <a href="mailto:support@teak.email" style="color:#60a5fa">support@teak.email</a></p>
   </div>
 
 </div>

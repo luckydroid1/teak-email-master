@@ -30,8 +30,12 @@ function send_email(string $from_email, string $to, string $subject, string $bod
         return ['error' => 'Only 1 recipient allowed per message'];
     }
 
-    // Block CC/BCC in headers
-    $blocked_headers = ['cc:', 'bcc:'];
+    // Outbound rate limiting (max 15 emails per hour per mailbox to protect IP reputation)
+    require_once __DIR__ . '/abuse.php';
+    $uid = $_SESSION['uid'] ?? 0;
+    if (!rate_limit_check("send_user:$uid", 20) || !rate_limit_check("send_mb:$from_email", 15)) {
+        return ['error' => 'Outbound rate limit exceeded (max 15 emails/hr). Please try again later.'];
+    }
 
     // Build email
     [$local_part, $domain] = explode('@', $from_email, 2);

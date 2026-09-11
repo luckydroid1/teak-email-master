@@ -11,11 +11,15 @@ require_once __DIR__ . '/../src/credits.php';
 $user = require_login();
 $error = $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $res = redeem_code((int)$user['id'], $_POST['code'] ?? '');
-    if (isset($res['error'])) {
-        $error = $res['error'];
+    if (!csrf_validate()) {
+        $error = 'Invalid form submission. Please try again.';
     } else {
-        $success = "Code redeemed! Tier $res[tier] — " . number_format($res['credits']) . " credits added. Balance: " . number_format($res['balance']);
+        $res = redeem_code((int)$user['id'], $_POST['code'] ?? '');
+        if (isset($res['error'])) {
+            $error = $res['error'];
+        } else {
+            $success = "Code redeemed! Tier $res[tier] — " . number_format($res['credits']) . " credits added. Balance: " . number_format($res['balance']);
+        }
     }
 }
 
@@ -26,10 +30,11 @@ alert($error, $success);
 <div class="card" style="max-width:440px;margin:40px auto">
   <h2>Redeem AppSumo Code</h2>
   <p class="sub">Enter the code you received from AppSumo to activate your lifetime access + credits.</p>
-  <form method="post">
+  <form method="post" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Redeeming...';b.disabled=true;}">
+    <?php csrf_field(); ?>
     <label>License Code</label>
     <input type="text" name="code" placeholder="AS-XXXXXXXXXXXX" required style="text-transform:uppercase" autofocus>
-    <button class="btn" style="width:100%" onclick="this.textContent='Redeeming...';this.disabled=true;this.form.submit()">Redeem Code</button>
+    <button type="submit" class="btn" style="width:100%">Redeem Code</button>
   </form>
   <p style="margin-top:14px;font-size:.8rem;color:#64748b">Current balance: <span class="mono"><?= number_format(credit_balance((int)$user['id'])) ?> credits</span></p>
 </div>

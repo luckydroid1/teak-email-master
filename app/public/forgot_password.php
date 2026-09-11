@@ -36,19 +36,24 @@ require_once __DIR__ . '/_layout.php';
 page_header('Forgot Password');
 alert($error, $success);
 ?>
-<div class="card" style="max-width:400px;margin:40px auto">
-  <h2>Forgot Password</h2>
-  <p class="sub">Enter your email address and we'll send you a link to reset your password.</p>
+<div class="card card-highlight" style="max-width:420px;margin:48px auto">
+  <div style="text-align:center;margin-bottom:16px">
+    <div style="font-size:2rem;margin-bottom:4px">🔑</div>
+    <h2 style="font-size:1.3rem;margin-bottom:2px">Reset Password</h2>
+    <p class="sub" style="margin:0">We will email you a secure link to reset your password</p>
+  </div>
   <?php if ($success): ?>
-    <p style="text-align:center;margin-top:14px"><a href="/login.php" class="btn">Back to Login</a></p>
+    <div style="text-align:center;margin-top:14px">
+      <a href="/login.php" class="btn">Return to Log In →</a>
+    </div>
   <?php else: ?>
-    <form method="post">
+    <form method="post" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Sending Link...';b.disabled=true;}">
       <?php csrf_field(); ?>
-      <label for="fp-email">Email</label>
-      <input type="email" name="email" id="fp-email" required autofocus placeholder="you@example.com" autocomplete="email">
-      <button class="btn" style="width:100%" onclick="this.textContent='Sending...';this.disabled=true;this.form.submit()">Send Reset Link</button>
+      <label for="fp-email">Account Email</label>
+      <input type="email" name="email" id="fp-email" required autofocus placeholder="name@example.com" autocomplete="email">
+      <button type="submit" class="btn" style="width:100%">Send Reset Link →</button>
     </form>
-    <p style="text-align:center;margin-top:14px;font-size:.85rem;color:#64748b">Remember your password? <a href="/login.php" style="color:#3b82f6">Login</a></p>
+    <p style="text-align:center;margin-top:16px;font-size:.85rem;color:#94a3b8">Remember your password? <a href="/login.php" style="color:#60a5fa;font-weight:600">Log In</a></p>
   <?php endif; ?>
 </div>
 <?php page_footer(); ?>

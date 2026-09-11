@@ -14,12 +14,23 @@ function cfg(): array {
 
 function db(): PDO {
     static $pdo = null;
+    try {
+        if ($pdo !== null) {
+            // Quick ping to check if connection is alive
+            $pdo->query('SELECT 1');
+            return $pdo;
+        }
+    } catch (\Throwable $e) {
+        $pdo = null;
+    }
+
     if ($pdo === null) {
         $c = cfg()['db'];
         $pdo = new PDO($c['dsn'], $c['user'], $c['pass'], [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_TIMEOUT            => 5,
         ]);
     }
     return $pdo;

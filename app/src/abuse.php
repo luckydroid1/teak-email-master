@@ -85,6 +85,12 @@ function honeypot_hit(string $email_address): bool {
     return in_array($lp, cfg()['honeypots'], true);
 }
 
+/** Inbound flood check: limit high-frequency incoming mail spam. */
+function abuse_check_inbound_flood(string $email_address): bool {
+    $bucket = 'inbound:' . strtolower(trim($email_address));
+    return rate_limit_check($bucket, 180);
+}
+
 /** Audit log helper. */
 function audit(?int $uid, string $action, string $ip = '', string $detail = ''): void {
     if ($ip === '') {

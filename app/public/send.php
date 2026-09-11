@@ -57,25 +57,31 @@ page_header('Send Email', $user);
   <a href="/dashboard.php" class="back">← Back to Dashboard</a>
 
   <div style="text-align:center;margin-bottom:20px">
-    <h1 style="font-size:1.4rem;margin-bottom:4px">✉️ Send Email</h1>
-    <p class="sub" style="margin:0">Send from any of your inboxes. 1 recipient only.</p>
+    <h1 style="font-size:1.5rem;margin-bottom:4px">✉️ Compose Email</h1>
+    <p class="sub" style="margin:0">Send an email from your verified clean inbox (1 recipient per message).</p>
   </div>
 
   <?php alert($error, $success); ?>
 
+  <?php if ($success): ?>
+    <div style="text-align:center;margin-bottom:16px">
+      <a href="/sent.php" class="btn btn-sm btn-ghost">📬 View in Sent Box →</a>
+    </div>
+  <?php endif; ?>
+
   <?php if (empty($inboxes)): ?>
-    <div class="card">
-      <p style="color:#94a3b8">You don't have any inboxes yet.</p>
-      <a href="/inboxes.php" class="btn" style="margin-top:12px">Create Inbox</a>
+    <div class="card" style="text-align:center;padding:30px">
+      <p style="color:#94a3b8">You don't have any inboxes yet to send from.</p>
+      <a href="/inboxes.php" class="btn" style="margin-top:12px">Create an Inbox First →</a>
     </div>
   <?php else: ?>
   <div class="card">
-    <form method="post">
+    <form method="post" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Sending Email...';b.disabled=true;}">
       <?php csrf_field(); ?>
       <input type="hidden" name="send" value="1">
 
-      <label>From</label>
-      <select name="from" required style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px">
+      <label>From (Sending Inbox)</label>
+      <select name="from" required style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #374151;background:#0a0e1a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px">
         <?php foreach ($inboxes as $in): ?>
           <option value="<?= htmlspecialchars($in['email_address']) ?>" <?= $from === $in['email_address'] ? 'selected' : '' ?>>
             <?= htmlspecialchars($in['email_address']) ?>
@@ -83,23 +89,23 @@ page_header('Send Email', $user);
         <?php endforeach; ?>
       </select>
 
-      <label>To</label>
-      <input type="email" name="to" value="<?= htmlspecialchars($to) ?>" required placeholder="recipient@example.com"
-             style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px">
+      <label>To (Recipient Address)</label>
+      <input type="email" name="to" value="<?= htmlspecialchars($to) ?>" required placeholder="user@company.com"
+             style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #374151;background:#0a0e1a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px">
 
       <label>Subject</label>
-      <input type="text" name="subject" value="<?= htmlspecialchars($subject) ?>" required placeholder="Your email subject"
-             style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px">
+      <input type="text" name="subject" value="<?= htmlspecialchars($subject) ?>" required placeholder="Regarding our conversation..."
+             style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #374151;background:#0a0e1a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px">
 
-      <label>Message</label>
-      <textarea name="body" required rows="8" placeholder="Type your message..."
-                style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px;resize:vertical;font-family:inherit"><?= htmlspecialchars($body) ?></textarea>
+      <label>Message Body</label>
+      <textarea name="body" required rows="8" placeholder="Write your message here..."
+                style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #374151;background:#0a0e1a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px;resize:vertical;font-family:inherit"><?= htmlspecialchars($body) ?></textarea>
 
-      <button type="submit" class="btn" style="width:100%" onclick="this.textContent='Sending...';this.disabled=true;this.form.submit()">Send Email</button>
+      <button type="submit" class="btn" style="width:100%">🚀 Send Message</button>
     </form>
 
-    <p style="font-size:.75rem;color:#475569;margin-top:12px;text-align:center">
-      ⚠️ Limited to 1 recipient per message. No CC/BCC allowed.
+    <p style="font-size:.75rem;color:#64748b;margin-top:12px;text-align:center">
+      ℹ️ Clean sending reputation policy: 1 recipient per message. Bulk/spam sending is automatically throttled.
     </p>
   </div>
   <?php endif; ?>

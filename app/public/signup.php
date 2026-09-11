@@ -29,25 +29,33 @@ require_once __DIR__ . '/_layout.php';
 page_header('Sign Up');
 alert($error, null);
 ?>
-<div class="card" style="max-width:400px;margin:40px auto">
-  <h2>Create Account</h2>
-  <p class="sub">Free to start. Redeem your AppSumo code after verifying.</p>
-  <form method="post" id="signup-form">
+<div class="card card-highlight" style="max-width:420px;margin:48px auto">
+  <div style="text-align:center;margin-bottom:16px">
+    <div style="font-size:2rem;margin-bottom:4px">🚀</div>
+    <h2 style="font-size:1.3rem;margin-bottom:2px">Create Account</h2>
+    <p class="sub" style="margin:0">Instant access to clean inboxes & developer API</p>
+  </div>
+
+  <form method="post" id="signup-form" onsubmit="const b=document.getElementById('signup-btn');if(b){b.textContent='Creating account...';b.disabled=true;}">
     <?php csrf_field(); ?>
-    <label for="su-email">Email</label>
-    <input type="email" name="email" id="su-email" required autofocus autocomplete="email">
+    <label for="su-email">Email Address</label>
+    <input type="email" name="email" id="su-email" required autofocus autocomplete="email" placeholder="name@example.com">
+    
     <label for="su-password">Password</label>
-    <div style="position:relative">
-      <input type="password" name="password" id="su-password" required minlength="8" autocomplete="new-password" style="padding-right:50px">
-      <button type="button" onclick="const p=document.getElementById('su-password');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'Show':'Hide'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#6b7280;font-size:.78rem;cursor:pointer;padding:4px">Show</button>
+    <div style="position:relative;margin-bottom:4px">
+      <input type="password" name="password" id="su-password" required minlength="8" autocomplete="new-password" placeholder="••••••••" style="padding-right:50px;margin-bottom:0">
+      <button type="button" onclick="const p=document.getElementById('su-password');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'Show':'Hide'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;font-size:.78rem;cursor:pointer;padding:4px;font-weight:600">Show</button>
     </div>
-    <p style="font-size:.75rem;color:#64748b;margin:-6px 0 12px">Minimum 8 characters</p>
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 14px">Minimum 8 characters (letters, numbers, symbols)</p>
+    
     <!-- Honeypot: bots fill this, humans don't see it -->
     <div style="position:absolute;left:-9999px" aria-hidden="true">
       <input type="text" name="website_url" tabindex="-1" autocomplete="off">
     </div>
-    <button class="btn" style="width:100%" id="signup-btn" onclick="this.textContent='Creating account...';this.disabled=true;this.form.submit()">Sign Up</button>
+    
+    <button type="submit" class="btn" style="width:100%" id="signup-btn">Create Free Account →</button>
   </form>
-  <p style="text-align:center;margin-top:14px;font-size:.85rem;color:#64748b">Already have an account? <a href="/login.php" style="color:#3b82f6">Login</a></p>
+  
+  <p style="text-align:center;margin-top:16px;font-size:.85rem;color:#94a3b8">Already have an account? <a href="/login.php" style="color:#60a5fa;font-weight:600">Log In</a></p>
 </div>
 <?php page_footer(); ?>

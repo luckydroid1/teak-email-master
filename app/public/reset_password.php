@@ -63,24 +63,24 @@ alert($error, $success);
     <h2>Password Reset Complete</h2>
     <p style="text-align:center;margin:12px 0;color:#86efac">Your password has been updated.</p>
     <p style="text-align:center;margin-top:14px"><a href="/login.php" class="btn">Login with New Password</a></p>
-  <?php elseif ($error && !$token_row): ?>
+  <?php elseif ($error && empty($token_row)): ?>
     <h2>Reset Failed</h2>
     <p style="text-align:center;margin:12px 0">
       <a href="/forgot_password.php" class="btn">Request New Reset Link</a>
     </p>
   <?php else: ?>
     <h2>Set New Password</h2>
-    <form method="post">
+    <form method="post" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Resetting Password...';b.disabled=true;}">
       <?php csrf_field(); ?>
       <label for="rp-password">New Password</label>
       <div style="position:relative">
         <input type="password" name="password" id="rp-password" required minlength="8" autofocus placeholder="At least 8 characters" autocomplete="new-password" style="padding-right:50px">
-        <button type="button" onclick="const p=document.getElementById('rp-password');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'Show':'Hide'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#6b7280;font-size:.78rem;cursor:pointer;padding:4px">Show</button>
+        <button type="button" onclick="const p=document.getElementById('rp-password');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'Show':'Hide'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;font-size:.78rem;cursor:pointer;padding:4px;font-weight:600">Show</button>
       </div>
-      <p style="font-size:.75rem;color:#64748b;margin:-6px 0 12px">Minimum 8 characters</p>
+      <p style="font-size:.75rem;color:#94a3b8;margin:-6px 0 12px">Minimum 8 characters</p>
       <label for="rp-password2">Confirm New Password</label>
-      <input type="password" name="password2" id="rp-password2" required minlength="8" placeholder="Re-enter password" autocomplete="new-password">
-      <button class="btn" style="width:100%" onclick="this.textContent='Resetting...';this.disabled=true;this.form.submit()">Reset Password</button>
+      <input type="password" name="password2" id="rp-password2" required minlength="8" placeholder="Re-enter new password" autocomplete="new-password">
+      <button type="submit" class="btn" style="width:100%">Save New Password →</button>
     </form>
     <p style="text-align:center;margin-top:14px;font-size:.85rem;color:#64748b"><a href="/login.php" style="color:#3b82f6">Back to Login</a></p>
   <?php endif; ?>

@@ -9,7 +9,6 @@ require_once __DIR__ . '/../src/resellerclub.php';
 require_once __DIR__ . '/../src/mailcow.php';
 
 $user = require_login();
-if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
 $error = $success = '';
 $results = [];
 $buying = false;
@@ -17,14 +16,17 @@ $configured = resellerclub_configured();
 
 // Handle domain check
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_domain'])) {
-    if (($_POST['csrf'] ?? '') !== ($_SESSION['csrf'] ?? '')) {
+    if (!csrf_validate()) {
         $error = 'Invalid request. Please try again.';
     } else {
         $name = strtolower(trim($_POST['domain_name'] ?? ''));
+        $tld = strtolower(trim($_POST['tld'] ?? 'com'));
         if (empty($name) || !preg_match('/^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/', $name)) {
             $error = 'Invalid domain name. Use lowercase letters, numbers, and hyphens.';
         } else {
-            $results = domain_check($name);
+            $tlds_to_check = $tld ? [$tld, 'com', 'net', 'org', 'io', 'co'] : ['com', 'net', 'org', 'io', 'co'];
+            $tlds_to_check = array_values(array_unique($tlds_to_check));
+            $results = domain_check($name, $tlds_to_check);
             if (empty($results)) {
                 $error = 'Could not check domain availability. Please try again.';
             }
@@ -34,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_domain'])) {
 
 // Handle domain purchase
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_domain'])) {
-    if (($_POST['csrf'] ?? '') !== ($_SESSION['csrf'] ?? '')) {
+    if (!csrf_validate()) {
         $error = 'Invalid request. Please try again.';
     } else {
         $buying = true;
@@ -91,7 +93,7 @@ page_header('Buy Domain', $user);
   <div class="card" style="border-left:4px solid #3b82f6">
     <h3 style="margin:0 0 8px;font-size:1rem">🔍 Search Domain</h3>
     <form method="post" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap">
-      <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf'] ?? '') ?>">
+      <?php csrf_field(); ?>
       <input type="hidden" name="check_domain" value="1">
       <div style="flex:1;min-width:200px">
         <label style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">Domain name</label>
@@ -132,7 +134,7 @@ page_header('Buy Domain', $user);
       </div>
       <?php if ($r['available']): ?>
       <form method="post" style="margin:0">
-        <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf'] ?? '') ?>">
+        <?php csrf_field(); ?>
         <input type="hidden" name="buy_domain" value="1">
         <input type="hidden" name="domain" value="<?= htmlspecialchars($r['domain']) ?>">
         <button type="submit" class="btn btn-success" onclick="return confirm('Buy <?= htmlspecialchars($r['domain']) ?>?')">

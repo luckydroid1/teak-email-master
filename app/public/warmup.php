@@ -15,15 +15,19 @@ $error = $success = '';
 
 // Handle start/stop warmup
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    if (!inbox_owned($uid, $email)) {
-        $error = 'Inbox not found';
-    } elseif (isset($_POST['start_warmup'])) {
-        $res = warmup_start($email);
-        $res['ok'] ? $success = "Warmup started for $email" : $error = $res['error'];
-    } elseif (isset($_POST['stop_warmup'])) {
-        warmup_stop($email);
-        $success = "Warmup paused for $email";
+    if (!csrf_validate()) {
+        $error = 'Invalid form submission. Please try again.';
+    } else {
+        $email = $_POST['email'] ?? '';
+        if (!inbox_owned($uid, $email)) {
+            $error = 'Inbox not found';
+        } elseif (isset($_POST['start_warmup'])) {
+            $res = warmup_start($email);
+            $res['ok'] ? $success = "Warmup started for $email" : $error = $res['error'];
+        } elseif (isset($_POST['stop_warmup'])) {
+            warmup_stop($email);
+            $success = "Warmup paused for $email";
+        }
     }
 }
 
@@ -87,12 +91,14 @@ page_header('Email Warmup', $user);
       </div>
       <div>
         <?php if ($status['enabled']): ?>
-          <form method="post" style="display:inline">
+          <form method="post" style="display:inline" onsubmit="const b=this.querySelector('button');if(b){b.textContent='Pausing...';b.disabled=true;}">
+            <?php csrf_field(); ?>
             <input type="hidden" name="email" value="<?= htmlspecialchars($in['email_address']) ?>">
-            <button type="submit" name="stop_warmup" style="background:#7f1d1d;color:#fca5a5;padding:6px 14px;border-radius:6px;border:none;font-size:.8rem;cursor:pointer" onclick="this.textContent='Pausing...';this.disabled=true;this.form.submit()">Pause Warmup</button>
+            <button type="submit" name="stop_warmup" style="background:#7f1d1d;color:#fca5a5;padding:6px 14px;border-radius:6px;border:none;font-size:.8rem;cursor:pointer">Pause Warmup</button>
           </form>
         <?php else: ?>
-          <form method="post" style="display:inline">
+          <form method="post" style="display:inline" onsubmit="const b=this.querySelector('button');if(b){b.textContent='Starting...';b.disabled=true;}">
+            <?php csrf_field(); ?>
             <input type="hidden" name="email" value="<?= htmlspecialchars($in['email_address']) ?>">
             <button type="submit" name="start_warmup" style="background:#14532d;color:#86efac;padding:6px 14px;border-radius:6px;border:none;font-size:.8rem;cursor:pointer">Start Warmup</button>
           </form>

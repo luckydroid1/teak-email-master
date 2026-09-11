@@ -36,9 +36,10 @@ function mailcow_create_mailbox(string $email, string $password, string $name = 
         $pdo->rollBack();
         $msg = $e->getMessage();
         if (strpos($msg, 'Duplicate entry') !== false) {
-            return ['error' => 'Mailbox already exists'];
+            $suggestion = $lp . '-' . rand(11, 99);
+            return ['error' => "The email '$email' is already taken. Try '$suggestion@$dom' or choose a different name."];
         }
-        return ['error' => 'Failed to create mailbox'];
+        return ['error' => 'Failed to create mailbox: ' . $msg];
     }
 }
 
@@ -46,6 +47,14 @@ function mailcow_delete_mailbox(string $email): void {
     $pdo = db();
     $pdo->prepare('DELETE FROM mailbox WHERE username = ?')->execute([$email]);
     $pdo->prepare('DELETE FROM sender_acl WHERE logged_in_as = ?')->execute([$email]);
+}
+
+/** Reset password for an existing mailbox. */
+function mailcow_reset_mailbox_password(string $email, string $new_password): bool {
+    $hash = password_hash($new_password, PASSWORD_BCRYPT);
+    $pdo = db();
+    $st = $pdo->prepare('UPDATE mailbox SET password = ? WHERE username = ?');
+    return $st->execute(["{BLF-CRYPT}$hash", $email]);
 }
 
 /** Check if domain exists in Mailcow. */
@@ -162,20 +171,19 @@ function mailcow_parse_email_file(string $filepath): ?array {
     // uid = crc32 of filename (stable, matches doveadm convention)
     $uid = (string)(crc32(basename($filepath)) & 0x7FFFFFFF);
 
-    // Parse headers (up to first blank line)
+    // Parse headers & body cleanly
+    $parts = preg_split('/\r?\n\r?\n/', $raw, 2);
+    $header_text = $parts[0] ?? '';
+    $body = $parts[1] ?? '';
+
     $headers = [];
-    $lines = preg_split('/\r?\n/', $raw);
+    $lines = preg_split('/\r?\n/', $header_text);
     foreach ($lines as $line) {
-        if ($line === '') break; // end of headers
         if (preg_match('/^(\S+?):\s*(.*)$/', $line, $m)) {
             $k = strtolower($m[1]);
             $headers[$k] = $m[2];
         }
     }
-
-    // Get body (after first blank line)
-    $bodyPos = strpos($raw, "\n\n");
-    $body = $bodyPos !== false ? substr($raw, $bodyPos + 2) : '';
 
     return [
         'uid'     => $uid,

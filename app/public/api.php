@@ -33,6 +33,27 @@ function api_json(array $data, int $code = 200): void {
     exit;
 }
 
+// Route dari PATH_INFO
+$path = $_SERVER['PATH_INFO'] ?? '/';
+$parts = array_values(array_filter(explode('/', $path), fn($p) => $p !== ''));
+$method = $_SERVER['REQUEST_METHOD'];
+$segment = $parts[0] ?? '';
+
+// Public Healthcheck Endpoint (no auth required)
+if ($segment === 'healthz') {
+    $db_ok = false;
+    try {
+        db()->query('SELECT 1');
+        $db_ok = true;
+    } catch (\Throwable $e) {}
+    api_json([
+        'status' => $db_ok ? 'healthy' : 'degraded',
+        'database' => $db_ok ? 'connected' : 'disconnected',
+        'timestamp' => time(),
+        'version' => '1.0.0'
+    ], $db_ok ? 200 : 503);
+}
+
 // Parse Authorization header
 $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 if ($auth === '' && function_exists('getallheaders')) {
@@ -50,13 +71,6 @@ if (!$res) {
 }
 $user = $res['user'];
 $uid = (int)$user['id'];
-
-// Route dari PATH_INFO: /inboxes/... 
-$path = $_SERVER['PATH_INFO'] ?? '/';
-$parts = array_values(array_filter(explode('/', $path), fn($p) => $p !== ''));
-$method = $_SERVER['REQUEST_METHOD'];
-
-$segment = $parts[0] ?? '';
 
 switch ($segment) {
     case 'inboxes':
@@ -99,6 +113,34 @@ switch ($segment) {
             $res = inbox_otp($uid, $email, $uid_num);
             if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
             api_json(['ok' => true, 'email' => $res['email'], 'uid' => $res['uid'], 'otp' => $res['otp'], 'text' => $res['text']]);
+        }
+
+        if ($sub === 'export' && $method === 'GET') {
+            $inbox = inbox_owned($uid, $email);
+            if (!$inbox) api_json(['error' => 'Inbox not found'], 404);
+            $all_messages = mailcow_fetch_inbox($email);
+            require_once __DIR__ . '/../src/otp.php';
+            $export_list = [];
+            foreach ($all_messages as $m) {
+                $uid_num = (int)$m['uid'];
+                $raw = mailcow_fetch_message($email, $uid_num);
+                $parsed = extract_otp($raw ?? '');
+                $export_list[] = [
+                    'uid' => $uid_num,
+                    'from' => $m['from'] ?? '',
+                    'subject' => $m['subject'] ?? '',
+                    'date' => $m['date'] ?? '',
+                    'otp' => $parsed['otp'],
+                    'raw' => $raw
+                ];
+            }
+            api_json([
+                'ok' => true,
+                'inbox' => $email,
+                'exported_at' => date('c'),
+                'total_emails' => count($all_messages),
+                'messages' => $export_list
+            ]);
         }
 
         if ($method === 'DELETE' && $sub === '') {

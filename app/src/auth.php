@@ -13,7 +13,7 @@ function start_session(): void {
     if (headers_sent()) return;
     ini_set('session.cookie_httponly', '1');
     ini_set('session.cookie_secure', '1');
-    ini_set('session.cookie_samesite', 'Strict');
+    ini_set('session.cookie_samesite', 'Lax');
     ini_set('session.gc_maxlifetime', '7200');
     ini_set('session.use_strict_mode', '1');
     session_name(cfg()['session_name']);
@@ -27,7 +27,7 @@ function start_session(): void {
             'path'     => '/',
             'secure'   => true,
             'httponly'  => true,
-            'samesite' => 'Strict',
+            'samesite' => 'Lax',
         ]);
     }
     session_start();
@@ -134,19 +134,23 @@ function send_verify_email(string $to, string $token): void {
 
 /** Send email from Mailcow mailbox via SMTP to local Postfix (127.0.0.1:25). */
 function mail_send(string $to, string $subject, string $body): void {
-    $from = 'no-reply@teak.email';
+    $app_url = cfg()['app_url'] ?? 'https://teak.email';
+    $host = parse_url($app_url, PHP_URL_HOST) ?: 'teak.email';
+    $from = 'no-reply@' . $host;
     $msg  = "From: Teak Email <$from>\r\n";
     $msg .= "To: <$to>\r\n";
     $msg .= "Subject: $subject\r\n";
     $msg .= "Content-Type: text/plain; charset=UTF-8\r\n";
     $msg .= "Date: " . date('r') . "\r\n";
-    $msg .= "Message-ID: <" . bin2hex(random_bytes(8)) . "@teak.email>\r\n";
+    $msg .= "Message-ID: <" . bin2hex(random_bytes(8)) . "@$host>\r\n";
     $msg .= "\r\n$body";
     smtp_send('127.0.0.1', 25, $from, $to, $msg);
 }
 
 /** Minimal SMTP client (tanpa library) — kirim ke Postfix Mailcow lokal. */
 function smtp_send(string $host, int $port, string $from, string $to, string $data): bool {
+    $app_url = cfg()['app_url'] ?? 'https://teak.email';
+    $ehlo_domain = parse_url($app_url, PHP_URL_HOST) ?: 'teak.email';
     $sock = @fsockopen($host, $port, $errno, $errstr, 10);
     if (!$sock) return false;
     $read = function () use ($sock) {
@@ -166,7 +170,7 @@ function smtp_send(string $host, int $port, string $from, string $to, string $da
 
     $r = $read(); // 220 banner
     if (substr($r, 0, 3) !== '220') { fclose($sock); return false; }
-    $r = $cmd("EHLO teak.email");
+    $r = $cmd("EHLO $ehlo_domain");
     if (substr($r, 0, 3) !== '250') { fclose($sock); return false; }
     $r = $cmd("MAIL FROM:<$from>");
     if (substr($r, 0, 3) !== '250') { fclose($sock); return false; }
@@ -235,8 +239,12 @@ function csrf_validate(): bool {
     $stored = $_SESSION['csrf_token'] ?? '';
     if ($token === '' || $stored === '') return false;
     $valid = hash_equals($stored, $token);
-    // Rotate token after validation to prevent replay
+    if (!$valid && !empty($_SESSION['prev_csrf_token'])) {
+        $valid = hash_equals($_SESSION['prev_csrf_token'], $token);
+    }
+    // Graceful rotation: save current as prev token so open tabs don't desync
     if ($valid) {
+        $_SESSION['prev_csrf_token'] = $_SESSION['csrf_token'];
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $valid;
