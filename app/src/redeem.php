@@ -8,13 +8,13 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/credits.php';
 require_once __DIR__ . '/auth.php';
 
-/** Tier table: [credits, inbox_slots, domains, api_full, retention_days] */
+/** Tier table: [credits, inbox_slots, domains, api_full, retention_days, price_usd] */
 const TIER_TABLE = [
-    1 => ['credits' => 1000,  'inbox_slots' => 1,  'domains' => 1,  'api' => 'basic',  'retention' => 7],
-    2 => ['credits' => 2500,  'inbox_slots' => 3,  'domains' => 1,  'api' => 'basic',  'retention' => 14],
-    3 => ['credits' => 6000,  'inbox_slots' => 8,  'domains' => 2,  'api' => 'full',   'retention' => 30],
-    4 => ['credits' => 12000, 'inbox_slots' => 20, 'domains' => 5,  'api' => 'full',   'retention' => 45],
-    5 => ['credits' => 25000, 'inbox_slots' => 50, 'domains' => 10, 'api' => 'full',   'retention' => 60],
+    1 => ['price' => 1,  'credits' => 3000,   'inbox_slots' => 3,   'domains' => 1,  'api' => 'basic',  'retention' => 7],
+    2 => ['price' => 7,  'credits' => 25000,  'inbox_slots' => 25,  'domains' => 3,  'api' => 'full',   'retention' => 14],
+    3 => ['price' => 17, 'credits' => 70000,  'inbox_slots' => 70,  'domains' => 5,  'api' => 'full',   'retention' => 30],
+    4 => ['price' => 27, 'credits' => 125000, 'inbox_slots' => 125, 'domains' => 10, 'api' => 'full',   'retention' => 45],
+    5 => ['price' => 37, 'credits' => 190000, 'inbox_slots' => 190, 'domains' => 20, 'api' => 'full',   'retention' => 60],
 ];
 
 function tier_info(int $tier): ?array {

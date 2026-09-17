@@ -26,13 +26,13 @@ Create fresh email inboxes in 2 clicks — use them yourself or with your AI age
 ## 6. Pricing (5 tiers)
 | Tier | Price | Included Credits | Inboxes | Domains | API | Retention |
 |------|-------|-----------------|---------|---------|-----|-----------|
-| Tier 1 | $37 | 1,000 | 1 | 1 | Basic | 7 days |
-| Tier 2 | $67 | 2,500 | 3 | 1 | Basic | 14 days |
-| Tier 3 | $97 | 6,000 | 8 | 2 | Full | 30 days |
-| Tier 4 | $147 | 12,000 | 20 | 5 | Full | 45 days |
-| Tier 5 | $197 | 25,000 | 50 | 10 | Full + Priority | 60 days |
+| Tier 1 | $1 | 3,000 | 3 | 1 | Basic | 7 days |
+| Tier 2 | $7 | 25,000 | 25 | 3 | Full | 14 days |
+| Tier 3 | $17 | 70,000 | 70 | 5 | Full | 30 days |
+| Tier 4 | $27 | 125,000 | 125 | 10 | Full | 45 days |
+| Tier 5 | $37 | 190,000 | 190 | 20 | Full + Priority | 60 days |
 
-**Badges:** Tier 3 = "Most Popular" · Tier 5 = "Best Value"
+**Badges:** Tier 2 = "Most Popular" · Tier 5 = "Best Value"
 **All tiers include:** Lifetime platform access · Non-expiring credits · No monthly fee · Top-up optional.
 
 ## 7. How This Lifetime Deal Works

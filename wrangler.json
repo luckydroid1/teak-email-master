@@ -1,7 +1,7 @@
 {
   "name": "teak-email-master",
+  "main": "worker.js",
   "compatibility_date": "2024-09-23",
-  "assets": {
-    "directory": "./app/public"
-  }
+  "account_id": "166ae3be334423046a949c91d88b6a8f",
+  "workers_dev": true
 }
