@@ -130,20 +130,31 @@ if ($new_email):
       </div>
       <?php endif; ?>
       
-      <label>Choose Clean Domain</label>
+      <label>Choose Domain</label>
       <select name="domain" required>
-        <?php foreach ($eligible['all'] as $d): ?>
-          <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?> (Clean & DKIM/SPF Ready)</option>
-        <?php endforeach; ?>
+        <?php if (!empty($eligible['pool'])): ?>
+          <optgroup label="🌐 Shared Domain Pool (DKIM/SPF Configured)">
+            <?php foreach ($eligible['pool'] as $d): ?>
+              <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
+            <?php endforeach; ?>
+          </optgroup>
+        <?php endif; ?>
+        <?php if (!empty($eligible['custom'])): ?>
+          <optgroup label="🔒 Your Verified Custom Domains">
+            <?php foreach ($eligible['custom'] as $d): ?>
+              <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
+            <?php endforeach; ?>
+          </optgroup>
+        <?php endif; ?>
       </select>
-      
+
       <label>Username / Local Part</label>
       <input type="text" name="local_part" placeholder="e.g. support, orders.2026, bot-01" required pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]" title="Lowercase letters, numbers, dots, hyphens" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')" autofocus>
-      
+
       <div style="background:#0a0e1a;padding:10px 12px;border-radius:8px;border:1px solid #1f2937;margin-bottom:14px;font-size:.78rem;color:#94a3b8">
         ⚡ Balance: <strong style="color:#60a5fa"><?= number_format($balance) ?> credits</strong> · Monthly rent: 60 credits/inbox
       </div>
-      
+
       <button type="submit" class="btn" style="width:100%">⚡ Create Instant Inbox</button>
     </form>
     <?php endif; ?>
@@ -174,20 +185,20 @@ if ($new_email):
             </div>
             <div class="m">Retention: <?= (int)$in['retention_days'] ?>d · Exp: <?= htmlspecialchars($in['expires_at'] ?? 'Permanent') ?></div>
           </div>
-          <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
-            <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-success">View</a>
-            <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm" style="background:#2563eb">Send</a>
-            
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px">
+            <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-success" style="padding:6px 12px">View</a>
+            <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm" style="background:#2563eb;padding:6px 12px">Send</a>
+
             <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Reset mailbox password for <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?>?')">
               <?php csrf_field(); ?>
               <input type="hidden" name="reset_password_email" value="<?= htmlspecialchars($in['email_address']) ?>">
-              <button type="submit" class="btn-sm btn-ghost" title="Reset Mailbox Password">🔑</button>
+              <button type="submit" class="btn-sm btn-ghost" style="padding:6px 10px" title="Reset Mailbox Password">🔑 Reset</button>
             </form>
 
             <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Permanently delete <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?> and all its emails?')">
               <?php csrf_field(); ?>
               <input type="hidden" name="delete_email" value="<?= htmlspecialchars($in['email_address']) ?>">
-              <button type="submit" class="btn-danger">✕</button>
+              <button type="submit" class="btn-danger" style="padding:6px 10px" title="Delete Inbox">🗑️ Delete</button>
             </form>
           </div>
         </div>

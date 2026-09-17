@@ -13,19 +13,38 @@ function page_header(string $title, array $user = null): void {
         $uid = (int)$user['id'];
         $balance = function_exists('credit_balance') ? credit_balance($uid) : 0;
         $tier = function_exists('user_tier') ? user_tier($uid) : 1;
-        
+
+        $isDashboard = ($currentPage === 'dashboard.php');
+        $isInboxes = in_array($currentPage, ['inboxes.php', 'inbox_view.php'], true);
+        $isSend = ($currentPage === 'send.php');
+        $isSent = ($currentPage === 'sent.php');
+        $isWarmup = ($currentPage === 'warmup.php');
+        $isDomains = ($currentPage === 'domains.php');
+        $isBuyDomain = ($currentPage === 'buy-domain.php');
+        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
+
         $nav = '<nav class="topnav">
             <div class="nav-inner">
                 <a href="/dashboard.php" class="nav-brand">📬 Teak Email</a>
-                <div class="nav-links">
-                    <a href="/dashboard.php" class="nav-link' . ($currentPage === 'dashboard.php' ? ' active' : '') . '">Dashboard</a>
-                    <a href="/inboxes.php" class="nav-link' . ($currentPage === 'inboxes.php' ? ' active' : '') . '">My Inboxes</a>
-                    <a href="/send.php" class="nav-link' . ($currentPage === 'send.php' ? ' active' : '') . '">Send Email</a>
-                    <a href="/sent.php" class="nav-link' . ($currentPage === 'sent.php' ? ' active' : '') . '">Sent</a>
-                    <a href="/warmup.php" class="nav-link' . ($currentPage === 'warmup.php' ? ' active' : '') . '">Warmup</a>
-                    <a href="/domains.php" class="nav-link' . ($currentPage === 'domains.php' ? ' active' : '') . '">Domains</a>
-                    <a href="/buy-domain.php" class="nav-link' . ($currentPage === 'buy-domain.php' ? ' active' : '') . '">Buy Domain</a>
-                    <a href="/api_keys.php" class="nav-link' . ($currentPage === 'api_keys.php' ? ' active' : '') . '">API Keys</a>
+                <div class="nav-links" id="main-nav-links">
+                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
+                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
+                    <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
+                    <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">Sent</a>
+                    <a href="/warmup.php" class="nav-link' . ($isWarmup ? ' active' : '') . '">Warmup</a>
+                    <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
+                    <a href="/buy-domain.php" class="nav-link' . ($isBuyDomain ? ' active' : '') . '">Buy Domain</a>
+                    <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
+                    <div class="nav-mobile-user">
+                        <div class="nav-mobile-info">
+                            <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
+                            <span class="nav-tier-badge" title="Lifetime Tier">Tier ' . $tier . '</span>
+                        </div>
+                        <div class="nav-mobile-account">
+                            <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">👤 ' . htmlspecialchars($user['email']) . '</span>
+                            <a href="/logout.php" class="nav-logout">Logout</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="nav-user">
                     <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
@@ -33,7 +52,7 @@ function page_header(string $title, array $user = null): void {
                     <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
                     <a href="/logout.php" class="nav-logout">Logout</a>
                 </div>
-                <button class="nav-toggle" onclick="const n=document.querySelector(\'.nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
+                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
             </div>
         </nav>';
     }
@@ -60,6 +79,7 @@ a{color:#60a5fa}
 .nav-link:hover{background:#1f2937;color:#f9fafb}
 .nav-link.active{background:#2563eb;color:#fff}
 .nav-user{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.nav-mobile-user{display:none}
 .nav-credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:12px}
 .nav-tier-badge{background:#1e293b;border:1px solid #334155;color:#fbbf24;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:10px}
 .nav-email{font-size:.78rem;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis}
@@ -68,28 +88,40 @@ a{color:#60a5fa}
 .nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px}
 
 @media(max-width:880px){
-    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:8px;gap:4px}
+    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5)}
     .nav-links.open{display:flex}
-    .nav-link{padding:12px 16px;font-size:.9rem}
+    .nav-link{padding:10px 14px;font-size:.9rem}
     .nav-user{display:none}
     .nav-toggle{display:block;margin-left:auto}
+    .nav-mobile-user{display:flex;flex-direction:column;gap:10px;padding-top:12px;margin-top:8px;border-top:1px solid #1f2937}
+    .nav-mobile-info{display:flex;gap:8px;align-items:center}
+    .nav-mobile-account{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .nav-email-mobile{font-size:.82rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
 
 /* Layout */
-.container{max-width:960px;margin:0 auto;padding:24px 16px}
-h1{font-size:1.45rem;color:#f8fafc}
-h2{font-size:1.15rem;margin-bottom:10px;color:#f1f5f9}
-h3{font-size:1rem;margin-bottom:8px;color:#f1f5f9}
-.sub{color:#94a3b8;font-size:.88rem;margin-bottom:16px}
+.container{max-width:960px;margin:0 auto;padding:24px 16px;overflow-x:hidden}
+h1{font-size:1.45rem;color:#f8fafc;word-wrap:break-word}
+h2{font-size:1.15rem;margin-bottom:10px;color:#f1f5f9;word-wrap:break-word}
+h3{font-size:1rem;margin-bottom:8px;color:#f1f5f9;word-wrap:break-word}
+.sub{color:#94a3b8;font-size:.88rem;margin-bottom:16px;line-height:1.5;word-wrap:break-word}
 
 /* Cards */
-.card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}
+.card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);overflow-wrap:break-word;word-break:break-word}
 .card-highlight{border-color:#3b82f6;box-shadow:0 0 0 1px rgba(59,130,246,0.3)}
 
 /* Forms */
 label{display:block;font-size:.82rem;font-weight:600;margin-bottom:6px;color:#d1d5db}
-input,select,textarea{width:100%;padding:10px 14px;border-radius:8px;border:1px solid #374151;background:#0a0e1a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px;outline:none;transition:border-color .15s}
+input,select,textarea{width:100%;max-width:100%;padding:10px 14px;border-radius:8px;border:1px solid #374151;background:#0a0e1a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px;outline:none;transition:border-color .15s}
 input:focus,select:focus,textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+
+@media(max-width:640px){
+    .container{padding:16px 12px}
+    .card{padding:16px 14px}
+    .email-from{width:110px !important}
+    .stats{grid-template-columns:1fr 1fr !important}
+    .mb{flex-direction:column;align-items:flex-start !important;gap:8px}
+}
 
 /* Buttons */
 .btn{padding:10px 20px;border-radius:8px;border:none;font-weight:600;font-size:.88rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#3b82f6;color:#fff;transition:all .15s;text-decoration:none}

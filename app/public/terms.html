@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Terms of Service — Teak Email</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📬</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-page: oklch(0.12 0.015 260);
+  --bg-surface: oklch(0.16 0.018 260);
+  --border-subtle: oklch(0.24 0.02 260);
+  --border-strong: oklch(0.32 0.03 260);
+  --text-primary: oklch(0.96 0.005 260);
+  --text-secondary: oklch(0.75 0.015 260);
+  --text-tertiary: oklch(0.55 0.02 260);
+  --accent: oklch(0.68 0.16 245);
+  --accent-hover: oklch(0.74 0.15 245);
+  --font-display: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); }
+
+.nav-wrap {
+  border-bottom: 1px solid var(--border-subtle);
+  background: color-mix(in oklch, var(--bg-page) 88%, transparent);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.nav-links { display:flex; align-items:center; gap:12px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.btn-primary { background: var(--accent); color: oklch(0.1 0.02 260); }
+.btn-outline { background: transparent; color: var(--text-primary); border: 1px solid var(--border-strong); }
+.btn-outline:hover { background: oklch(0.2 0.02 260); color: #fff; }
+
+.container { max-width: 820px; margin: 0 auto; padding: 48px 24px 80px; }
+.legal-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 44px 36px;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.legal-card h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+.legal-meta {
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.legal-section { margin-bottom: 32px; }
+.legal-section:last-child { margin-bottom: 0; }
+.legal-section h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.legal-section p {
+  color: var(--text-secondary);
+  font-size: 0.94rem;
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+.legal-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+.legal-section ul li {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  padding: 6px 0;
+  display: block;
+  line-height: 1.6;
+}
+.legal-section ul li strong {
+  color: var(--text-primary);
+}
+.prohibit-list li {
+  color: oklch(0.85 0.08 25) !important;
+}
+
+footer {
+  padding: 40px 0;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-page);
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+.footer-nav { display:flex; gap:18px; justify-content:center; margin-bottom:12px; }
+.footer-nav a { color: var(--text-secondary); }
+.footer-nav a:hover { color: var(--text-primary); }
+
+/* Mobile Viewport Cleanup */
+@media (max-width: 640px) {
+  .nav-container { padding: 0 16px; height: 56px; }
+  .brand { font-size: 0.95rem; }
+  .nav-links { gap: 8px; }
+  .nav-link-home { display: none; }
+  .btn { padding: 6px 12px; font-size: 0.78rem; }
+  .container { padding: 24px 14px 48px; }
+  .legal-card { padding: 24px 18px; border-radius: 12px; }
+  .legal-card h1 { font-size: 1.6rem; }
+  .footer-nav { flex-wrap: wrap; gap: 12px; }
+}
+</style>
+</head>
+<body>
+<nav class="nav-wrap">
+  <div class="nav-container">
+    <a href="/" class="brand">
+      <span>📬 Teak Email</span>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="btn btn-outline nav-link-home">Home</a>
+      <a href="/login.php" class="btn btn-outline">Log In</a>
+      <a href="/signup.php" class="btn btn-primary">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="legal-card">
+    <h1>Terms of Service</h1>
+    <div class="legal-meta">Version 1.2 • Last updated: September 14, 2026</div>
+
+    <div class="legal-section">
+      <h2>1. Agreement to Terms</h2>
+      <p>By accessing or using Teak Email ("the Service"), you agree to be bound by these Terms. If you disagree with any part, you may not use the Service.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>2. Scope of Service</h2>
+      <p>Teak Email provides private email inboxes, REST API access, and Model Context Protocol (MCP) server integration for developers, agencies, and autonomous AI agents. Features include instant inbox generation, deterministic OTP extraction, and multi-domain routing.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>3. Account & Security</h2>
+      <ul>
+        <li>You are responsible for safeguarding your login credentials and secret API keys.</li>
+        <li>API keys grant direct access to your mailbox actions and must never be committed to public repositories.</li>
+        <li>You are fully responsible for all activity conducted under your account.</li>
+        <li>Users must be at least 18 years of age or possess legal authority.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>4. Acceptable Use Policy</h2>
+      <p>Teak Email operates high-reputation mail infrastructure. You agree NOT to:</p>
+      <ul class="prohibit-list">
+        <li>Send unsolicited bulk marketing or spam email.</li>
+        <li>Execute phishing, fraud, credential harvesting, or social engineering attacks.</li>
+        <li>Distribute malware, trojans, or unauthorized malicious payload scripts.</li>
+        <li>Interfere with server integrity or intentionally overload API rate limits.</li>
+        <li>Resell or redistribute platform access without authorization.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>5. API & MCP Fair Usage</h2>
+      <ul>
+        <li>API calls are metered and subject to tier-based hourly rate limits.</li>
+        <li>We reserve the right to throttle or revoke keys exhibiting abuse or denial-of-service patterns.</li>
+        <li>MCP servers are provided for structured LLM tool calling in compliant agent environments.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>6. Privacy & Data Handling</h2>
+      <p>Your incoming email content is private to your account. We do not sell or inspect message bodies, except as automated by your own retention and parsing rules. See our <a href="/privacy.php">Privacy Policy</a>.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>7. Limitation of Liability</h2>
+      <p>Teak Email is provided on an "as-is" basis without warranties. We are not liable for indirect damages, service downtime, or third-party delivery delays outside our control.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>8. Account Termination</h2>
+      <p>We may suspend accounts that violate our acceptable use policy. You may delete your account and all associated data at any time via <a href="/delete_account.php" style="color:#f87171">self-service deletion</a>.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>9. Contact</h2>
+      <p>Questions regarding these terms? Reach us at <a href="mailto:support@teak.email">support@teak.email</a>.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-nav">
+    <a href="/">Home</a>
+    <a href="/login.php">Login</a>
+    <a href="/signup.php">Sign Up</a>
+    <a href="/privacy.php">Privacy Policy</a>
+    <a href="/terms.php">Terms of Service</a>
+  </div>
+  <div>© 2026 Teak Email · Clean email infrastructure.</div>
+</footer>
+</body>
+</html>

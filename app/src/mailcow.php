@@ -282,8 +282,9 @@ function mailcow_fetch_message(string $email, int $uid): ?string {
 
 /** Send test email to mailbox (for end-to-end verification after deploy). */
 function mailcow_send_test(string $to): bool {
-    $subject = 'CodeInbox test ' . date('Y-m-d H:i');
+    $subject = 'Teak Email test ' . date('Y-m-d H:i');
     $body = "This is a test email.\nYour code is: 123456\nSent " . date('c') . "\n";
-    $headers = "From: no-reply@jetdigitalpro.com\r\nContent-Type: text/plain; charset=UTF-8\r\n";
+    $from = 'no-reply@teak.email';
+    $headers = "From: $from\r\nContent-Type: text/plain; charset=UTF-8\r\n";
     return @mail($to, $subject, $body, $headers);
 }

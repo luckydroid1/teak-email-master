@@ -71,20 +71,17 @@ page_header('Buy Domain', $user);
   <?php if (!$success): ?>
 
   <?php if (!$configured): ?>
-  <!-- Setup Required State -->
-  <div class="card" style="border-left:4px solid #f59e0b;text-align:center;padding:30px">
-    <div style="font-size:2rem;margin-bottom:8px">⚙️</div>
-    <h2 style="margin-bottom:8px">Setup Required</h2>
-    <p style="color:#94a3b8;font-size:.9rem;margin-bottom:16px">ResellerClub API credentials are not configured. Domain registration is unavailable until setup is complete.</p>
-    <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px;text-align:left;font-size:.85rem;margin-bottom:16px">
-      <p style="color:#f9fafb;font-weight:600;margin-bottom:8px">Add to config.php:</p>
-      <pre style="color:#93c5fd;font-family:monospace;font-size:.8rem;white-space:pre-wrap;margin:0">"resellerclub_user_id" => "YOUR_USER_ID",
-"resellerclub_api_key" => "YOUR_API_KEY",
-"resellerclub_customer_id" => "YOUR_CUSTOMER_ID",</pre>
-    </div>
-    <p style="font-size:.82rem;color:#6b7280">
-      Sign up at <a href="https://www.resellerclub.com/" target="_blank" style="color:#3b82f6">resellerclub.com</a> to get API credentials.
+  <!-- Private Beta / Support State -->
+  <div class="card" style="border-left:4px solid #3b82f6;text-align:center;padding:36px 20px">
+    <div style="font-size:2.4rem;margin-bottom:8px">🌐</div>
+    <h2 style="margin-bottom:8px">Instant Domain Registration (Private Beta)</h2>
+    <p style="color:#94a3b8;font-size:.9rem;max-width:500px;margin:0 auto 16px">
+      Direct domain provisioning is currently rolling out to select enterprise accounts. You can instantly connect any existing domain from Cloudflare, Namecheap, GoDaddy, or Spaceship in the Domains tab.
     </p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a href="/domains.php" class="btn" style="font-size:.88rem">⚡ Connect Existing Domain →</a>
+      <a href="mailto:support@teak.email?subject=Direct%20Domain%20Registration%20Inquiry" class="btn btn-ghost" style="font-size:.88rem">Contact Support</a>
+    </div>
   </div>
   <?php endif; ?>
 

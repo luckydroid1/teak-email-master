@@ -7,145 +7,1099 @@ declare(strict_types=1);
 require_once __DIR__ . '/../src/db.php';
 
 // If not root URI, this is a 404 (due to try_files fallback)
-$request_uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+ = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 if ($request_uri !== '/' && $request_uri !== '/index.php') {
     http_response_code(404);
     require_once __DIR__ . '/_layout.php';
     page_header('404 — Not Found');
     echo '<div class="card" style="text-align:center;max-width:400px;margin:80px auto">
       <h2>🔍 Page Not Found</h2>
-      <p style="color:#94a3b8;margin-top:12px">The page you\'re looking for doesn\'t exist.</p>
+      <p style="color:#94a3b8;margin-top:12px">The page you're looking for doesn't exist.</p>
       <p style="margin-top:20px"><a href="/" class="btn">Back to Home</a></p>
     </div>';
     page_footer();
     exit;
 }
-
-$app = 'Teak Email';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Teak Email — Clean Email Inboxes for Builders & AI Agents</title>
-<meta name="description" content="Create a fresh inbox in seconds. Use it yourself or with AI agents via API/MCP. Lifetime access, non-expiring credits, no monthly fee.">
-<meta property="og:title" content="Teak Email — Clean Email Inboxes for Builders & AI Agents">
-<meta property="og:description" content="Create a fresh inbox in seconds. Use it yourself or with AI agents via API & MCP. Lifetime access, non-expiring credits, no monthly fee.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://teak.email">
-<meta property="og:image" content="https://teak.email/favicon.svg">
+<title>Teak Email — Clean Email Infrastructure for Business, AI Agents & Sandbox</title>
+<meta name="description" content="One inbox hub for multi-brand operators, instant OTP extraction for autonomous AI agents, and a spam-free sandbox for developers. Lifetime deal with non-expiring credits.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📬</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,system-ui,sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.6}
-.hero{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);color:#fff;padding:70px 20px 60px;text-align:center}
-.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);max-width:760px;margin:0 auto 14px;font-weight:800}
-.hero p{font-size:1.05rem;opacity:.9;max-width:640px;margin:0 auto}
-.badge{display:inline-block;background:#f59e0b;color:#000;font-size:.75rem;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;margin-bottom:14px}
-.main{max-width:860px;margin:0 auto;padding:40px 20px 60px}
-.card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px;margin-bottom:16px}
-.card h2{color:#f1f5f9;margin-bottom:10px}
-.card p{color:#94a3b8;font-size:.95rem}
-.pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:24px 0}
-.tier{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px;text-align:center;position:relative}
-.tier.pop{border-color:#3b82f6;box-shadow:0 0 0 1px #3b82f6}
-.tier .price{font-size:1.7rem;font-weight:800;color:#60a5fa}
-.tier .name{font-size:.85rem;color:#94a3b8;margin-bottom:8px;font-weight:600}
-.tier ul{list-style:none;font-size:.8rem;color:#cbd5e1;margin-top:10px;text-align:left}
-.tier ul li{padding:3px 0}
-.tier .badge-pop{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#000;font-size:.65rem;font-weight:700;padding:2px 10px;border-radius:10px;text-transform:uppercase}
-.cta{display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;font-weight:700;padding:12px 28px;border-radius:8px;margin-top:8px}
-.cta:hover{background:#2563eb}
-.features{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.features{grid-template-columns:1fr}}
-.feat{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px}
-.feat h3{font-size:.95rem;color:#f1f5f9;margin-bottom:6px}
-.feat p{font-size:.85rem;color:#94a3b8}
-.faq details{background:#1e293b;border:1px solid #334155;border-radius:8px;margin-bottom:10px;padding:14px 18px}
-.faq summary{cursor:pointer;font-weight:600;font-size:.92rem;color:#f1f5f9}
-.faq details p{margin-top:8px;color:#94a3b8;font-size:.88rem}
-.btn-line{display:inline-block;border:1px solid #3b82f6;color:#60a5fa;text-decoration:none;font-weight:600;padding:10px 22px;border-radius:8px;margin-left:8px}
-footer{text-align:center;padding:30px;color:#475569;font-size:.82rem}
+:root {
+  --bg-page: oklch(0.12 0.015 260);
+  --bg-surface: oklch(0.16 0.018 260);
+  --bg-surface-elevated: oklch(0.19 0.022 260);
+  --border-subtle: oklch(0.24 0.02 260);
+  --border-strong: oklch(0.32 0.03 260);
+  --text-primary: oklch(0.96 0.005 260);
+  --text-secondary: oklch(0.75 0.015 260);
+  --text-tertiary: oklch(0.55 0.02 260);
+  --accent: oklch(0.68 0.16 245);
+  --accent-soft: oklch(0.68 0.16 245 / 0.12);
+  --accent-hover: oklch(0.74 0.15 245);
+  --success: oklch(0.72 0.15 155);
+  --success-soft: oklch(0.72 0.15 155 / 0.12);
+  --warning: oklch(0.78 0.14 75);
+  --font-display: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Navigation */
+.nav-wrap {
+  border-bottom: 1px solid var(--border-subtle);
+  background: color-mix(in oklch, var(--bg-page) 88%, transparent);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.nav-link {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+.nav-link:hover { color: var(--text-primary); }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: var(--accent);
+  color: oklch(0.1 0.02 260);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in oklch, var(--accent) 35%, transparent);
+}
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.btn-outline:hover {
+  background: var(--bg-surface-elevated, #1e293b);
+  border-color: var(--text-secondary);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+.btn-card-action {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.btn-card-action:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: oklch(0.1 0.02 260);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px color-mix(in oklch, var(--accent) 30%, transparent);
+}
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+}
+
+/* Sections & Layout */
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.section-header {
+  margin-bottom: 56px;
+}
+.section-header h2 {
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+.section-header p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 640px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px color-mix(in oklch, var(--accent) 25%, transparent);
+    border-color: color-mix(in oklch, var(--accent) 55%, var(--border-subtle));
+  }
+  50% {
+    box-shadow: 0 0 30px color-mix(in oklch, var(--accent) 50%, transparent);
+    border-color: var(--accent);
+  }
+}
+
+@keyframes liveCounter {
+  0% { transform: scale(0.96); opacity: 0.8; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Hero Section */
+.hero {
+  padding: 100px 0 88px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 48px;
+  align-items: center;
+}
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: 1fr; }
+}
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.hero-tag span { color: var(--warning); font-weight: 700; }
+.hero-title {
+  font-size: clamp(2.4rem, 4.8vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin-bottom: 20px;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.hero-desc {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 32px;
+  max-width: 580px;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+.hero-proof {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-proof span::before {
+  content: "• ";
+  color: var(--accent);
+}
+
+/* Terminal Card (Hero Aside) */
+.terminal-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+.terminal-top {
+  background: oklch(0.14 0.015 260);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+.terminal-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+.terminal-body {
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.code-dim { color: var(--text-tertiary); }
+.code-hl { color: var(--accent); }
+.code-success { color: var(--success); }
+.otp-display-box {
+  margin: 14px 0;
+  padding: 12px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  text-align: center;
+}
+.otp-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--success);
+}
+
+/* 01 // 3 Core Audiences */
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .audience-grid { grid-template-columns: 1fr; }
+}
+.audience-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.audience-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklch, var(--accent) 60%, var(--border-subtle));
+  background: color-mix(in oklch, var(--bg-surface) 94%, var(--accent) 6%);
+  box-shadow: 0 16px 36px -10px rgba(0,0,0,0.6), 0 0 20px color-mix(in oklch, var(--accent) 15%, transparent);
+}
+.audience-card.featured {
+  /* Same baseline as all cards - glow triggers on hover */
+  border-color: var(--border-subtle);
+  background: var(--bg-surface);
+}
+.audience-num {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+.audience-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.audience-contrast {
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.85rem;
+}
+.contrast-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+.contrast-item:last-child { margin-bottom: 0; }
+.contrast-bad { color: oklch(0.72 0.18 25); font-weight: 700; flex-shrink: 0; }
+.contrast-good { color: var(--success); font-weight: 700; flex-shrink: 0; }
+.audience-list {
+  list-style: none;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin: 16px 0 24px;
+}
+.audience-list li {
+  padding: 5px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.audience-list li::before {
+  content: "→";
+  color: var(--accent);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+/* 02 // Side-by-Side Comparison */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 720px) {
+  .comparison-grid { grid-template-columns: 1fr; }
+}
+.comp-box {
+  border-radius: 12px;
+  padding: 28px;
+}
+.comp-old {
+  background: oklch(0.14 0.015 20);
+  border: 1px solid oklch(0.24 0.04 20);
+}
+.comp-old h3 {
+  color: oklch(0.85 0.12 25);
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+.comp-new {
+  background: oklch(0.14 0.02 155);
+  border: 1px solid oklch(0.26 0.06 155);
+}
+.comp-new h3 {
+  color: var(--success);
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+.comp-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.comp-item:last-child { margin-bottom: 0; }
+
+/* 03 // Hallmark-Style Clean Pricing Ladder */
+.pricing-ladder {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1080px) {
+  .pricing-ladder { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
+.price-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.price-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  box-shadow: 0 12px 25px -8px rgba(0,0,0,0.5);
+}
+.price-card.pop {
+  border-color: var(--accent);
+  background: color-mix(in oklch, var(--bg-surface) 92%, var(--accent) 8%);
+  box-shadow: 0 0 20px color-mix(in oklch, var(--accent) 15%, transparent);
+}
+.price-card.pop:hover {
+  box-shadow: 0 0 30px color-mix(in oklch, var(--accent) 30%, transparent);
+}
+.price-card-tag {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: oklch(0.1 0.02 260);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+.tier-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.tier-cost {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 2px;
+}
+.tier-sub {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+.tier-specs {
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 14px;
+  margin-bottom: 20px;
+}
+.tier-specs li {
+  padding: 4px 0;
+  display: flex;
+  gap: 6px;
+}
+.tier-specs li strong { color: var(--text-primary); }
+
+/* 04 // FAQ */
+.faq-wrap {
+  max-width: 820px;
+  margin: 0 auto;
+}
+.faq-row {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 20px 0;
+}
+.faq-row summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-row summary::-webkit-details-marker { display: none; }
+.faq-row summary::after {
+  content: "+";
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  color: var(--text-tertiary);
+}
+.faq-row[open] summary::after {
+  content: "−";
+}
+.faq-row p {
+  margin-top: 12px;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Mobile Responsive Optimization (Clean, Fast & Lightweight) */
+@media (max-width: 768px) {
+  .hero {
+    padding: 60px 0 48px;
+  }
+  .hero-grid {
+    gap: 32px;
+  }
+  .hero-title {
+    font-size: 2.1rem;
+    letter-spacing: -0.03em;
+  }
+  .hero-desc {
+    font-size: 1.02rem;
+    margin-bottom: 24px;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    padding: 12px 20px;
+  }
+  .hero-proof {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.74rem;
+  }
+  .section {
+    padding: 64px 0;
+  }
+  .section-header {
+    margin-bottom: 36px;
+  }
+  .section-header h2 {
+    font-size: 1.65rem;
+  }
+  .audience-card {
+    padding: 24px 20px;
+  }
+  .audience-card:hover {
+    transform: none; /* Disable 3D tilt on touch to avoid jitter */
+    box-shadow: none;
+  }
+  .pricing-ladder {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .price-card {
+    padding: 20px 16px;
+  }
+  .price-card:hover {
+    transform: none;
+  }
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .comp-box {
+    padding: 20px 16px;
+  }
+  .nav-container {
+    padding: 0 16px;
+    height: 56px;
+  }
+  .brand {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .brand-badge {
+    display: none;
+  }
+  .nav-links {
+    gap: 8px;
+  }
+  .nav-links .nav-link {
+    display: none; /* Hide text links on mobile to prevent navbar crowding */
+  }
+  .nav-links .btn {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .container {
+    padding: 0 16px;
+  }
+  .footer-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+  .footer-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+}
+
+/* Footer */
+footer {
+  padding: 48px 0;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-page);
+  font-size: 0.88rem;
+  color: var(--text-tertiary);
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.footer-nav {
+  display: flex;
+  gap: 20px;
+}
+.footer-nav a:hover { color: var(--text-primary); }
 </style>
 </head>
 <body>
-<div class="hero">
-  <span class="badge">Lifetime Deal · No Subscription</span>
-  <h1>Clean email inboxes for builders & AI agents.</h1>
-  <p>Create a fresh inbox in 2 clicks. Use it yourself or with your AI agent via API & MCP. Custom clean domains, no CAPTCHA wall, no blocklists.</p>
-  <p style="margin-top:24px">
-    <a href="/signup.php" class="cta">Create Free Account</a>
-    <a href="/login.php" class="btn-line">Login</a>
-    <a href="/getting-started.php" class="btn-line" style="border-color:#10b981;color:#34d399">📖 Getting Started</a>
-  </p>
-  <p class="sub" style="text-align:center;margin-top:16px;color:#86efac;font-size:.9rem;max-width:500px;margin-left:auto;margin-right:auto">Live now — create your first inbox in 30 seconds.</p>
-</div>
 
-<div class="main">
-  <div class="card">
-<h2>Why Teak Email?</h2>
-  <p>Your AI agent needs an email to verify accounts and grab OTPs. Gmail blocks automation. Temp mail is banned everywhere. Teak Email gives you clean, dedicated inboxes on custom domains — readable by humans or by your agent through a simple API.</p>
-  </div>
-
-  <h2 style="margin:24px 0 8px">Lifetime Access + Included Credits</h2>
-  <p class="sub" style="color:#94a3b8;font-size:.9rem">Pay once for platform access. Use included non-expiring credits anytime. Top up only when your usage grows. No monthly fee required.</p>
-
-  <div class="pricing">
-    <div class="tier">
-      <div class="name">Tier 1</div>
-      <div class="price">$37</div>
-      <ul><li>1,000 credits</li><li>1 inbox</li><li>Basic API</li><li>7-day retention</li></ul>
-      <a class="cta" style="font-size:.85rem;padding:8px 16px" href="https://appsumo.com" target="_blank" rel="noopener">Get on AppSumo</a>
-    </div>
-    <div class="tier">
-      <div class="name">Tier 2</div>
-      <div class="price">$67</div>
-      <ul><li>2,500 credits</li><li>3 inboxes</li><li>Basic API</li><li>14-day retention</li></ul>
-      <a class="cta" style="font-size:.85rem;padding:8px 16px" href="https://appsumo.com" target="_blank" rel="noopener">Get on AppSumo</a>
-    </div>
-    <div class="tier pop">
-      <span class="badge-pop">Most Popular</span>
-      <div class="name">Tier 3</div>
-      <div class="price">$97</div>
-      <ul><li>6,000 credits</li><li>8 inboxes</li><li>Full API</li><li>30-day retention</li></ul>
-      <a class="cta" style="font-size:.85rem;padding:8px 16px" href="https://appsumo.com" target="_blank" rel="noopener">Get on AppSumo</a>
-    </div>
-    <div class="tier">
-      <div class="name">Tier 4</div>
-      <div class="price">$147</div>
-      <ul><li>12,000 credits</li><li>20 inboxes</li><li>Full API</li><li>45-day retention</li></ul>
-      <a class="cta" style="font-size:.85rem;padding:8px 16px" href="https://appsumo.com" target="_blank" rel="noopener">Get on AppSumo</a>
-    </div>
-    <div class="tier">
-      <div class="name">Tier 5</div>
-      <div class="price">$197</div>
-      <ul><li>25,000 credits</li><li>50 inboxes</li><li>Full API + priority</li><li>60-day retention</li></ul>
-      <a class="cta" style="font-size:.85rem;padding:8px 16px" href="https://appsumo.com" target="_blank" rel="noopener">Get on AppSumo</a>
+<!-- Navigation -->
+<nav class="nav-wrap">
+  <div class="nav-container">
+    <a href="/" class="brand">
+      <span>📬 Teak Email</span>
+      <span class="brand-badge">From $1/mo</span>
+    </a>
+    <div class="nav-links">
+      <a href="#audiences" class="nav-link">Workflows</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="/login.php" class="btn btn-outline btn-sm">Log In</a>
+      <a href="/signup.php" class="btn btn-primary btn-sm">Start for $1</a>
     </div>
   </div>
+</nav>
 
-  <div class="features">
-    <div class="feat"><h3>⚡ 2-Click Inbox</h3><p>Pick a domain, type a name, done. Your inbox is live and receiving.</p></div>
-    <div class="feat"><h3>🤖 API & MCP Ready</h3><p>REST API + MCP server so your AI agent can list inboxes and grab OTPs automatically.</p></div>
-    <div class="feat"><h3>🌐 Your Domain or Ours</h3><p>Use our clean shared domains, or bring your own (coming soon).</p></div>
-    <div class="feat"><h3>🔒 Receive-Only, Clean Reputation</h3><p>No bulk sending. Clean infrastructure designed for receiving codes.</p></div>
+<!-- Hero Section -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-tag">
+          <span>SIMPLE SUBSCRIPTION</span> • Starting at just $1/month
+        </div>
+        <h1 class="hero-title">
+          One Email Platform for Inboxes, Automations, and Sandboxes.
+        </h1>
+        <p class="hero-desc">
+          Manage brand inboxes in one screen, equip autonomous AI agents with instant OTP parsing, or test app email flows in an isolated sandbox.
+        </p>
+        <div class="hero-actions">
+          <a href="/signup.php" class="btn btn-primary">Start at $1/Month</a>
+          <a href="/login.php" class="btn btn-outline">Dashboard Preview</a>
+        </div>
+        <div class="hero-proof">
+          <span>Cancel anytime</span>
+          <span>REST API + MCP</span>
+          <span>Instant setup</span>
+        </div>
+      </div>
+
+      <!-- Live Terminal / Interactive Asset -->
+      <div class="terminal-card">
+        <div class="terminal-top">
+          <div class="terminal-dots">
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+          </div>
+          <div class="terminal-title">mcp-server :: live parse</div>
+        </div>
+        <div class="terminal-body">
+          <div class="code-dim">// Incoming auth webhook:</div>
+          <div><span class="code-hl">from:</span> "Auth Center &lt;security@app.com&gt;"</div>
+          <div><span class="code-hl">subject:</span> "Your verification code is 778899"</div>
+          <div class="otp-display-box">
+            <div class="code-dim" style="font-size:0.72rem;margin-bottom:4px">PARSED OTP TOKEN</div>
+            <div class="otp-value" id="live-otp-text">778899</div>
+          </div>
+          <div class="code-success" id="live-otp-status">✓ Extracted in 24ms (MIME normalized)</div>
+          <div class="code-dim">// Returned to Claude / Cursor agent automatically</div>
+        </div>
+      </div>
+    </div>
   </div>
+</header>
 
-  <h2 style="margin:32px 0 8px">How this Lifetime Deal works</h2>
-  <div class="card">
-    <p>This deal gives you <strong style="color:#f1f5f9">lifetime platform access</strong> — no recurring subscription. Each tier includes <strong style="color:#f1f5f9">non-expiring credits</strong> used for platform activity (inbox rent, emails received, API calls). If your usage grows, top up. If not, pay nothing more.</p>
+<script>
+// Micro-interaction: Live OTP cycle simulation in terminal
+(function() {
+  const codes = ['778899', '491028', '830192', '629415'];
+  const times = ['24ms', '19ms', '31ms', '22ms'];
+  let idx = 0;
+  setInterval(() => {
+    idx = (idx + 1) % codes.length;
+    const el = document.getElementById('live-otp-text');
+    const status = document.getElementById('live-otp-status');
+    if (el) {
+      el.style.animation = 'liveCounter 0.4s ease-out';
+      el.textContent = codes[idx];
+      setTimeout(() => el.style.animation = '', 400);
+    }
+    if (status) {
+      status.textContent = '✓ Extracted in ' + times[idx] + ' (MIME normalized)';
+    }
+  }, 3500);
+})();
+</script>
+
+<!-- 01⁄Workflows: 3 Target Audiences -->
+<section id="audiences" class="section">
+  <div class="container">
+    <div class="section-label">01⁄Workflows</div>
+    <div class="section-header">
+      <h2>Built for Real-World Friction</h2>
+      <p>Generic mail hosts force bloated per-seat fees. Disposable tools get blacklisted. Teak Email delivers dedicated infrastructure for three exact workflows.</p>
+    </div>
+
+    <div class="audience-grid">
+      <!-- Audience 1: Online Business Owner -->
+      <div class="audience-card">
+        <div>
+          <div class="audience-num">01 / BUSINESS OPERATORS</div>
+          <h3 class="audience-title">Multi-Brand & Agency Inboxes</h3>
+          <p style="font-size:0.9rem;color:var(--text-secondary)">Stop juggling multiple logins and paying $6/seat/month just to receive alerts and store receipts.</p>
+          
+          <div class="audience-contrast">
+            <div class="contrast-item">
+              <span class="contrast-bad">✕ Old:</span>
+              <span>10 Google Workspace accounts = $60/mo forever.</span>
+            </div>
+            <div class="contrast-item">
+              <span class="contrast-good">✓ Teak:</span>
+              <span>All company inboxes in 1 screen, zero monthly fees.</span>
+            </div>
+          </div>
+
+          <ul class="audience-list">
+            <li>Unified feed for all company domains</li>
+            <li>Connect custom domains via 1-click DNS</li>
+            <li>Unlimited mailbox creation within tier slots</li>
+          </ul>
+        </div>
+        <a href="/signup.php" class="btn btn-card-action btn-sm">Get Business Inboxes →</a>
+      </div>
+
+      <!-- Audience 2: Vibe Coder / AI Agent Builder -->
+      <div class="audience-card">
+        <div>
+          <div class="audience-num">02 / AI AGENT BUILDERS</div>
+          <h3 class="audience-title">Autonomous OTP for AI Agents</h3>
+          <p style="font-size:0.9rem;color:var(--text-secondary)">For agents built in Claude Desktop, Cursor, or LangChain that need to sign up and verify accounts.</p>
+
+          <div class="audience-contrast">
+            <div class="contrast-item">
+              <span class="contrast-bad">✕ Old:</span>
+              <span>Agent stops and asks human for the 6-digit OTP.</span>
+            </div>
+            <div class="contrast-item">
+              <span class="contrast-good">✓ Teak:</span>
+              <span>MCP Server auto-creates inbox & returns parsed OTP.</span>
+            </div>
+          </div>
+
+          <ul class="audience-list">
+            <li>Native <span style="font-family:var(--font-mono);color:var(--accent)">codeinbox-mcp</span> integration</li>
+            <li>Deterministic OTP parsing (&lt;50ms response)</li>
+            <li>Full API control for automated workflow loops</li>
+          </ul>
+        </div>
+        <a href="/api_keys.php" class="btn btn-card-action btn-sm">Connect AI Agent (MCP) →</a>
+      </div>
+
+      <!-- Audience 3: Developer / QA Sandbox -->
+      <div class="audience-card">
+        <div>
+          <div class="audience-num">03 / SOFTWARE DEVELOPERS</div>
+          <h3 class="audience-title">Private Email Sandbox</h3>
+          <p style="font-size:0.9rem;color:var(--text-secondary)">A private Mailinator alternative for testing transactional signup flows, password resets, and HTML templates.</p>
+
+          <div class="audience-contrast">
+            <div class="contrast-item">
+              <span class="contrast-bad">✕ Old:</span>
+              <span>Public leaks on temp mail or cluttered personal inbox.</span>
+            </div>
+            <div class="contrast-item">
+              <span class="contrast-good">✓ Teak:</span>
+              <span>Private sandboxes with raw EML & HTML inspection.</span>
+            </div>
+          </div>
+
+          <ul class="audience-list">
+            <li>Clean DKIM/SPF reputation (no spam false-positives)</li>
+            <li>Inspect raw MIME RFC822 headers and HTML</li>
+            <li>REST API ready for CI/CD test automation</li>
+          </ul>
+        </div>
+        <a href="/signup.php" class="btn btn-card-action btn-sm">Start Testing Sandbox →</a>
+      </div>
+    </div>
   </div>
+</section>
 
-  <h2 style="margin:24px 0 8px">FAQ</h2>
-  <div class="faq">
-    <details open><summary>Is this really a lifetime deal?</summary><p>Yes — for platform access. Your account access is lifetime. Included credits are a one-time allowance, not a monthly reset.</p></details>
-    <details><summary>Do credits expire?</summary><p>No. Credits are non-expiring. Use them whenever you need.</p></details>
-    <details><summary>Do I need a top-up?</summary><p>Only if your usage grows. Small users may never need one.</p></details>
-    <details><summary>Why not unlimited usage?</summary><p>Unlimited usage breaks long-term economics. Metered usage keeps the product sustainable — so we can support users for years.</p></details>
-    <details><summary>Will I lose access later?</summary><p>No. Your lifetime access stays active.</p></details>
+<!-- 02⁄Comparison -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">02⁄Architecture</div>
+    <div class="section-header">
+      <h2>Why Teams Choose Teak Email</h2>
+      <p>Clean, dedicated email infrastructure built without the compromises of consumer webmail or disposable sites.</p>
+    </div>
+
+    <div class="comparison-grid">
+      <div class="comp-box comp-old">
+        <h3>✕ Traditional & Disposable Mail</h3>
+        <div class="comp-item">
+          <span class="contrast-bad">✗</span>
+          <span><strong>Gmail / Workspace:</strong> Requires phone numbers, blocks automation, and charges monthly per user.</span>
+        </div>
+        <div class="comp-item">
+          <span class="contrast-bad">✗</span>
+          <span><strong>Temp Mail Sites:</strong> Blacklisted by major auth providers, public inbox snooping, zero agent API.</span>
+        </div>
+        <div class="comp-item">
+          <span class="contrast-bad">✗</span>
+          <span><strong>Testing Suites:</strong> Heavy enterprise pricing with complex contract tiers.</span>
+        </div>
+      </div>
+
+      <div class="comp-box comp-new">
+        <h3>✓ The Teak Email Architecture</h3>
+        <div class="comp-item">
+          <span class="contrast-good">✓</span>
+          <span><strong>Lifetime Ownership:</strong> Pay once. Included credits never expire and carry over permanently.</span>
+        </div>
+        <div class="comp-item">
+          <span class="contrast-good">✓</span>
+          <span><strong>Native MCP Server:</strong> LLM agents read emails and grab OTP tokens in natural language.</span>
+        </div>
+        <div class="comp-item">
+          <span class="contrast-good">✓</span>
+          <span><strong>Custom & Aged Domains:</strong> Bring your own domains with zero warmup needed on aged assets.</span>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<footer>© 2026 <?= htmlspecialchars($app) ?> · Built for builders & AI agents · <a href="/login.php" style="color:#3b82f6">Login</a></footer>
+<!-- 03⁄Pricing: Hallmark Ladder -->
+<section id="pricing" class="section">
+  <div class="container">
+    <div class="section-label">03⁄Pricing</div>
+    <div class="section-header">
+      <h2>Transparent Monthly Plans. Start at $1/mo.</h2>
+      <p>Flexible monthly subscriptions designed for indie builders, AI operators, and scaling teams. Cancel or switch anytime.</p>
+    </div>
+
+    <div class="pricing-ladder">
+      <!-- Tier 1: Micro / Starter -->
+      <div class="price-card">
+        <div>
+          <div class="tier-code">MICRO / STARTER</div>
+          <div class="tier-cost">$1<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-sub">billed monthly</div>
+          <ul class="tier-specs">
+            <li><strong>500</strong> credits / month</li>
+            <li><strong>1</strong> active inbox slot</li>
+            <li>Basic REST API access</li>
+            <li>7-day email retention</li>
+            <li>Shared domain pool</li>
+          </ul>
+        </div>
+        <a href="/signup.php" class="btn btn-outline btn-sm">Start for $1/mo</a>
+      </div>
+
+      <!-- Tier 2: Pro Builder (Featured) -->
+      <div class="price-card pop">
+        <span class="price-card-tag">Most Popular</span>
+        <div>
+          <div class="tier-code" style="color:var(--accent)">PRO BUILDER</div>
+          <div class="tier-cost" style="color:var(--accent)">$9<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-sub">billed monthly</div>
+          <ul class="tier-specs">
+            <li><strong>5,000</strong> credits / month</li>
+            <li><strong>5</strong> active inbox slots</li>
+            <li><strong>Full API + MCP Server</strong></li>
+            <li>14-day email retention</li>
+            <li>Custom domain sync</li>
+          </ul>
+        </div>
+        <a href="/signup.php" class="btn btn-primary btn-sm">Start Pro Plan</a>
+      </div>
+
+      <!-- Tier 3: Business / Agency -->
+      <div class="price-card">
+        <div>
+          <div class="tier-code">BUSINESS / AGENCY</div>
+          <div class="tier-cost">$19<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-sub">billed monthly</div>
+          <ul class="tier-specs">
+            <li><strong>15,000</strong> credits / month</li>
+            <li><strong>15</strong> active inbox slots</li>
+            <li>Full API + MCP Server</li>
+            <li>30-day email retention</li>
+            <li>Multiple custom domains</li>
+          </ul>
+        </div>
+        <a href="/signup.php" class="btn btn-outline btn-sm">Start Business</a>
+      </div>
+
+      <!-- Tier 4: Developer Scale -->
+      <div class="price-card">
+        <div>
+          <div class="tier-code">DEVELOPER SCALE</div>
+          <div class="tier-cost">$49<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-sub">billed monthly</div>
+          <ul class="tier-specs">
+            <li><strong>50,000</strong> credits / month</li>
+            <li><strong>50</strong> active inbox slots</li>
+            <li>Priority API + MCP routing</li>
+            <li>60-day email retention</li>
+            <li>High rate limit allowance</li>
+          </ul>
+        </div>
+        <a href="/signup.php" class="btn btn-outline btn-sm">Start Scale Plan</a>
+      </div>
+
+      <!-- Tier 5: Enterprise -->
+      <div class="price-card">
+        <div>
+          <div class="tier-code">ENTERPRISE CUSTOM</div>
+          <div class="tier-cost">$99<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-sub">billed monthly</div>
+          <ul class="tier-specs">
+            <li><strong>150,000</strong> credits / month</li>
+            <li><strong>Unlimited</strong> inbox slots</li>
+            <li>Dedicated mail server IP</li>
+            <li>90-day email retention</li>
+            <li>VIP SLA support</li>
+          </ul>
+        </div>
+        <a href="mailto:sales@teak.email" class="btn btn-outline btn-sm">Contact Sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04⁄FAQ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">04⁄FAQ</div>
+    <div class="section-header">
+      <h2>Frequently Asked Questions</h2>
+    </div>
+
+    <div class="faq-wrap">
+      <details class="faq-row" open>
+        <summary>How does the monthly subscription and credit renewal work?</summary>
+        <p>Your subscription bills monthly according to your plan tier (starting at just $1/mo). Your credit allowance and inbox slots refresh at the start of each billing cycle. You can upgrade, downgrade, or cancel anytime from your dashboard.</p>
+      </details>
+
+      <details class="faq-row">
+        <summary>Can I use this for Claude Desktop or Cursor AI agents?</summary>
+        <p>Yes. We maintain the official <code>codeinbox-mcp</code> package. You paste our 6-line JSON block into Claude Desktop or Cursor's MCP configuration with your API key, and your AI agent can immediately generate inboxes and extract OTP verification codes via natural language.</p>
+      </details>
+
+      <details class="faq-row">
+        <summary>Can I connect multiple custom domains?</summary>
+        <p>Yes. Plans from $9/mo support custom domains. You can connect and manage multiple custom domains simultaneously using our registrar auto-sync (Cloudflare, Namecheap, GoDaddy, Spaceship) or by adding standard MX and SPF records.</p>
+      </details>
+
+      <details class="faq-row">
+        <summary>Is there an email warmup requirement for aged domains?</summary>
+        <p>No. If you connect an aged domain with established history, you can bypass warmup completely and start receiving or testing immediately.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <strong>Teak Email</strong> — Clean email infrastructure for business owners, vibe coders & developers.
+      </div>
+      <div class="footer-nav">
+        <a href="/login.php">Login</a>
+        <a href="/signup.php">Sign Up</a>
+        <a href="/redeem.php">Redeem Code</a>
+        <a href="/getting-started.php">Documentation</a>
+        <a href="/privacy.php">Privacy</a>
+        <a href="/terms.php">Terms</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>

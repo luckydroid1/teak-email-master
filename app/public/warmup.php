@@ -45,16 +45,26 @@ page_header('Email Warmup', $user);
 
   <?php alert($error, $success); ?>
 
-  <!-- How it works -->
-  <div class="card" style="border-left:4px solid #f59e0b">
-    <h3 style="margin:0 0 8px;font-size:1rem">How Warmup Works</h3>
-    <div style="font-size:.85rem;color:#94a3b8;line-height:1.7">
-      <p>✅ Your inboxes send natural-looking emails to each other</p>
-      <p>✅ Emails are opened and read automatically</p>
-      <p>✅ Domain reputation builds over 2-4 weeks</p>
-      <p>✅ Better inbox placement for your real emails</p>
+  <!-- How it works & Aged Domain Advantage -->
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card" style="border-left:4px solid #f59e0b;margin-bottom:0">
+      <h3 style="margin:0 0 8px;font-size:1rem">🔥 How Warmup Works (New Domains)</h3>
+      <div style="font-size:.84rem;color:#94a3b8;line-height:1.6">
+        <p>✅ Inboxes exchange natural emails automatically</p>
+        <p>✅ Opens & engagement simulated in background</p>
+        <p>✅ Builds domain sender reputation over 2-3 weeks</p>
+      </div>
+      <p style="font-size:.78rem;color:#64748b;margin-top:8px">💡 Best with 2+ inboxes per domain.</p>
     </div>
-    <p style="font-size:.8rem;color:#64748b;margin-top:10px">💡 <strong>Tip:</strong> Add at least 2 inboxes for best results. More inboxes = faster warmup.</p>
+
+    <div class="card" style="border-left:4px solid #10b981;margin-bottom:0">
+      <h3 style="margin:0 0 8px;font-size:1rem;color:#86efac">⚡ Aged Domains (Skip Warmup)</h3>
+      <div style="font-size:.84rem;color:#cbd5e1;line-height:1.6">
+        <p>🚀 <strong>Already have aged domains/emails?</strong></p>
+        <p>Aged domains with established DNS history do <strong>not</strong> need warmup. You can start sending and receiving instantly with peak deliverability.</p>
+      </div>
+      <a href="/domains.php" style="display:inline-block;font-size:.78rem;color:#34d399;font-weight:600;margin-top:8px">Connect Aged Domain in Domains tab →</a>
+    </div>
   </div>
 
   <?php if (empty($inboxes)): ?>

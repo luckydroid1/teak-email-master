@@ -20,18 +20,13 @@ if ($user) {
     $has_inbox = $inbox_count > 0;
 }
 
-// Handle skip onboarding
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['skip_onboarding'])) {
-    complete_onboarding($user['id']);
-    header('Location: /dashboard.php');
-    exit;
-}
-
-// Handle mark complete
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['complete_onboarding'])) {
-    complete_onboarding($user['id']);
-    header('Location: /dashboard.php');
-    exit;
+// Handle skip or complete onboarding
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['skip_onboarding']) || isset($_POST['complete_onboarding']))) {
+    if (csrf_validate()) {
+        complete_onboarding($user['id']);
+        header('Location: /dashboard.php');
+        exit;
+    }
 }
 
 // Calculate progress
@@ -113,6 +108,7 @@ page_header('Getting Started', $user);
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
         <a href="/dashboard.php" class="btn" style="text-decoration:none;font-size:.85rem">Go to Dashboard →</a>
         <form method="post" style="margin:0">
+          <?php csrf_field(); ?>
           <input type="hidden" name="complete_onboarding" value="1">
           <button type="submit" style="background:transparent;border:1px solid #334155;color:#94a3b8;padding:10px 18px;border-radius:8px;font-size:.85rem;cursor:pointer">Skip, I know the way →</button>
         </form>

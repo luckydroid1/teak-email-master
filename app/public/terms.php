@@ -4,56 +4,136 @@ require_once __DIR__ . '/../src/db.php';
 require __DIR__ . '/_layout.php';
 page_header('Terms of Service');
 ?>
-<div class="card" style="max-width:680px;margin:40px auto;line-height:1.7">
-    <h2>Terms of Service</h2>
-    <p style="color:#94a3b8;font-size:0.9em;margin-top:4px">Last updated: August 5, 2026</p>
+<style>
+.legal-card {
+  max-width: 760px;
+  margin: 40px auto 60px;
+  background: var(--surface, #111827);
+  border: 1px solid var(--surface-border, #1f2937);
+  border-radius: 14px;
+  padding: 40px 36px;
+  line-height: 1.7;
+}
+.legal-card h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+  color: #f8fafc;
+}
+.legal-meta {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-family: monospace;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #1f2937;
+}
+.legal-section {
+  margin-bottom: 28px;
+}
+.legal-section h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.legal-section p {
+  color: #94a3b8;
+  font-size: 0.94rem;
+  margin-bottom: 10px;
+}
+.legal-section ul {
+  list-style: none;
+  padding-left: 4px;
+}
+.legal-section ul li {
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  padding: 4px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.legal-section ul li::before {
+  content: "•";
+  color: #3b82f6;
+  font-weight: bold;
+}
+.prohibit-list li::before {
+  content: "✕";
+  color: #f87171 !important;
+  font-weight: bold;
+}
+</style>
 
-    <h3>1. Acceptance of Terms</h3>
-    <p>By accessing or using Teak Email ("the Service"), you agree to these Terms of Service. If you do not agree, please do not use the Service.</p>
+<div class="legal-card">
+  <h1>Terms of Service</h1>
+  <div class="legal-meta">Version 1.2 • Last updated: September 14, 2026</div>
 
-    <h3>2. Description of Service</h3>
-    <p>Teak Email provides email inbox management, API access, and MCP (Model Context Protocol) server integration for developers, agencies, and AI agent builders. The Service includes a web dashboard, REST API, and optional MCP server access.</p>
+  <div class="legal-section">
+    <h2>1. Agreement to Terms</h2>
+    <p>By accessing or using Teak Email ("the Service"), you agree to be bound by these Terms. If you disagree with any part, you may not use the Service.</p>
+  </div>
 
-    <h3>3. Account Responsibilities</h3>
+  <div class="legal-section">
+    <h2>2. Scope of Service</h2>
+    <p>Teak Email provides private email inboxes, REST API access, and Model Context Protocol (MCP) server integration for developers, agencies, and autonomous AI agents. Features include inbox generation, automated OTP parsing, and email routing.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2>3. Account & Security</h2>
     <ul>
-        <li>You are responsible for maintaining the security of your account credentials</li>
-        <li>You must not share your API keys with unauthorized parties</li>
-        <li>You are responsible for all activity that occurs under your account</li>
-        <li>You must be at least 18 years old to use this Service</li>
+      <li>You are responsible for safeguarding your login credentials and API keys.</li>
+      <li>API keys grant direct access to your mailbox actions and must never be shared publicly.</li>
+      <li>You are fully responsible for all activity conducted under your account.</li>
+      <li>Users must be at least 18 years of age or possess legal authority.</li>
     </ul>
+  </div>
 
-    <h3>4. Acceptable Use</h3>
-    <p>You agree NOT to use the Service to:</p>
+  <div class="legal-section">
+    <h2>4. Acceptable Use Policy</h2>
+    <p>Teak Email operates clean, high-reputation mail infrastructure. You agree NOT to:</p>
+    <ul class="prohibit-list">
+      <li>Send unsolicited bulk marketing or spam email.</li>
+      <li>Execute phishing, fraud, or social engineering campaigns.</li>
+      <li>Distribute malware, trojans, or unauthorized automation scripts.</li>
+      <li>Interfere with server integrity or bypass API rate limits.</li>
+      <li>Resell or redistribute platform access without authorization.</li>
+    </ul>
+  </div>
+
+  <div class="legal-section">
+    <h2>5. API & MCP Fair Usage</h2>
     <ul>
-        <li>Send unsolicited bulk email (spam)</li>
-        <li>Conduct phishing or social engineering attacks</li>
-        <li>Violate any applicable laws or regulations</li>
-        <li>Interfere with or disrupt the Service or servers</li>
-        <li>Attempt to gain unauthorized access to other accounts or systems</li>
-        <li>Resell the Service without written authorization</li>
+      <li>API calls are metered and subject to tier-based hourly rate limits.</li>
+      <li>We reserve the right to throttle or suspend keys exhibiting abuse or denial-of-service patterns.</li>
+      <li>MCP servers are provided for structured LLM tool calling.</li>
     </ul>
+  </div>
 
-    <h3>5. API & MCP Usage</h3>
-    <ul>
-        <li>API access is subject to rate limits (displayed in your dashboard)</li>
-        <li>API keys must be kept secret and rotated regularly</li>
-        <li>MCP server access is provided "as-is" for developer integration</li>
-        <li>We reserve the right to throttle or suspend API access for abuse</li>
-    </ul>
+  <div class="legal-section">
+    <h2>6. Privacy & Data Handling</h2>
+    <p>Your incoming email content is private to your account. We never sell or inspect message bodies, except as automated by your own retention and parsing rules. See our <a href="/privacy.php">Privacy Policy</a>.</p>
+  </div>
 
-    <h3>6. Data & Privacy</h3>
-    <p>Your email content and account data are handled according to our <a href="/privacy.php">Privacy Policy</a>. We do not sell, share, or access your email content except as required for service operation.</p>
+  <div class="legal-section">
+    <h2>7. Limitation of Liability</h2>
+    <p>Teak Email is provided on an "as-is" basis. We are not liable for indirect damages, service downtime, or third-party email delivery delays outside our control.</p>
+  </div>
 
-    <h3>7. Limitation of Liability</h3>
-    <p>Teak Email is provided "as-is" without warranties. We are not liable for any damages arising from use of the Service, including but not limited to data loss, service interruption, or unauthorized access.</p>
+  <div class="legal-section">
+    <h2>8. Account Termination</h2>
+    <p>We may suspend accounts that violate our acceptable use policy. You may delete your account and all associated data at any time via <a href="/delete_account.php" style="color:#f87171">self-service deletion</a>.</p>
+  </div>
 
-    <h3>8. Termination</h3>
-    <p>We reserve the right to suspend or terminate accounts that violate these Terms, with or without notice. You may delete your account at any time through the dashboard.</p>
-
-    <h3>9. Changes to Terms</h3>
-    <p>We may modify these Terms at any time. Continued use of the Service after changes constitutes acceptance of the new Terms.</p>
-
-    <h3>10. Contact</h3>
-    <p>Questions about these Terms? Contact us at <a href="mailto:support@teak.email">support@teak.email</a>.</p>
+  <div class="legal-section">
+    <h2>9. Contact</h2>
+    <p>Questions regarding these terms? Reach us at <a href="mailto:support@teak.email">support@teak.email</a>.</p>
+  </div>
 </div>
+
 <?php page_footer(); ?>

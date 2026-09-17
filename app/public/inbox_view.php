@@ -197,11 +197,26 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 
   <?php if ($html_body): ?>
     <!-- HTML email -->
-    <div class="msg-view" style="background:#fff;padding:0;overflow:hidden">
-      <iframe id="email-frame" style="width:100%;min-height:350px;border:none;background:#fff" sandbox="allow-same-origin" onload="this.style.height=(this.contentDocument.body.scrollHeight+40)+'px'"></iframe>
+    <div class="msg-view" style="background:#fff;padding:0;overflow:hidden;border-radius:8px">
+      <iframe id="email-frame" style="width:100%;min-height:350px;border:none;background:#fff;display:block" sandbox="allow-same-origin"></iframe>
     </div>
     <script>
-    document.getElementById('email-frame').srcdoc = <?= json_encode($html_body) ?>;
+    (function() {
+      const frame = document.getElementById('email-frame');
+      if (frame) {
+        frame.srcdoc = <?= json_encode($html_body) ?>;
+        frame.addEventListener('load', () => {
+          try {
+            if (frame.contentDocument && frame.contentDocument.body) {
+              const h = frame.contentDocument.body.scrollHeight;
+              if (h > 0) frame.style.height = (h + 30) + 'px';
+            }
+          } catch (e) {
+            frame.style.height = '500px';
+          }
+        });
+      }
+    })();
     </script>
   <?php else: ?>
     <!-- Plain text email -->

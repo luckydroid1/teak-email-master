@@ -94,9 +94,19 @@ page_header('Domains', $user);
 ?>
 <div style="max-width:640px;margin:30px auto">
 
-  <div style="text-align:center;margin-bottom:24px">
-    <h1 style="font-size:1.5rem;margin-bottom:6px">🌐 Your Domains</h1>
-    <p class="sub" style="margin:0">Add domains manually or sync from your registrar.</p>
+  <div style="text-align:center;margin-bottom:20px">
+    <h1 style="font-size:1.5rem;margin-bottom:6px">🌐 Multiple & Custom Domains</h1>
+    <p class="sub" style="margin:0">Connect unlimited fresh or aged domains via registrar auto-sync or manual DNS setup.</p>
+  </div>
+
+  <div class="card" style="border-left:4px solid #10b981;background:rgba(16,185,129,0.06);margin-bottom:18px;padding:16px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:1.4rem">✨</span>
+      <div>
+        <h4 style="margin:0;font-size:.92rem;color:#86efac">Aged Domains & Instant Reputation</h4>
+        <p style="margin:2px 0 0;font-size:.82rem;color:#cbd5e1">Connect your aged domains (domains with existing DNS/email history) to bypass warmup completely and start agent operations immediately.</p>
+      </div>
+    </div>
   </div>
 
   <?php alert($error, $success); ?>
