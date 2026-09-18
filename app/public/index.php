@@ -7,7 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../src/db.php';
 
 // If not root URI, this is a 404 (due to try_files fallback)
- = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$request_uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 if ($request_uri !== '/' && $request_uri !== '/index.php') {
     http_response_code(404);
     require_once __DIR__ . '/_layout.php';
@@ -20,6 +20,8 @@ if ($request_uri !== '/' && $request_uri !== '/index.php') {
     page_footer();
     exit;
 }
+
+$app = 'Teak Email';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -84,11 +86,28 @@ a { color: inherit; text-decoration: none; }
 }
 .brand {
   font-weight: 800;
-  font-size: 1.05rem;
-  letter-spacing: -0.02em;
+  font-size: 1.12rem;
+  letter-spacing: -0.03em;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+.brand-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  letter-spacing: -0.03em;
+}
+.brand-name {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+.brand-dot {
+  color: var(--accent);
+  font-weight: 800;
+}
+.brand-domain {
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 .brand-badge {
   font-family: var(--font-mono);
@@ -973,8 +992,8 @@ footer {
           <div class="tier-cost">$1<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
           <div class="tier-sub">billed monthly</div>
           <ul class="tier-specs">
-            <li><strong>500</strong> credits / month</li>
-            <li><strong>1</strong> active inbox slot</li>
+            <li><strong>3,000</strong> credits / month</li>
+            <li><strong>3</strong> active inbox slots</li>
             <li>Basic REST API access</li>
             <li>7-day email retention</li>
             <li>Shared domain pool</li>
@@ -988,14 +1007,14 @@ footer {
         <span class="price-card-tag">Most Popular</span>
         <div>
           <div class="tier-code" style="color:var(--accent)">PRO BUILDER</div>
-          <div class="tier-cost" style="color:var(--accent)">$9<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-cost" style="color:var(--accent)">$7<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
           <div class="tier-sub">billed monthly</div>
           <ul class="tier-specs">
-            <li><strong>5,000</strong> credits / month</li>
-            <li><strong>5</strong> active inbox slots</li>
+            <li><strong>25,000</strong> credits / month</li>
+            <li><strong>25</strong> active inbox slots</li>
             <li><strong>Full API + MCP Server</strong></li>
             <li>14-day email retention</li>
-            <li>Custom domain sync</li>
+            <li>Custom domain sync (3 domains)</li>
           </ul>
         </div>
         <a href="/signup.php" class="btn btn-primary btn-sm">Start Pro Plan</a>
@@ -1005,14 +1024,14 @@ footer {
       <div class="price-card">
         <div>
           <div class="tier-code">BUSINESS / AGENCY</div>
-          <div class="tier-cost">$19<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-cost">$17<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
           <div class="tier-sub">billed monthly</div>
           <ul class="tier-specs">
-            <li><strong>15,000</strong> credits / month</li>
-            <li><strong>15</strong> active inbox slots</li>
+            <li><strong>70,000</strong> credits / month</li>
+            <li><strong>70</strong> active inbox slots</li>
             <li>Full API + MCP Server</li>
             <li>30-day email retention</li>
-            <li>Multiple custom domains</li>
+            <li>Multiple custom domains (5 domains)</li>
           </ul>
         </div>
         <a href="/signup.php" class="btn btn-outline btn-sm">Start Business</a>
@@ -1022,14 +1041,14 @@ footer {
       <div class="price-card">
         <div>
           <div class="tier-code">DEVELOPER SCALE</div>
-          <div class="tier-cost">$49<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-cost">$27<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
           <div class="tier-sub">billed monthly</div>
           <ul class="tier-specs">
-            <li><strong>50,000</strong> credits / month</li>
-            <li><strong>50</strong> active inbox slots</li>
+            <li><strong>125,000</strong> credits / month</li>
+            <li><strong>125</strong> active inbox slots</li>
             <li>Priority API + MCP routing</li>
-            <li>60-day email retention</li>
-            <li>High rate limit allowance</li>
+            <li>45-day email retention</li>
+            <li>High rate limit (10 domains)</li>
           </ul>
         </div>
         <a href="/signup.php" class="btn btn-outline btn-sm">Start Scale Plan</a>
@@ -1039,17 +1058,17 @@ footer {
       <div class="price-card">
         <div>
           <div class="tier-code">ENTERPRISE CUSTOM</div>
-          <div class="tier-cost">$99<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+          <div class="tier-cost">$37<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
           <div class="tier-sub">billed monthly</div>
           <ul class="tier-specs">
-            <li><strong>150,000</strong> credits / month</li>
-            <li><strong>Unlimited</strong> inbox slots</li>
+            <li><strong>190,000</strong> credits / month</li>
+            <li><strong>190</strong> inbox slots</li>
             <li>Dedicated mail server IP</li>
-            <li>90-day email retention</li>
-            <li>VIP SLA support</li>
+            <li>60-day email retention</li>
+            <li>VIP SLA support (20 domains)</li>
           </ul>
         </div>
-        <a href="mailto:sales@teak.email" class="btn btn-outline btn-sm">Contact Sales</a>
+        <a href="/signup.php" class="btn btn-outline btn-sm">Start Enterprise</a>
       </div>
     </div>
   </div>

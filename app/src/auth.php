@@ -53,6 +53,30 @@ function require_login(): array {
     return $u;
 }
 
+/** Check if current user is an admin. */
+function is_admin(): bool {
+    $u = current_user();
+    return $u !== null && !empty($u['is_admin']);
+}
+
+/** Require logged in user to have admin privileges. */
+function require_admin(): array {
+    $u = require_login();
+    if (empty($u['is_admin'])) {
+        http_response_code(403);
+        require_once __DIR__ . '/../public/_layout.php';
+        page_header('403 — Forbidden', $u);
+        echo '<div class="card" style="text-align:center;max-width:440px;margin:60px auto">
+            <h2>⛔ Access Denied</h2>
+            <p class="sub" style="margin-top:10px">Admin privileges required to access this area.</p>
+            <a href="/dashboard.php" class="btn" style="margin-top:16px">Back to Dashboard</a>
+        </div>';
+        page_footer();
+        exit;
+    }
+    return $u;
+}
+
 /** Rate-limited login attempt (5 fails → 5 min). */
 function attempt_login(string $email, string $password): array {
     $ip = client_ip();

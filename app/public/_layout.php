@@ -23,35 +23,41 @@ function page_header(string $title, array $user = null): void {
         $isBuyDomain = ($currentPage === 'buy-domain.php');
         $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
 
+	        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
+	        $adminLink = !empty($user['is_admin']) 
+	            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>' 
+	            : '';
+
 	        $nav = '<nav class="topnav">
 	            <div class="nav-inner">
 	                <a href="/dashboard.php" class="nav-brand"><svg width="22" height="22" viewBox="0 0 32 32" fill="none" style="vertical-align:middle;margin-right:6px"><rect width="32" height="32" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/><path d="M7 11.5L16 18.5L25 11.5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/><rect x="7" y="11" width="18" height="13" rx="2.5" stroke="#38bdf8" stroke-width="1.8" fill="none"/></svg><strong>teak</strong><span style="color:#38bdf8">.email</span></a>
-                <div class="nav-links" id="main-nav-links">
-                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
-                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
-                    <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
-                    <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">Sent</a>
-                    <a href="/warmup.php" class="nav-link' . ($isWarmup ? ' active' : '') . '">Warmup</a>
-                    <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
-                    <a href="/buy-domain.php" class="nav-link' . ($isBuyDomain ? ' active' : '') . '">Buy Domain</a>
-                    <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
-                    <div class="nav-mobile-user">
-                        <div class="nav-mobile-info">
-                            <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
-                            <span class="nav-tier-badge" title="Lifetime Tier">Tier ' . $tier . '</span>
-                        </div>
-                        <div class="nav-mobile-account">
-                            <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">👤 ' . htmlspecialchars($user['email']) . '</span>
-                            <a href="/logout.php" class="nav-logout">Logout</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="nav-user">
-                    <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
-                    <span class="nav-tier-badge" title="Lifetime Tier">T' . $tier . '</span>
-                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-                    <a href="/logout.php" class="nav-logout">Logout</a>
-                </div>
+	                <div class="nav-links" id="main-nav-links">
+	                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
+	                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
+	                    <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
+	                    <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">Sent</a>
+	                    <a href="/warmup.php" class="nav-link' . ($isWarmup ? ' active' : '') . '">Warmup</a>
+	                    <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
+	                    <a href="/buy-domain.php" class="nav-link' . ($isBuyDomain ? ' active' : '') . '">Buy Domain</a>
+	                    <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
+	                    ' . $adminLink . '
+	                    <div class="nav-mobile-user">
+	                        <div class="nav-mobile-info">
+	                            <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
+	                            <span class="nav-tier-badge" title="Lifetime Tier">Tier ' . $tier . '</span>
+	                        </div>
+	                        <div class="nav-mobile-account">
+	                            <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">👤 ' . htmlspecialchars($user['email']) . '</span>
+	                            <a href="/logout.php" class="nav-logout">Logout</a>
+	                        </div>
+	                    </div>
+	                </div>
+	                <div class="nav-user">
+	                    <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
+	                    <span class="nav-tier-badge" title="Lifetime Tier">T' . $tier . '</span>
+	                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+	                    <a href="/logout.php" class="nav-logout">Logout</a>
+	                </div>
                 <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
             </div>
         </nav>';

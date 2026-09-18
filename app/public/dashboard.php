@@ -138,10 +138,10 @@ page_header('Dashboard', $user);
     <div style="font-size:1.4rem;margin-bottom:4px">⚡</div>
     <h2>Credit Top-Up & Upgrades</h2>
     <p class="sub">Need more credits or extra inbox slots? Stack additional AppSumo codes or top up instantly.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <a href="/redeem.php" class="btn btn-sm" style="background:#f59e0b;color:#000;font-weight:700">🎁 Redeem / Stack Code</a>
-      <a href="mailto:sales@teak.email?subject=Credit%20Top-up%20Request" class="btn btn-sm btn-ghost">💳 Request Custom Tier</a>
-    </div>
+	    <div style="display:flex;gap:8px;flex-wrap:wrap">
+	      <a href="/checkout.php?tier=2" class="btn btn-sm" style="background:#0070ba;color:#fff;font-weight:700">💳 Upgrade with PayPal</a>
+	      <a href="/redeem.php" class="btn btn-sm btn-ghost">🎁 Redeem AppSumo Code</a>
+	    </div>
   </div>
   <div class="card" style="border-left:4px solid #3b82f6">
     <div style="font-size:1.4rem;margin-bottom:4px">🤖</div>
