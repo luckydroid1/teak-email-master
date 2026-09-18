@@ -56,17 +56,11 @@ try {
     echo "! Error creating ia_payments table: " . $e->getMessage() . "\n";
 }
 
-// 4. Ensure master admin exists (e.g. y3s@gmx.com or first user)
+// 4. Ensure master admin exists
 try {
-    $st = $pdo->prepare("UPDATE ia_users SET is_admin = 1 WHERE email IN ('y3s@gmx.com', 'admin@teak.email')");
+    $st = $pdo->prepare("UPDATE ia_users SET is_admin = 1 WHERE email IN ('admin@teak.email', 'n311311@gmail.com')");
     $st->execute();
-    if ($st->rowCount() > 0) {
-        echo "✓ Granted admin role to master user.\n";
-    } else {
-        // If no matching user, promote the earliest user if any
-        $pdo->exec("UPDATE ia_users SET is_admin = 1 ORDER BY id ASC LIMIT 1");
-        echo "✓ Promoted first user as master admin.\n";
-    }
+    echo "✓ Master admin role configured.\n";
 } catch (Exception $e) {
     echo "! Error updating master admin: " . $e->getMessage() . "\n";
 }
