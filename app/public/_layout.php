@@ -30,7 +30,7 @@ function page_header(string $title, array $user = null): void {
 
 	        $nav = '<nav class="topnav">
 	            <div class="nav-inner">
-	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="BuyDomains"><img src="/logo.png?v=99" alt="BuyDomains By Network Solutions" style="height:36px;width:auto;display:block" /></a>
+	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="BuyDomains.com By Network Solutions"><img src="/logo.svg?v=100" alt="BuyDomains.com By Network Solutions" style="height:40px;width:auto;display:block" /></a>
 	                <div class="nav-links" id="main-nav-links">
 	                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
 	                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
