@@ -746,7 +746,7 @@ footer {
 <nav class="nav-wrap">
   <div class="nav-container">
     <a href="/" class="brand" aria-label="BuyDomains" title="BuyDomains">
-      <img src="/logo.png" alt="BuyDomains By Network Solutions" style="height:42px;width:auto;display:block" />
+      <img src="/logo.svg?v=2" alt="BuyDomains By Network Solutions" style="height:36px;width:auto;display:block" />
       <span class="brand-badge">From $1/mo</span>
     </a>
     <div class="nav-links">
