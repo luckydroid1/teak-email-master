@@ -30,9 +30,11 @@ page_header('Sign Up');
 alert($error, null);
 ?>
 <div class="card card-highlight" style="max-width:420px;margin:48px auto">
-  <div style="text-align:center;margin-bottom:16px">
-    <div style="margin-bottom:12px;display:flex;justify-content:center"><img src="/logo-app.png?v=1" alt="BuyDomains By Network Solutions" style="height:44px;width:auto;display:block" /></div>
-    <h2 style="font-size:1.3rem;margin-bottom:2px">Create Account</h2>
+  <div style="text-align:center;margin-bottom:20px">
+    <div style="margin:0 auto 16px;display:flex;justify-content:center;align-items:center;min-height:50px">
+      <img src="/logo-app.png" alt="BuyDomains By Network Solutions" width="180" height="50" style="width:180px;height:auto;max-height:52px;display:block;margin:0 auto;object-fit:contain" fetchpriority="high" decoding="sync" />
+    </div>
+    <h2 style="font-size:1.35rem;font-weight:800;margin-bottom:4px;letter-spacing:-0.02em">Create Account</h2>
     <p class="sub" style="margin:0">Instant access to clean inboxes & developer API</p>
   </div>
 

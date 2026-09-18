@@ -62,24 +62,28 @@ function page_header(string $title, array $user = null): void {
             </div>
         </nav>';
     }
-    echo '<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<meta name="description" content="Teak Email — Clean email inboxes with API & MCP for builders and AI agents">
-<meta property="og:title" content="' . htmlspecialchars($title) . ' — Teak Email">
-<meta property="og:description" content="Manage email inboxes with API & MCP integration for developers and AI agents">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://teak.email">
-<title>' . htmlspecialchars($title) . ' — ' . htmlspecialchars($app) . '</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0a0e1a;color:#e2e8f0;min-height:100vh;line-height:1.5}
-a{color:#60a5fa}
+	    echo '<!DOCTYPE html><html lang="en"><head>
+	<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link rel="preload" href="/logo-app.png" as="image">
+	<link rel="preload" href="/logo.png" as="image">
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+	<meta name="description" content="Teak Email — Clean email inboxes with API & MCP for builders and AI agents">
+	<meta property="og:title" content="' . htmlspecialchars($title) . ' — Teak Email">
+	<meta property="og:description" content="Manage email inboxes with API & MCP integration for developers and AI agents">
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://teak.email">
+	<title>' . htmlspecialchars($title) . ' — ' . htmlspecialchars($app) . '</title>
+	<style>
+	*{margin:0;padding:0;box-sizing:border-box}
+	body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0a0e1a;color:#e2e8f0;min-height:100vh;line-height:1.5}
+	a{color:#60a5fa}
+	img{content-visibility:auto}
 
-/* Navigation */
-.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
-.nav-inner{max-width:1050px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:12px}
-.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
+	/* Navigation */
+	.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+	.nav-inner{max-width:1050px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:12px}
+	.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
+	.nav-brand img{height:32px;width:auto;display:block;aspect-ratio:300/85}
 .nav-links{display:flex;gap:3px;flex:1;overflow-x:auto}
 .nav-link{padding:6px 11px;border-radius:7px;font-size:.82rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s}
 .nav-link:hover{background:#1f2937;color:#f9fafb}

@@ -28,6 +28,7 @@ $app = 'BuyDomains';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preload" href="/logo.png" as="image">
 <title>Teak Email — Clean Email Infrastructure for Business, AI Agents & Sandbox</title>
 <meta name="description" content="One inbox hub for multi-brand operators, instant OTP extraction for autonomous AI agents, and a spam-free sandbox for developers. Lifetime deal with non-expiring credits.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📬</text></svg>">
