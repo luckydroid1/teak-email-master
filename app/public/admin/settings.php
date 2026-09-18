@@ -29,6 +29,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         audit($user['id'], 'admin_save_paypal_settings', 'web', "mode=$mode currency=$currency");
         $msg_success = 'PayPal credentials & configuration successfully saved!';
+    } elseif ($action === 'change_admin_password') {
+        $newPass = $_POST['new_password'] ?? '';
+        $newPassConfirm = $_POST['new_password_confirm'] ?? '';
+
+        if (strlen($newPass) < 8) {
+            $msg_error = 'New password must be at least 8 characters.';
+        } elseif ($newPass !== $newPassConfirm) {
+            $msg_error = 'Password confirmation does not match.';
+        } else {
+            $hash = password_hash($newPass, PASSWORD_BCRYPT);
+            db()->prepare('UPDATE ia_users SET password_hash = ? WHERE id = ?')->execute([$hash, $user['id']]);
+            audit($user['id'], 'admin_change_own_password', 'web');
+            $msg_success = '✓ Admin password changed successfully!';
+        }
     } elseif ($action === 'test_paypal') {
         require_once __DIR__ . '/../../src/paypal.php';
         $token = paypal_access_token();
@@ -102,6 +116,23 @@ admin_header('PayPal & Settings', $user, 'settings');
     </div>
 
     <div>
+        <div class="card">
+            <h3 style="margin-top:0">🔑 Change Admin Password</h3>
+            <p class="sub">Update password for current admin account (<strong><?= htmlspecialchars($user['email']) ?></strong>).</p>
+            <form method="POST" action="/admin/settings.php">
+                <input type="hidden" name="action" value="change_admin_password">
+                <div style="margin-bottom:12px">
+                    <label for="new_password" style="font-size:0.8rem">New Password (min 8 chars)</label>
+                    <input type="password" name="new_password" id="new_password" placeholder="••••••••" required minlength="8">
+                </div>
+                <div style="margin-bottom:14px">
+                    <label for="new_password_confirm" style="font-size:0.8rem">Confirm New Password</label>
+                    <input type="password" name="new_password_confirm" id="new_password_confirm" placeholder="••••••••" required minlength="8">
+                </div>
+                <button type="submit" class="btn btn-sm btn-ghost" style="width:100%">🔒 Update Password</button>
+            </form>
+        </div>
+
         <div class="card">
             <h3 style="margin-top:0">🔍 Test API Connection</h3>
             <p class="sub">Verify if the provided Client ID and Secret Key can authenticate with the PayPal OAuth2 server.</p>
