@@ -31,7 +31,7 @@ alert($error, null);
 ?>
 <div class="card card-highlight" style="max-width:420px;margin:48px auto">
   <div style="text-align:center;margin-bottom:16px">
-    <div style="font-size:2rem;margin-bottom:4px">🚀</div>
+    <div style="margin-bottom:12px;display:flex;justify-content:center"><img src="/logo-app.png?v=1" alt="BuyDomains By Network Solutions" style="height:44px;width:auto;display:block" /></div>
     <h2 style="font-size:1.3rem;margin-bottom:2px">Create Account</h2>
     <p class="sub" style="margin:0">Instant access to clean inboxes & developer API</p>
   </div>
