@@ -21,7 +21,7 @@ if ($request_uri !== '/' && $request_uri !== '/index.php') {
     exit;
 }
 
-$app = 'Teak Email';
+$app = 'BuyDomains';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -745,8 +745,8 @@ footer {
 <!-- Navigation -->
 <nav class="nav-wrap">
   <div class="nav-container">
-    <a href="/" class="brand" aria-label="Teak Email Home">
-      <img src="/logo.svg" alt="Teak Email" style="height:32px;width:auto;display:block" />
+    <a href="/" class="brand" aria-label="BuyDomains" title="BuyDomains">
+      <img src="/logo.png" alt="BuyDomains By Network Solutions" style="height:42px;width:auto;display:block" />
       <span class="brand-badge">From $1/mo</span>
     </a>
     <div class="nav-links">
