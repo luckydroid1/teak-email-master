@@ -1,9 +1,9 @@
 /**
  * Teak Email — Cloudflare Worker Reverse Proxy
- * Proxies all requests transparently to the VPS origin backend.
+ * Proxies all requests transparently to the new Sumopod VPS origin backend.
  */
 
-const ORIGIN = "http://94.100.26.189";
+const ORIGIN = "http://43.156.240.174";
 
 export default {
   async fetch(request, env, ctx) {
@@ -41,3 +41,4 @@ export default {
     }
   }
 };
+
