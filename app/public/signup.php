@@ -29,14 +29,18 @@ require_once __DIR__ . '/_layout.php';
 page_header('Sign Up');
 alert($error, null);
 ?>
-<div class="card card-highlight" style="max-width:400px;margin:56px auto;padding:32px 28px;border-radius:16px;box-shadow:0 20px 40px -15px rgba(0,0,0,0.5)">
+<div style="max-width:400px;margin:48px auto">
   <div style="text-align:center;margin-bottom:24px">
-    <div style="margin:0 auto 18px;display:flex;justify-content:center;align-items:center">
-      <img src="/logo-app.png" alt="BuyDomains By Network Solutions" width="145" height="42" style="width:145px;height:auto;display:block;margin:0 auto;object-fit:contain" fetchpriority="high" decoding="sync" />
-    </div>
-    <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:4px;color:#f8fafc;letter-spacing:-0.02em">Create Account</h2>
-    <p class="sub" style="margin:0;font-size:0.85rem;color:#94a3b8">Instant access to clean inboxes & developer API</p>
+    <a href="/" style="display:inline-block">
+      <img src="/logo-app.png" alt="BuyDomains By Network Solutions" width="160" height="48" style="width:160px;height:auto;display:block;margin:0 auto;object-fit:contain" fetchpriority="high" decoding="sync" />
+    </a>
   </div>
+
+  <div class="card card-highlight" style="padding:32px 28px;border-radius:16px;box-shadow:0 20px 40px -15px rgba(0,0,0,0.5)">
+    <div style="text-align:center;margin-bottom:20px">
+      <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:4px;color:#f8fafc;letter-spacing:-0.02em">Create Account</h2>
+      <p class="sub" style="margin:0;font-size:0.85rem;color:#94a3b8">Instant access to clean inboxes & developer API</p>
+    </div>
 
   <form method="post" id="signup-form" onsubmit="const b=document.getElementById('signup-btn');if(b){b.textContent='Creating account...';b.disabled=true;}">
     <?php csrf_field(); ?>
@@ -59,5 +63,6 @@ alert($error, null);
   </form>
   
   <p style="text-align:center;margin-top:16px;font-size:.85rem;color:#94a3b8">Already have an account? <a href="/login.php" style="color:#60a5fa;font-weight:600">Log In</a></p>
+  </div>
 </div>
 <?php page_footer(); ?>
