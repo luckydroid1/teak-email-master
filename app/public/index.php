@@ -745,13 +745,8 @@ footer {
 <!-- Navigation -->
 <nav class="nav-wrap">
   <div class="nav-container">
-    <a href="/" class="brand">
-      <svg class="brand-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" style="flex-shrink:0" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="color-mix(in oklch, var(--accent) 16%, var(--bg-surface))" stroke="color-mix(in oklch, var(--accent) 45%, transparent)" stroke-width="1.5"/>
-        <path d="M7 11.5L16 18.5L25 11.5" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="7" y="11" width="18" height="13" rx="2.5" stroke="var(--accent)" stroke-width="1.8" fill="none"/>
-      </svg>
-      <span class="brand-wordmark"><span class="brand-name">teak</span><span class="brand-dot">.</span><span class="brand-domain">email</span></span>
+    <a href="/" class="brand" aria-label="Teak Email Home">
+      <img src="/logo.svg" alt="Teak Email" style="height:32px;width:auto;display:block" />
       <span class="brand-badge">From $1/mo</span>
     </a>
     <div class="nav-links">

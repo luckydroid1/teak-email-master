@@ -30,7 +30,7 @@ function page_header(string $title, array $user = null): void {
 
 	        $nav = '<nav class="topnav">
 	            <div class="nav-inner">
-	                <a href="/dashboard.php" class="nav-brand"><svg width="22" height="22" viewBox="0 0 32 32" fill="none" style="vertical-align:middle;margin-right:6px"><rect width="32" height="32" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/><path d="M7 11.5L16 18.5L25 11.5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/><rect x="7" y="11" width="18" height="13" rx="2.5" stroke="#38bdf8" stroke-width="1.8" fill="none"/></svg><strong>teak</strong><span style="color:#38bdf8">.email</span></a>
+	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center"><img src="/logo.svg" alt="Teak Email" style="height:26px;width:auto;display:block" /></a>
 	                <div class="nav-links" id="main-nav-links">
 	                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
 	                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
