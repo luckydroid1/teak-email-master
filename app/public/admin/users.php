@@ -15,34 +15,38 @@ $pdo = db();
 $msg_success = null;
 $msg_error = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $targetId = (int)($_POST['target_user_id'] ?? 0);
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	    if (!csrf_validate()) {
+	        $msg_error = 'Invalid security token or session expired. Please refresh and try again.';
+	    } else {
+	        $action = $_POST['action'] ?? '';
+	        $targetId = (int)($_POST['target_user_id'] ?? 0);
 
-    if ($action === 'toggle_admin' && $targetId > 0) {
-        $st = $pdo->prepare('SELECT is_admin, email FROM ia_users WHERE id = ?');
-        $st->execute([$targetId]);
-        $target = $st->fetch();
-        if ($target) {
-            $newAdmin = empty($target['is_admin']) ? 1 : 0;
-            $pdo->prepare('UPDATE ia_users SET is_admin = ? WHERE id = ?')->execute([$newAdmin, $targetId]);
-            audit($user['id'], 'admin_toggle_role', 'web', "target_id=$targetId is_admin=$newAdmin");
-            $msg_success = "Admin role for {$target['email']} " . ($newAdmin ? 'granted' : 'revoked') . '.';
-        }
-    } elseif ($action === 'adjust_credits' && $targetId > 0) {
-        $delta = (int)($_POST['credit_delta'] ?? 0);
-        if ($delta !== 0) {
-            credit_mutate($targetId, $delta, 'admin_adjust', "by_admin={$user['id']}");
-            audit($user['id'], 'admin_credit_adjust', 'web', "target_id=$targetId delta=$delta");
-            $msg_success = "Adjusted credits by " . ($delta > 0 ? "+$delta" : "$delta") . " for user #$targetId.";
-        }
-    } elseif ($action === 'set_tier' && $targetId > 0) {
-        $tier = (int)($_POST['tier'] ?? 1);
-        $pdo->prepare('UPDATE ia_users SET trust_tier = ? WHERE id = ?')->execute([$tier, $targetId]);
-        audit($user['id'], 'admin_set_tier', 'web', "target_id=$targetId tier=$tier");
-        $msg_success = "User #$targetId tier updated to Tier $tier.";
-    }
-}
+	        if ($action === 'toggle_admin' && $targetId > 0) {
+	            $st = $pdo->prepare('SELECT is_admin, email FROM ia_users WHERE id = ?');
+	            $st->execute([$targetId]);
+	            $target = $st->fetch();
+	            if ($target) {
+	                $newAdmin = empty($target['is_admin']) ? 1 : 0;
+	                $pdo->prepare('UPDATE ia_users SET is_admin = ? WHERE id = ?')->execute([$newAdmin, $targetId]);
+	                audit($user['id'], 'admin_toggle_role', 'web', "target_id=$targetId is_admin=$newAdmin");
+	                $msg_success = "Admin role for {$target['email']} " . ($newAdmin ? 'granted' : 'revoked') . '.';
+	            }
+	        } elseif ($action === 'adjust_credits' && $targetId > 0) {
+	            $delta = (int)($_POST['credit_delta'] ?? 0);
+	            if ($delta !== 0) {
+	                credit_mutate($targetId, $delta, 'admin_adjust', "by_admin={$user['id']}");
+	                audit($user['id'], 'admin_credit_adjust', 'web', "target_id=$targetId delta=$delta");
+	                $msg_success = "Adjusted credits by " . ($delta > 0 ? "+$delta" : "$delta") . " for user #$targetId.";
+	            }
+	        } elseif ($action === 'set_tier' && $targetId > 0) {
+	            $tier = (int)($_POST['tier'] ?? 1);
+	            $pdo->prepare('UPDATE ia_users SET trust_tier = ? WHERE id = ?')->execute([$tier, $targetId]);
+	            audit($user['id'], 'admin_set_tier', 'web', "target_id=$targetId tier=$tier");
+	            $msg_success = "User #$targetId tier updated to Tier $tier.";
+	        }
+	    }
+	}
 
 // Fetch all users with balance
 $users = $pdo->query("
@@ -106,8 +110,9 @@ admin_header('Users & Roles', $user, 'users');
                         </td>
                         <td style="padding:10px 8px;text-align:right">
                             <div style="display:inline-flex;gap:6px">
-                                <form method="POST" action="/admin/users.php" style="display:inline" onsubmit="return confirm('Change admin role for this user?')">
-                                    <input type="hidden" name="action" value="toggle_admin">
+	                                <form method="POST" action="/admin/users.php" style="display:inline" onsubmit="return confirm('Change admin role for this user?')">
+	                                    <?php csrf_field(); ?>
+	                                    <input type="hidden" name="action" value="toggle_admin">
                                     <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                     <button type="submit" class="btn btn-sm btn-ghost" style="padding:4px 8px;font-size:0.75rem">
                                         <?= !empty($u['is_admin']) ? 'Demote' : 'Promote Admin' ?>

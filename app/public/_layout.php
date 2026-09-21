@@ -187,9 +187,15 @@ input:focus,select:focus,textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3p
 .code{background:#0a0e1a;border:1px solid #1f2937;padding:12px 16px;border-radius:8px;font-family:\'SF Mono\',Menlo,monospace;font-size:.82rem;color:#93c5fd;word-break:break-all;margin-bottom:12px;overflow-x:auto;position:relative}
 .mono{font-family:\'SF Mono\',Menlo,monospace;font-size:.84rem;color:#93c5fd}
 
-/* Grid */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+	/* Grid */
+	.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+	@media(max-width:768px){
+	    .grid2{grid-template-columns:1fr !important}
+	    div[style*="grid-template-columns: 1.4fr 0.6fr"],
+	    div[style*="grid-template-columns:1.4fr 0.6fr"] {
+	        grid-template-columns: 1fr !important;
+	    }
+	}
 
 /* Back link */
 .back{display:inline-flex;align-items:center;gap:6px;color:#60a5fa;text-decoration:none;font-size:.88rem;margin-bottom:16px;font-weight:500}

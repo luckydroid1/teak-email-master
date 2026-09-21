@@ -21,16 +21,20 @@ $info = tier_info($tier) ?? tier_info(1);
 $error = null;
 $loading = false;
 
-// If POST request, create the PayPal order
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $res = paypal_create_order((int)$user['id'], $tier);
-    if (!empty($res['approval_url'])) {
-        header('Location: ' . $res['approval_url']);
-        exit;
-    } else {
-        $error = $res['error'] ?? 'Could not initiate PayPal checkout. Please ensure PayPal credentials are set in Admin.';
-    }
-}
+	// If POST request, create the PayPal order
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	    if (!csrf_validate()) {
+	        $error = 'Security session expired. Please refresh the page and try again.';
+	    } else {
+	        $res = paypal_create_order((int)$user['id'], $tier);
+	        if (!empty($res['approval_url'])) {
+	            header('Location: ' . $res['approval_url']);
+	            exit;
+	        } else {
+	            $error = $res['error'] ?? 'Could not initiate PayPal checkout. Please ensure PayPal credentials are set in Admin.';
+	        }
+	    }
+	}
 
 page_header("Checkout Tier $tier", $user);
 ?>
@@ -69,8 +73,9 @@ page_header("Checkout Tier $tier", $user);
             </ul>
         </div>
 
-        <form method="POST" action="/checkout.php">
-            <input type="hidden" name="tier" value="<?= $tier ?>">
+	        <form method="POST" action="/checkout.php">
+	            <?php csrf_field(); ?>
+	            <input type="hidden" name="tier" value="<?= $tier ?>">
             <button type="submit" class="btn" style="width:100%;padding:12px;font-size:1rem;background:#0070ba;color:#fff">
                 <span>Pay with PayPal ($<?= number_format((float)($info['price'] ?? 1), 2) ?>) →</span>
             </button>

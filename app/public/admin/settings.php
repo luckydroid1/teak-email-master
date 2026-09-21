@@ -13,46 +13,50 @@ $user = require_admin();
 $msg_success = null;
 $msg_error = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	    if (!csrf_validate()) {
+	        $msg_error = 'Invalid security token or session expired. Please refresh and try again.';
+	    } else {
+	        $action = $_POST['action'] ?? '';
 
-    if ($action === 'save_paypal') {
-        $clientId = trim($_POST['paypal_client_id'] ?? '');
-        $secret   = trim($_POST['paypal_secret'] ?? '');
-        $mode     = in_array($_POST['paypal_mode'] ?? '', ['sandbox', 'live'], true) ? $_POST['paypal_mode'] : 'sandbox';
-        $currency = strtoupper(trim($_POST['paypal_currency'] ?? 'USD'));
+	        if ($action === 'save_paypal') {
+	            $clientId = trim($_POST['paypal_client_id'] ?? '');
+	            $secret   = trim($_POST['paypal_secret'] ?? '');
+	            $mode     = in_array($_POST['paypal_mode'] ?? '', ['sandbox', 'live'], true) ? $_POST['paypal_mode'] : 'sandbox';
+	            $currency = strtoupper(trim($_POST['paypal_currency'] ?? 'USD'));
 
-        setting_set('paypal_client_id', $clientId);
-        setting_set('paypal_secret', $secret);
-        setting_set('paypal_mode', $mode);
-        setting_set('paypal_currency', $currency);
+	            setting_set('paypal_client_id', $clientId);
+	            setting_set('paypal_secret', $secret);
+	            setting_set('paypal_mode', $mode);
+	            setting_set('paypal_currency', $currency);
 
-        audit($user['id'], 'admin_save_paypal_settings', 'web', "mode=$mode currency=$currency");
-        $msg_success = 'PayPal credentials & configuration successfully saved!';
-    } elseif ($action === 'change_admin_password') {
-        $newPass = $_POST['new_password'] ?? '';
-        $newPassConfirm = $_POST['new_password_confirm'] ?? '';
+	            audit($user['id'], 'admin_save_paypal_settings', 'web', "mode=$mode currency=$currency");
+	            $msg_success = 'PayPal credentials & configuration successfully saved!';
+	        } elseif ($action === 'change_admin_password') {
+	            $newPass = $_POST['new_password'] ?? '';
+	            $newPassConfirm = $_POST['new_password_confirm'] ?? '';
 
-        if (strlen($newPass) < 8) {
-            $msg_error = 'New password must be at least 8 characters.';
-        } elseif ($newPass !== $newPassConfirm) {
-            $msg_error = 'Password confirmation does not match.';
-        } else {
-            $hash = password_hash($newPass, PASSWORD_BCRYPT);
-            db()->prepare('UPDATE ia_users SET password_hash = ? WHERE id = ?')->execute([$hash, $user['id']]);
-            audit($user['id'], 'admin_change_own_password', 'web');
-            $msg_success = '✓ Admin password changed successfully!';
-        }
-    } elseif ($action === 'test_paypal') {
-        require_once __DIR__ . '/../../src/paypal.php';
-        $token = paypal_access_token();
-        if ($token) {
-            $msg_success = '✓ Connection to PayPal API succeeded! OAuth Token received.';
-        } else {
-            $msg_error = '✗ Connection to PayPal API failed. Please verify your Client ID, Secret, and Environment mode.';
-        }
-    }
-}
+	            if (strlen($newPass) < 8) {
+	                $msg_error = 'New password must be at least 8 characters.';
+	            } elseif ($newPass !== $newPassConfirm) {
+	                $msg_error = 'Password confirmation does not match.';
+	            } else {
+	                $hash = password_hash($newPass, PASSWORD_BCRYPT);
+	                db()->prepare('UPDATE ia_users SET password_hash = ? WHERE id = ?')->execute([$hash, $user['id']]);
+	                audit($user['id'], 'admin_change_own_password', 'web');
+	                $msg_success = '✓ Admin password changed successfully!';
+	            }
+	        } elseif ($action === 'test_paypal') {
+	            require_once __DIR__ . '/../../src/paypal.php';
+	            $token = paypal_access_token();
+	            if ($token) {
+	                $msg_success = '✓ Connection to PayPal API succeeded! OAuth Token received.';
+	            } else {
+	                $msg_error = '✗ Connection to PayPal API failed. Please verify your Client ID, Secret, and Environment mode.';
+	            }
+	        }
+	    }
+	}
 
 $paypalClientId = setting_get('paypal_client_id', '');
 $paypalSecret   = setting_get('paypal_secret', '');
@@ -81,8 +85,9 @@ admin_header('PayPal & Settings', $user, 'settings');
         </h2>
         <p class="sub">Enter your PayPal REST API credentials below. When configured, checkout buttons on the pricing table and user dashboard will generate real PayPal orders.</p>
 
-        <form method="POST" action="/admin/settings.php">
-            <input type="hidden" name="action" value="save_paypal">
+	        <form method="POST" action="/admin/settings.php">
+	            <?php csrf_field(); ?>
+	            <input type="hidden" name="action" value="save_paypal">
 
             <div style="margin-bottom:16px">
                 <label for="paypal_mode">Environment Mode</label>
@@ -119,8 +124,9 @@ admin_header('PayPal & Settings', $user, 'settings');
         <div class="card">
             <h3 style="margin-top:0">🔑 Change Admin Password</h3>
             <p class="sub">Update password for current admin account (<strong><?= htmlspecialchars($user['email']) ?></strong>).</p>
-            <form method="POST" action="/admin/settings.php">
-                <input type="hidden" name="action" value="change_admin_password">
+	            <form method="POST" action="/admin/settings.php">
+	                <?php csrf_field(); ?>
+	                <input type="hidden" name="action" value="change_admin_password">
                 <div style="margin-bottom:12px">
                     <label for="new_password" style="font-size:0.8rem">New Password (min 8 chars)</label>
                     <input type="password" name="new_password" id="new_password" placeholder="••••••••" required minlength="8">
@@ -136,8 +142,9 @@ admin_header('PayPal & Settings', $user, 'settings');
         <div class="card">
             <h3 style="margin-top:0">🔍 Test API Connection</h3>
             <p class="sub">Verify if the provided Client ID and Secret Key can authenticate with the PayPal OAuth2 server.</p>
-            <form method="POST" action="/admin/settings.php">
-                <input type="hidden" name="action" value="test_paypal">
+	            <form method="POST" action="/admin/settings.php">
+	                <?php csrf_field(); ?>
+	                <input type="hidden" name="action" value="test_paypal">
                 <button type="submit" class="btn btn-sm btn-ghost" style="width:100%">⚡ Test PayPal API Connection</button>
             </form>
         </div>
