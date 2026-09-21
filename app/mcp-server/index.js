@@ -80,18 +80,43 @@ function buildServer() {
     return { content: [{ type: "text", text: data.raw || "" }] };
   });
 
-  server.registerTool("get_otp", {
-    description: "Extract the one-time password/code from a specific email.",
-    inputSchema: {
-      email: z.string().describe("Full inbox address"),
-      uid: z.number().describe("Email UID from list_emails"),
-    },
-  }, async ({ email, uid }) => {
-    const data = await callApi(`/inboxes/${encodeURIComponent(email)}/otp/${uid}`);
-    return {
-      content: [{ type: "text", text: JSON.stringify({ otp: data.otp, email: data.email, uid: data.uid }, null, 2) }],
-    };
-  });
+	  server.registerTool("get_otp", {
+	    description: "Extract the one-time password/code from a specific email.",
+	    inputSchema: {
+	      email: z.string().describe("Full inbox address"),
+	      uid: z.number().describe("Email UID from list_emails"),
+	    },
+	  }, async ({ email, uid }) => {
+	    const data = await callApi(`/inboxes/${encodeURIComponent(email)}/otp/${uid}`);
+	    return {
+	      content: [{ type: "text", text: JSON.stringify({ otp: data.otp, email: data.email, uid: data.uid }, null, 2) }],
+	    };
+	  });
+
+	  server.registerTool("get_receipt", {
+	    description: "Extract receipt/invoice expense details (vendor, total amount, currency, invoice #, date) from a specific email.",
+	    inputSchema: {
+	      email: z.string().describe("Full inbox address"),
+	      uid: z.number().describe("Email UID from list_emails"),
+	    },
+	  }, async ({ email, uid }) => {
+	    const data = await callApi(`/inboxes/${encodeURIComponent(email)}/receipt/${uid}`);
+	    return {
+	      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+	    };
+	  });
+
+	  server.registerTool("list_receipts", {
+	    description: "Scan inbox and list all emails that contain receipts/invoices with extracted amounts and vendors for accounting/bookkeeping.",
+	    inputSchema: {
+	      email: z.string().describe("Full inbox address"),
+	    },
+	  }, async ({ email }) => {
+	    const data = await callApi(`/inboxes/${encodeURIComponent(email)}/receipts`);
+	    return {
+	      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+	    };
+	  });
 
   server.registerTool("get_balance", {
     description: "Get current credit balance and tier.",

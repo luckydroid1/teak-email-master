@@ -177,13 +177,18 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     
     <div style="display:flex;gap:6px;align-items:center">
       <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&export=eml" class="btn-copy" style="text-decoration:none">📥 Download .EML</a>
-      <?php
-      $reply_to = $sender_display;
-      if (preg_match('/<([^>]+)>/', $sender_display, $e)) {
-          $reply_to = $e[1];
-      }
-      ?>
-      <a href="/send.php?from=<?= urlencode($email) ?>&reply_to=<?= urlencode($reply_to) ?>&reply_subject=<?= urlencode($subject_line) ?>" class="btn btn-sm btn-success">✉️ Reply to Sender</a>
+	      <?php
+	      require_once __DIR__ . '/../src/receipt.php';
+	      $rec_info = extract_receipt($raw);
+	      $reply_to = $sender_display;
+	      if (preg_match('/<([^>]+)>/', $sender_display, $e)) {
+	          $reply_to = $e[1];
+	      }
+	      ?>
+	      <?php if ($rec_info['is_receipt']): ?>
+	        <span class="btn-sm btn-warning" style="cursor:default">🧾 <?= htmlspecialchars($rec_info['currency'] ?? 'USD') ?> <?= number_format((float)($rec_info['amount'] ?? 0), 2) ?></span>
+	      <?php endif; ?>
+	      <a href="/send.php?from=<?= urlencode($email) ?>&reply_to=<?= urlencode($reply_to) ?>&reply_subject=<?= urlencode($subject_line) ?>" class="btn btn-sm btn-success">✉️ Reply to Sender</a>
     </div>
   </div>
 

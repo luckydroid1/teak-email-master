@@ -19,21 +19,23 @@ function page_header(string $title, array $user = null): void {
         $isSend = ($currentPage === 'send.php');
         $isSent = ($currentPage === 'sent.php');
         $isWarmup = ($currentPage === 'warmup.php');
-        $isDomains = ($currentPage === 'domains.php');
-        $isBuyDomain = ($currentPage === 'buy-domain.php');
-        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
+	        $isExpenses = ($currentPage === 'expenses.php');
+	        $isDomains = ($currentPage === 'domains.php');
+	        $isBuyDomain = ($currentPage === 'buy-domain.php');
+	        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
 
 	        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
-	        $adminLink = !empty($user['is_admin']) 
-	            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>' 
+	        $adminLink = !empty($user['is_admin'])
+	            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>'
 	            : '';
 
-		        $nav = '<nav class="topnav">
-		            <div class="nav-inner">
-		                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="BuyDomains By Network Solutions"><img src="/logo-app.png?v=1" alt="BuyDomains By Network Solutions" style="height:32px;width:auto;display:block" /></a>
-		                <div class="nav-links" id="main-nav-links">
+	        $nav = '<nav class="topnav">
+	            <div class="nav-inner">
+	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="BuyDomains By Network Solutions"><img src="/logo-app.png?v=1" alt="BuyDomains By Network Solutions" style="height:32px;width:auto;display:block" /></a>
+	                <div class="nav-links" id="main-nav-links">
 	                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
 	                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
+	                    <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">🧾 Expenses</a>
 	                    <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
 	                    <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">Sent</a>
 	                    <a href="/warmup.php" class="nav-link' . ($isWarmup ? ' active' : '') . '">Warmup</a>

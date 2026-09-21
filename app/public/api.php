@@ -109,11 +109,49 @@ switch ($segment) {
             api_json(['error' => 'Method not allowed'], 405);
         }
 
-        if ($sub === 'otp' && $method === 'GET' && $uid_num > 0) {
-            $res = inbox_otp($uid, $email, $uid_num);
-            if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
-            api_json(['ok' => true, 'email' => $res['email'], 'uid' => $res['uid'], 'otp' => $res['otp'], 'text' => $res['text']]);
-        }
+	        if ($sub === 'otp' && $method === 'GET' && $uid_num > 0) {
+	            $res = inbox_otp($uid, $email, $uid_num);
+	            if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
+	            api_json(['ok' => true, 'email' => $res['email'], 'uid' => $res['uid'], 'otp' => $res['otp'], 'text' => $res['text']]);
+	        }
+
+	        if ($sub === 'receipt' && $method === 'GET' && $uid_num > 0) {
+	            $res = inbox_receipt($uid, $email, $uid_num);
+	            if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
+	            api_json($res);
+	        }
+
+	        if ($sub === 'receipts' && $method === 'GET') {
+	            $inbox = inbox_owned($uid, $email);
+	            if (!$inbox) api_json(['error' => 'Inbox not found'], 404);
+	            $all_messages = mailcow_fetch_inbox($email);
+	            require_once __DIR__ . '/../src/receipt.php';
+	            $receipts = [];
+	            foreach ($all_messages as $m) {
+	                $uid_num = (int)$m['uid'];
+	                $raw = mailcow_fetch_message($email, $uid_num);
+	                $parsed = extract_receipt($raw ?? '');
+	                if ($parsed['is_receipt']) {
+	                    $receipts[] = [
+	                        'uid' => $uid_num,
+	                        'from' => $m['from'] ?? '',
+	                        'subject' => $m['subject'] ?? '',
+	                        'date' => $m['date'] ?? '',
+	                        'vendor' => $parsed['vendor'],
+	                        'amount' => $parsed['amount'],
+	                        'currency' => $parsed['currency'],
+	                        'invoice_number' => $parsed['invoice_number'],
+	                        'summary' => $parsed['summary']
+	                    ];
+	                }
+	            }
+	            api_json([
+	                'ok' => true,
+	                'inbox' => $email,
+	                'count' => count($receipts),
+	                'receipts' => $receipts
+	            ]);
+	        }
 
         if ($sub === 'export' && $method === 'GET') {
             $inbox = inbox_owned($uid, $email);

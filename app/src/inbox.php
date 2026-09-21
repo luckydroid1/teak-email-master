@@ -188,14 +188,27 @@ function inbox_otp(int $uid, string $email_address, int $uid_num): array {
     $res = inbox_read($uid, $email_address, $uid_num);
     if (!isset($res['ok'])) return $res;
     $parsed = extract_otp($res['raw']);
-    return [
-        'ok' => true,
-        'email' => $email_address,
-        'uid' => $uid_num,
-        'otp' => $parsed['otp'],
-        'text' => mb_substr($parsed['text'], 0, 4000),
-    ];
-}
+	    return [
+	        'ok' => true,
+	        'email' => $email_address,
+	        'uid' => $uid_num,
+	        'otp' => $parsed['otp'],
+	        'text' => mb_substr($parsed['text'], 0, 4000),
+	    ];
+	}
+
+	/** Ekstrak Receipt / Expense dari email. */
+	function inbox_receipt(int $uid, string $email_address, int $uid_num): array {
+	    require_once __DIR__ . '/receipt.php';
+	    $res = inbox_read($uid, $email_address, $uid_num);
+	    if (!isset($res['ok'])) return $res;
+	    $parsed = extract_receipt($res['raw']);
+	    return array_merge([
+	        'ok' => true,
+	        'email' => $email_address,
+	        'uid' => $uid_num,
+	    ], $parsed);
+	}
 
 /** Delete inbox (soft delete + remove Mailcow mailbox). */
 function inbox_delete(int $uid, string $email_address): array {

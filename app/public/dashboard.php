@@ -119,9 +119,10 @@ page_header('Dashboard', $user);
       </div>
       <div class="m">Retention: <?= (int)$in['retention_days'] ?> days · Expires: <?= htmlspecialchars($in['expires_at'] ?? 'Never') ?></div>
     </div>
-    <div style="display:flex;gap:6px;align-items:center">
-      <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-success">View Messages</a>
-      <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm" style="background:#2563eb">Compose</a>
+	    <div style="display:flex;gap:6px;align-items:center">
+	      <a href="/expenses.php?inbox=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-warning" title="View Receipts & Invoices">🧾 Receipts</a>
+	      <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-success">View Messages</a>
+	      <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm" style="background:#2563eb">Compose</a>
       <form action="/inboxes.php" method="post" style="display:inline;margin:0" onsubmit="return confirm('Delete this inbox?')">
         <?php csrf_field(); ?>
         <input type="hidden" name="delete_email" value="<?= htmlspecialchars($in['email_address']) ?>">
