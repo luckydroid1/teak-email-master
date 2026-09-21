@@ -34,7 +34,6 @@ const RECEIPT_CURRENCY_SYMBOLS = [
  *   currency: ?string,
  *   invoice_number: ?string,
  *   date: ?string,
- *   items: array,
  *   summary: string,
  *   text: string
  * }
@@ -49,48 +48,22 @@ function extract_receipt(string $raw): array {
     $invoice_no = null;
     $date = null;
     $vendor = null;
-    $items = [];
 
-    $receipt_keywords = [
-        'receipt', 'invoice', 'order confirmation', 'payment receipt',
-        'bill', 'billing', 'statement', 'subscription renewed',
-        'total paid', 'amount paid', 'struk', 'faktur', 'bukti pembayaran'
-    ];
-
-    foreach ($lines as $line) {
-        $trim = trim($line);
-        if ($trim === '') continue;
-        foreach ($receipt_keywords as $kw) {
-            if (stripos($trim, $kw) !== false) {
-                $is_receipt = true;
-                break 2;
-            }
-        }
+    // Filter email yang jelas-jelas hanya OTP/verifikasi/newsletter biasa
+    if (preg_match('/^(Verify your |Your GitHub launch code|Updates to managing|Welcome to your)/i', $text)) {
+        return [
+            'is_receipt' => false,
+            'vendor' => null,
+            'amount' => null,
+            'currency' => null,
+            'invoice_number' => null,
+            'date' => null,
+            'summary' => 'Not a receipt email',
+            'text' => $text
+        ];
     }
 
-    // 1. Ekstrak Vendor / Merchant (biasanya di awal atau baris pertama yang bukan header)
-    foreach ($lines as $line) {
-        $trim = trim($line);
-        if (strlen($trim) > 2 && strlen($trim) < 60 && !preg_match('/^(hi|hello|dear|from:|to:|subject:|date:)/i', $trim)) {
-            $vendor = $trim;
-            break;
-        }
-    }
-
-    // 2. Ekstrak Invoice / Order Number
-    // Contoh: Invoice #INV-2026-001, Order ID: 123456, Receipt No: RC-992
-    if (preg_match('/(?:invoice|order|receipt|faktur|transaksi|ref|reference)\s*(?:#|no\.?|id|code|number)?\s*[:#]?\s*([a-z0-9\-_]{4,30})/i', $text, $m)) {
-        $invoice_no = $m[1];
-        $is_receipt = true;
-    }
-
-    // 3. Ekstrak Tanggal Transaksi
-    if (preg_match('/(?:date|tanggal|issued|billed on)\s*[:]?\s*([0-9]{1,4}[\/\-\.][0-9]{1,2}[\/\-\.][0-9]{1,4}|[A-Za-z]{3,9}\s+[0-9]{1,2},?\s+[0-9]{4})/i', $text, $m)) {
-        $date = $m[1];
-    }
-
-    // 4. Ekstrak Total Amount & Mata Uang
-    // Cari baris yang mengandung 'Total', 'Amount Paid', 'Grand Total', 'Charged'
+    // 1. Ekstrak Total Amount & Mata Uang (Wajib ada nominal transaksi yang valid dan > 0)
     $amount_patterns = [
         '/(?:total(?: paid| due| amount)?|grand total|amount charged|subtotal|jumlah)\s*[:=]?\s*([A-Z]{3}|\$|€|£|¥|₹|Rp\.?)\s*([0-9\.,]+)/i',
         '/([A-Z]{3}|\$|€|£|¥|₹|Rp\.?)\s*([0-9\.,]+)\s*(?:total|paid|charged)/i',
@@ -101,33 +74,63 @@ function extract_receipt(string $raw): array {
         if (preg_match($pattern, $text, $m)) {
             $raw_curr = strtoupper(trim($m[1]));
             $raw_amt = str_replace([',', ' '], ['', ''], trim($m[2]));
-            // Jika desimal menggunakan format Eropa (e.g. 19,99 atau 1.999,00)
             if (substr_count($m[2], ',') === 1 && substr_count($m[2], '.') <= 1 && strpos($m[2], ',') > strpos($m[2], '.')) {
                 $raw_amt = str_replace('.', '', $m[2]);
                 $raw_amt = str_replace(',', '.', $raw_amt);
             }
-            $currency = RECEIPT_CURRENCY_SYMBOLS[$raw_curr] ?? $raw_curr;
-            $amount = (float)$raw_amt;
-            $is_receipt = true;
+            $val = (float)$raw_amt;
+            if ($val > 0) {
+                $currency = RECEIPT_CURRENCY_SYMBOLS[$raw_curr] ?? $raw_curr;
+                $amount = $val;
+                $is_receipt = true;
+                break;
+            }
+        }
+    }
+
+    // Jika tidak ditemukan amount > 0, bukan receipt
+    if (!$is_receipt || $amount === null || $amount <= 0) {
+        return [
+            'is_receipt' => false,
+            'vendor' => null,
+            'amount' => null,
+            'currency' => null,
+            'invoice_number' => null,
+            'date' => null,
+            'summary' => 'Not a receipt email',
+            'text' => $text
+        ];
+    }
+
+    // 2. Ekstrak Invoice / Order Number
+    if (preg_match('/(?:invoice|order|receipt|faktur|transaksi|ref|reference)\s*(?:#|no\.?|id|code|number)?\s*[:#]\s*([a-z0-9\-_]{4,30})/i', $text, $m)) {
+        $invoice_no = trim($m[1]);
+    }
+
+    // 3. Ekstrak Tanggal Transaksi
+    if (preg_match('/(?:date|tanggal|issued|billed on)\s*[:]?\s*([0-9]{1,4}[\/\-\.][0-9]{1,2}[\/\-\.][0-9]{1,4}|[A-Za-z]{3,9}\s+[0-9]{1,2},?\s+[0-9]{4})/i', $text, $m)) {
+        $date = trim($m[1]);
+    }
+
+    // 4. Ekstrak Vendor / Merchant
+    foreach ($lines as $line) {
+        $trim = trim($line);
+        if (strlen($trim) > 2 && strlen($trim) < 40 && !preg_match('/^(hi|hello|dear|from:|to:|subject:|date:|--)/i', $trim)) {
+            $vendor = $trim;
             break;
         }
     }
 
-    // Fallback amount jika pattern ketat di atas gagal tapi ada currency + angka
-    if ($amount === null) {
-        if (preg_match('/(\$|USD|EUR|€|GBP|£|IDR|Rp\.?)\s*([0-9]+(?:\.[0-9]{2})?)/i', $text, $m)) {
-            $raw_curr = strtoupper(trim($m[1]));
-            $currency = RECEIPT_CURRENCY_SYMBOLS[$raw_curr] ?? $raw_curr;
-            $amount = (float)$m[2];
-        }
-    }
-
-    $summary = $is_receipt
-        ? sprintf("Receipt: %s %s from %s (Ref: %s)", $currency, number_format((float)$amount, 2), $vendor ?? 'Unknown', $invoice_no ?? 'N/A')
-        : "No clear receipt details detected";
+    $summary = sprintf(
+        "Receipt: %s %s from %s (Ref: %s)",
+        $currency,
+        number_format((float)$amount, 2),
+        $vendor ?? 'Unknown',
+        $invoice_no ?? 'N/A'
+    );
 
     return [
-        'is_receipt' => $is_receipt,
+        'is_receipt' => true,
         'vendor' => $vendor,
         'amount' => $amount,
         'currency' => $currency,
