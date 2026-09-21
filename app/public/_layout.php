@@ -65,10 +65,12 @@ function page_header(string $title, array $user = null): void {
         </nav>';
     }
 	    echo '<!DOCTYPE html><html lang="en"><head>
-	<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-	<link rel="preload" href="/logo-app.png" as="image">
-	<link rel="preload" href="/logo.png" as="image">
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+		<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+		<!-- Disable Cloudflare Email Obfuscation -->
+		<!--email_off-->
+		<link rel="preload" href="/logo-app.png" as="image">
+		<link rel="preload" href="/logo.png" as="image">
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 	<meta name="description" content="Teak Email — Clean email inboxes with API & MCP for builders and AI agents">
 	<meta property="og:title" content="' . htmlspecialchars($title) . ' — Teak Email">
 	<meta property="og:description" content="Manage email inboxes with API & MCP integration for developers and AI agents">
@@ -252,15 +254,15 @@ function showToast(msg) {
 }
 
 function page_footer(): void {
-    echo '<div class="footer">
-        <a href="/privacy.php">Privacy</a> ·
-        <a href="/terms.php">Terms</a> ·
-        <a href="/getting-started.php">Getting Started</a> ·
-        <a href="mailto:support@teak.email">Support</a> ·
-        <a href="/delete_account.php" style="color:#dc2626">Delete Account</a>
-        <br><span style="margin-top:6px;display:inline-block">Teak Email — Built for builders & AI agents</span>
-    </div></div></body></html>';
-}
+	    echo '<div class="footer">
+	        <a href="/privacy.php">Privacy</a> ·
+	        <a href="/terms.php">Terms</a> ·
+	        <a href="/getting-started.php">Getting Started</a> ·
+	        <a href="mailto:support@teak.email">Support</a> ·
+	        <a href="/delete_account.php" style="color:#dc2626">Delete Account</a>
+	        <br><span style="margin-top:6px;display:inline-block">Teak Email — Built for builders & AI agents</span>
+	    </div></div><!--/email_off--></body></html>';
+	}
 
 /** Display alert message. */
 function alert(?string $error, ?string $success): void {
