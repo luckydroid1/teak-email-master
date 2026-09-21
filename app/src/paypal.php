@@ -171,44 +171,58 @@ function paypal_capture_order(string $orderId, int $userId): array {
     $data = json_decode((string)$resp, true);
     $status = $data['status'] ?? 'UNKNOWN';
 
-    if ($code === 200 || $code === 201 || $status === 'COMPLETED') {
-        // Find tier from payments table
-        $tier = 1;
-        try {
-            $st = db()->prepare('SELECT tier FROM ia_payments WHERE order_id = ?');
-            $st->execute([$orderId]);
-            $row = $st->fetch();
-            if ($row) {
-                $tier = (int)$row['tier'];
-            }
-        } catch (Exception $e) {}
+	    if ($code === 200 || $code === 201 || $status === 'COMPLETED') {
+	        $pdo = db();
+	        // Check if already fulfilled to prevent double-crediting / replay attacks
+	        $st = $pdo->prepare('SELECT user_id, tier, status FROM ia_payments WHERE order_id = ?');
+	        $st->execute([$orderId]);
+	        $payment = $st->fetch();
 
-        $info = tier_info($tier) ?? tier_info(1);
-        $credits = (int)($info['credits'] ?? 3000);
+	        if ($payment) {
+	            // Validasi kepemilikan order
+	            if ((int)$payment['user_id'] !== $userId) {
+	                return ['error' => 'Order ownership mismatch.'];
+	            }
+	            if ($payment['status'] === 'completed') {
+	                $info = tier_info((int)$payment['tier']) ?? tier_info(1);
+	                return [
+	                    'success'  => true,
+	                    'tier'     => (int)$payment['tier'],
+	                    'credits'  => (int)($info['credits'] ?? 3000),
+	                    'order_id' => $orderId,
+	                ];
+	            }
+	            $tier = (int)$payment['tier'];
+	        } else {
+	            $tier = 1;
+	        }
 
-        // Update payment status
-        try {
-            $st = db()->prepare('UPDATE ia_payments SET status = "completed", raw_payload = ? WHERE order_id = ?');
-            $st->execute([json_encode($data), $orderId]);
-        } catch (Exception $e) {}
+	        $info = tier_info($tier) ?? tier_info(1);
+	        $credits = (int)($info['credits'] ?? 3000);
 
-        // Fulfill credits and upgrade tier
-        credit_mutate($userId, $credits, 'topup', "paypal_order=$orderId tier=$tier");
+	        // Update payment status atomically
+	        try {
+	            $st = $pdo->prepare('UPDATE ia_payments SET status = "completed", raw_payload = ? WHERE order_id = ?');
+	            $st->execute([json_encode($data), $orderId]);
+	        } catch (Exception $e) {}
 
-        try {
-            $st = db()->prepare('UPDATE ia_users SET trust_tier = ?, status = "active" WHERE id = ?');
-            $st->execute([$tier, $userId]);
-        } catch (Exception $e) {}
+	        // Fulfill credits and upgrade tier
+	        credit_mutate($userId, $credits, 'topup', "paypal_order=$orderId tier=$tier");
 
-        audit($userId, 'paypal_payment_complete', 'web', "order_id=$orderId tier=$tier amount=" . ($info['price'] ?? 0));
+	        try {
+	            $st = $pdo->prepare('UPDATE ia_users SET trust_tier = ?, status = "active" WHERE id = ?');
+	            $st->execute([$tier, $userId]);
+	        } catch (Exception $e) {}
 
-        return [
-            'success'  => true,
-            'tier'     => $tier,
-            'credits'  => $credits,
-            'order_id' => $orderId,
-        ];
-    }
+	        audit($userId, 'paypal_payment_complete', 'web', "order_id=$orderId tier=$tier amount=" . ($info['price'] ?? 0));
+
+	        return [
+	            'success'  => true,
+	            'tier'     => $tier,
+	            'credits'  => $credits,
+	            'order_id' => $orderId,
+	        ];
+	    }
 
     return ['error' => 'PayPal payment was not completed (Status: ' . $status . ').'];
 }
