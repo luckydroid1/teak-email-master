@@ -3,7 +3,7 @@
  * Proxies all requests transparently to the new Sumopod VPS origin backend.
  */
 
-const ORIGIN = "http://43.156.240.174";
+const ORIGIN = "http://origin.teak.email";
 
 export default {
   async fetch(request, env, ctx) {
