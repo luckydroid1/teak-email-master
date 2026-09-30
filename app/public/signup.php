@@ -32,7 +32,7 @@ alert($error, null);
 <div style="max-width:400px;margin:48px auto">
   <div style="text-align:center;margin-bottom:24px">
     <a href="/" style="display:inline-block">
-      <img src="/logo-app.png" alt="BuyDomains By Network Solutions" width="160" height="48" style="width:160px;height:auto;display:block;margin:0 auto;object-fit:contain" fetchpriority="high" decoding="sync" />
+      <img src="/logo-app.png" alt="BuyDomains By Teak.Email" width="160" height="48" style="width:160px;height:auto;display:block;margin:0 auto;object-fit:contain" fetchpriority="high" decoding="sync" />
     </a>
   </div>
 

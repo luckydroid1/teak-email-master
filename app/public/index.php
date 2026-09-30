@@ -746,8 +746,8 @@ footer {
 <!-- Navigation -->
 <nav class="nav-wrap">
   <div class="nav-container">
-    <a href="/" class="brand" aria-label="BuyDomains" title="BuyDomains By Network Solutions">
-      <img src="/logo.png?v=101" alt="BuyDomains By Network Solutions" style="height:38px;width:auto;display:block" />
+    <a href="/" class="brand" aria-label="BuyDomains" title="BuyDomains By Teak.Email">
+      <img src="/logo.png?v=101" alt="BuyDomains By Teak.Email" style="height:38px;width:auto;display:block" />
       <span class="brand-badge">From $1/mo</span>
     </a>
     <div class="nav-links">
