@@ -397,8 +397,6 @@ page_header('Connect AI Agent', $user);
       </p>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
         <span style="background:#14532d;border:1px solid #166534;color:#86efac;padding:4px 12px;border-radius:6px;font-size:.82rem;font-weight:500">toohumid.com</span>
-        <span style="background:#14532d;border:1px solid #166534;color:#86efac;padding:4px 12px;border-radius:6px;font-size:.82rem;font-weight:500">jasa-seo.id</span>
-        <span style="background:#14532d;border:1px solid #166534;color:#86efac;padding:4px 12px;border-radius:6px;font-size:.82rem;font-weight:500">jdp.industries</span>
       </div>
       <p style="font-size:.8rem;color:#64748b;margin:0;line-height:1.5">
         If you own a custom domain and it is synced and verified with Teak Email, it will also appear in your eligible domains.
@@ -451,7 +449,7 @@ page_header('Connect AI Agent', $user);
       <div style="padding:0 14px 14px;font-size:.84rem;color:#94a3b8;line-height:1.7">
         <p style="margin:0 0 8px">The domain you requested is not eligible for inbox creation.</p>
         <ul style="margin:0;padding-left:20px">
-          <li>Use a pool domain: <span class="mono" style="color:#86efac">toohumid.com</span>, <span class="mono" style="color:#86efac">jasa-seo.id</span>, or <span class="mono" style="color:#86efac">jdp.industries</span></li>
+          <li>Use a pool domain: <span class="mono" style="color:#86efac">toohumid.com</span></li>
           <li>Custom domains must be synced and verified before use</li>
           <li>Run <span class="mono" style="color:#93c5fd">GET /api/domains</span> to see all eligible domains for your account</li>
         </ul>

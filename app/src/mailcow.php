@@ -120,13 +120,16 @@ function mailcow_fix_maildir_permissions(string $maildir): void {
     if (!is_dir($maildir)) return;
 
     // Fix parent directories (domain/user level) — ensure setgid + group traverse
-    $parts = explode('/', $maildir);
+    $parts = explode('/', trim($maildir, '/'));
     $cumulative = '';
-    // Skip /var/mail prefix, start from domain level
-    $start = array_search('mail', $parts) !== false ? array_search('mail', $parts) + 1 : 1;
-    for ($i = $start; $i < count($parts); $i++) {
-        $cumulative .= '/' . $parts[$i];
-        if (is_dir($cumulative)) {
+    $mail_found = false;
+    foreach ($parts as $part) {
+        $cumulative .= '/' . $part;
+        if ($part === 'mail') {
+            $mail_found = true;
+            continue;
+        }
+        if ($mail_found && is_dir($cumulative)) {
             @chmod($cumulative, 02770); // setgid + rwxrwx---
             @chgrp($cumulative, 'postfix');
         }

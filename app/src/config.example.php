@@ -22,7 +22,6 @@ return [
 
     // Domain pool for shared inboxes (must be active in Mailcow)
     'pool_domains' => [
-        'jetdigitalpro.com',
         'toohumid.com',
     ],
 
