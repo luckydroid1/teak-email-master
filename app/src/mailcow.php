@@ -225,24 +225,26 @@ function mailcow_fetch_inbox(string $email): array {
                 @chgrp($filepath, 'postfix');
                 if (!@is_readable($filepath)) continue;
             }
-            $parsed = mailcow_parse_email_file($filepath);
-            if ($parsed) {
-                $result[] = [
-                    'uid'     => $parsed['uid'],
-                    'from'    => $parsed['from'],
-                    'subject' => $parsed['subject'],
-                    'date'    => $parsed['date'],
-                ];
-            }
-        }
-    }
+	            $parsed = mailcow_parse_email_file($filepath);
+	            if ($parsed) {
+	                $mtime = @filemtime($filepath) ?: 0;
+	                $result[] = [
+	                    'uid'     => $parsed['uid'],
+	                    'from'    => $parsed['from'],
+	                    'subject' => $parsed['subject'],
+	                    'date'    => $parsed['date'],
+	                    '_mtime'  => $mtime,
+	                ];
+	            }
+	        }
+	    }
 
-    // Sort by filename (Maildir filenames are timestamp-based, newest last)
-    usort($result, function ($a, $b) {
-        return $b['uid'] <=> $a['uid'];
-    });
+	    // Sort by file modification time descending (newest email first)
+	    usort($result, function ($a, $b) {
+	        return $b['_mtime'] <=> $a['_mtime'];
+	    });
 
-    return $result; // newest first (uid is derived from filename which encodes time)
+	    return $result; // newest first
 }
 
 /** Fetch full email content (header + body text). */
