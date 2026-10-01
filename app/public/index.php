@@ -746,10 +746,10 @@ footer {
 <!-- Navigation -->
 <nav class="nav-wrap">
   <div class="nav-container">
-    <a href="/" class="brand" aria-label="BuyDomains" title="Teak.Email">
-      <img src="/logo.png?v=101" alt="Teak.Email" style="height:38px;width:auto;display:block" />
-      <span class="brand-badge">From $1/mo</span>
-    </a>
+	    <a href="/" class="brand" aria-label="Teak.Email" title="Teak.Email">
+	      <img src="/logo.png?v=202" alt="Teak.Email" style="height:26px;width:auto;display:block" />
+	      <span class="brand-badge">From $1/mo</span>
+	    </a>
     <div class="nav-links">
       <a href="#audiences" class="nav-link">Workflows</a>
       <a href="#pricing" class="nav-link">Pricing</a>

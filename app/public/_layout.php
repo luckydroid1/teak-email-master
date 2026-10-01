@@ -31,7 +31,7 @@ function page_header(string $title, array $user = null): void {
 
 	        $nav = '<nav class="topnav">
 	            <div class="nav-inner">
-	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo-app.png?v=1" alt="Teak.Email" style="height:32px;width:auto;display:block" /></a>
+	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
 	                <div class="nav-links" id="main-nav-links">
 	                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
 	                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
@@ -87,7 +87,7 @@ function page_header(string $title, array $user = null): void {
 	.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
 	.nav-inner{max-width:1050px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:12px}
 	.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
-	.nav-brand img{height:32px;width:auto;display:block;aspect-ratio:300/85}
+	.nav-brand img{height:22px;width:auto;display:block}
 .nav-links{display:flex;gap:3px;flex:1;overflow-x:auto}
 .nav-link{padding:6px 11px;border-radius:7px;font-size:.82rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s}
 .nav-link:hover{background:#1f2937;color:#f9fafb}

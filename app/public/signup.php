@@ -30,11 +30,11 @@ page_header('Sign Up');
 alert($error, null);
 ?>
 <div style="max-width:400px;margin:48px auto">
-  <div style="text-align:center;margin-bottom:24px">
-    <a href="/" style="display:inline-block">
-      <img src="/logo-app.png" alt="Teak.Email" width="160" height="48" style="width:160px;height:auto;display:block;margin:0 auto;object-fit:contain" fetchpriority="high" decoding="sync" />
-    </a>
-  </div>
+	  <div style="text-align:center;margin-bottom:24px">
+	    <a href="/" style="display:inline-block">
+	      <img src="/logo.png?v=202" alt="Teak.Email" style="height:36px;width:auto;display:block;margin:0 auto" fetchpriority="high" decoding="sync" />
+	    </a>
+	  </div>
 
   <div class="card card-highlight" style="padding:32px 28px;border-radius:16px;box-shadow:0 20px 40px -15px rgba(0,0,0,0.5)">
     <div style="text-align:center;margin-bottom:20px">
