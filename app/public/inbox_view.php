@@ -139,7 +139,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     <a href="?email=<?= urlencode($email) ?>&export=json" class="btn-copy" style="text-decoration:none">📥 Export JSON</a>
     <button class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($email, ENT_QUOTES) ?>', this)">📋 Copy Address</button>
     <a href="/send.php?from=<?= urlencode($email) ?>" class="btn btn-sm btn-success">Compose</a>
-	    <button onclick="refreshInbox()" id="sync-btn" class="btn btn-sm" style="background:#8b5cf6">🔄 Sync (<span id="sync-timer">2s</span>)</button>
+    <button onclick="refreshInbox()" id="sync-btn" class="btn btn-sm" style="background:#8b5cf6">🔄 Sync (<span id="sync-timer">5s</span>)</button>
   </div>
 </div>
 
@@ -283,21 +283,21 @@ function filterMessages() {
   });
 }
 
-	<?php if ($read_raw === null): ?>
-	let timeLeft = 2;
-	const timerEl = document.getElementById('sync-timer');
-	let countdownInterval = setInterval(() => {
-	  timeLeft--;
-	  if (timerEl) timerEl.textContent = timeLeft + 's';
-	  if (timeLeft <= 0) {
-	    if (!document.hidden) {
-	      location.reload();
-	    } else {
-	      timeLeft = 2;
-	    }
-	  }
-	}, 1000);
-	<?php endif; ?>
+<?php if ($read_raw === null): ?>
+let timeLeft = 5;
+const timerEl = document.getElementById('sync-timer');
+let countdownInterval = setInterval(() => {
+  timeLeft--;
+  if (timerEl) timerEl.textContent = timeLeft + 's';
+  if (timeLeft <= 0) {
+    if (!document.hidden) {
+      location.reload();
+    } else {
+      timeLeft = 5;
+    }
+  }
+}, 1000);
+<?php endif; ?>
 </script>
 
 <?php page_footer(); ?>
