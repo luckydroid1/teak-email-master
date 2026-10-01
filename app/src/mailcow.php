@@ -135,31 +135,31 @@ function mailcow_fix_maildir_permissions(string $maildir): void {
         }
     }
 
-    foreach (['new', 'cur', 'tmp'] as $sub) {
-        $dir = "$maildir/$sub";
-        if (!is_dir($dir)) continue;
-        // Ensure directory is group-readable with setgid
-        @chmod($dir, 02770);
-        @chgrp($dir, 'postfix');
-        // Fix files — only scan if directory was recently modified (perf optimization)
-        $dir_mtime = @filemtime($dir);
-        if ($dir_mtime === false || $dir_mtime < time() - 300) {
-            // Directory not modified in 5 min, skip (cron handles it)
-            continue;
-        }
-        foreach (@scandir($dir) as $f) {
-            if ($f === '.' || $f === '..') continue;
-            $fp = "$dir/$f";
-            if (!is_file($fp)) continue;
-            $perm = @fileperms($fp);
-            if ($perm === false) continue;
-            // If file is 0600 (owner-only), fix to 0640 (group-readable)
-            if (($perm & 0060) !== 0060) {
-                @chmod($fp, 0640);
-                @chgrp($fp, 'postfix');
-            }
-        }
-    }
+	    foreach (['new', 'cur', 'tmp'] as $sub) {
+	        $dir = "$maildir/$sub";
+	        if (!is_dir($dir)) continue;
+	        // Ensure directory is group-readable with setgid
+	        @chmod($dir, 02770);
+	        @chgrp($dir, 'postfix');
+	        
+	        $has_unreadable = false;
+	        $files = @scandir($dir);
+	        if ($files) {
+	            foreach ($files as $f) {
+	                if ($f === '.' || $f === '..') continue;
+	                $fp = "$dir/$f";
+	                if (is_file($fp) && !@is_readable($fp)) {
+	                    $has_unreadable = true;
+	                    break;
+	                }
+	            }
+	        }
+	        
+	        if ($has_unreadable) {
+	            // Use sudo chmod helper to make all files group readable immediately
+	            @exec("sudo /usr/bin/chmod -R 0660 " . escapeshellarg($dir));
+	        }
+	    }
 }
 
 /**

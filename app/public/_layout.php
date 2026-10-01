@@ -31,7 +31,7 @@ function page_header(string $title, array $user = null): void {
 
 	        $nav = '<nav class="topnav">
 	            <div class="nav-inner">
-	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="BuyDomains By Teak.Email"><img src="/logo-app.png?v=1" alt="BuyDomains By Teak.Email" style="height:32px;width:auto;display:block" /></a>
+	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo-app.png?v=1" alt="Teak.Email" style="height:32px;width:auto;display:block" /></a>
 	                <div class="nav-links" id="main-nav-links">
 	                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
 	                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
