@@ -1,16 +1,11 @@
 <?php
 /**
  * mailcow.php — Mailcow integration (provisioning + doveadm fetch).
- * Reuse logic dari admin.php (Mail Admin).
  */
 declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 
-/**
- * Buat mailbox di Mailcow via MySQL langsung.
- * Wajib: attributes maildir + sender_acl (tanpa ini Postfix reject 550).
- */
 function mailcow_create_mailbox(string $email, string $password, string $name = ''): array {
     [$lp, $dom] = explode('@', $email, 2);
     $hash = password_hash($password, PASSWORD_BCRYPT);
@@ -27,7 +22,6 @@ function mailcow_create_mailbox(string $email, string $password, string $name = 
         );
         $st->execute([$email, "{BLF-CRYPT}$hash", $name, $lp, $dom, $attributes]);
 
-        // sender_acl: izinkan send-as @domain dan self
         $st = $pdo->prepare('INSERT IGNORE INTO sender_acl VALUES (NULL,?,?,0),(NULL,?,?,0)');
         $st->execute([$email, "@$dom", $email, $email]);
         $pdo->commit();
@@ -49,7 +43,6 @@ function mailcow_delete_mailbox(string $email): void {
     $pdo->prepare('DELETE FROM sender_acl WHERE logged_in_as = ?')->execute([$email]);
 }
 
-/** Reset password for an existing mailbox. */
 function mailcow_reset_mailbox_password(string $email, string $new_password): bool {
     $hash = password_hash($new_password, PASSWORD_BCRYPT);
     $pdo = db();
@@ -57,7 +50,6 @@ function mailcow_reset_mailbox_password(string $email, string $new_password): bo
     return $st->execute(["{BLF-CRYPT}$hash", $email]);
 }
 
-/** Check if domain exists in Mailcow. */
 function mailcow_domain_exists(string $domain): bool {
     $pdo = db();
     $st = $pdo->prepare('SELECT COUNT(*) FROM domain WHERE domain = ?');
@@ -65,7 +57,6 @@ function mailcow_domain_exists(string $domain): bool {
     return (int)$st->fetchColumn() > 0;
 }
 
-/** Check if domain is active in Mailcow. */
 function mailcow_domain_active(string $domain): bool {
     $pdo = db();
     $st = $pdo->prepare('SELECT active FROM domain WHERE domain = ?');
@@ -73,9 +64,6 @@ function mailcow_domain_active(string $domain): bool {
     return (bool)$st->fetchColumn();
 }
 
-/**
- * Add a domain to Mailcow via MySQL.
- */
 function mailcow_add_domain(string $domain, string $description = ''): array {
     $domain = strtolower(trim($domain));
     if (mailcow_domain_exists($domain)) {
@@ -94,20 +82,14 @@ function mailcow_add_domain(string $domain, string $description = ''): array {
     }
 }
 
-/** List all domains in Mailcow. */
 function mailcow_list_domains(): array {
     $pdo = db();
     $st = $pdo->query('SELECT domain, description, active, created FROM domain ORDER BY domain ASC');
     return $st->fetchAll();
 }
 
-/**
- * Maildir path resolver.
- * Handles both /var/mail/{domain}/{local_part}/Maildir and /var/vmail/{domain}/{local_part}/
- */
 function mailcow_maildir_path(string $email): string {
     [$lp, $dom] = explode('@', $email, 2);
-    // Sanitize to prevent path traversal
     $lp = preg_replace('/[^a-zA-Z0-9._-]/', '', $lp);
     $dom = preg_replace('/[^a-zA-Z0-9.-]/', '', $dom);
 
@@ -127,11 +109,6 @@ function mailcow_maildir_path(string $email): string {
     return "/var/mail/$dom/$lp/Maildir";
 }
 
-/**
- * Fix permissions on a Maildir folder so www-data can read email files.
- * Mailcow writes as vmail:vmail (0600 or 0660).
- * www-data is added to the postfix group, so we ensure group read access.
- */
 function mailcow_fix_maildir_permissions(string $maildir): void {
     if (!is_dir($maildir)) return;
 
@@ -161,22 +138,29 @@ function mailcow_fix_maildir_permissions(string $maildir): void {
 }
 
 /**
- * Decode and clean up MIME / Quoted-Printable / Multi-part bodies.
+ * Robust MIME parser to extract clean plain text and clean HTML.
  */
-function mailcow_clean_body(string $raw_body, array $headers = []): string {
-    $body = $raw_body;
+function mailcow_clean_body(string $raw_body, array $headers = []): array {
+    $extracted_text = '';
+    $extracted_html = '';
 
-    // Check if multipart
+    // Detect multipart boundary (from header or directly from body)
+    $boundary = '';
     $ct = $headers['content-type'] ?? '';
     if (preg_match('/boundary=["\']?([^"\'\s;]+)["\']?/i', $ct, $bm)) {
         $boundary = $bm[1];
-        $parts = explode("--$boundary", $body);
-        $extracted_text = '';
-        $extracted_html = '';
+    } elseif (preg_match('/^--([^\r\n]+)/m', $raw_body, $bm)) {
+        $boundary = trim($bm[1]);
+    }
+
+    if (!empty($boundary)) {
+        $parts = explode("--$boundary", $raw_body);
 
         foreach ($parts as $part) {
-            if (trim($part) === '' || trim($part) === '--') continue;
-            $subparts = preg_split('/\r?\n\r?\n/', trim($part), 2);
+            $part = trim($part);
+            if ($part === '' || $part === '--') continue;
+
+            $subparts = preg_split('/\r?\n\r?\n/', $part, 2);
             $subhead = strtolower($subparts[0] ?? '');
             $subbody = $subparts[1] ?? '';
 
@@ -192,32 +176,37 @@ function mailcow_clean_body(string $raw_body, array $headers = []): string {
                 $extracted_text = $subbody;
             }
         }
-
-        if (!empty($extracted_text)) {
-            $body = $extracted_text;
-        } elseif (!empty($extracted_html)) {
-            $body = strip_tags($extracted_html);
-        }
     } else {
         $cte = strtolower($headers['content-transfer-encoding'] ?? '');
+        $body = $raw_body;
         if (str_contains($cte, 'quoted-printable') || str_contains($body, '=\r\n') || str_contains($body, '=\n')) {
             $body = quoted_printable_decode($body);
         } elseif (str_contains($cte, 'base64')) {
             $body = base64_decode(trim($body));
         }
+
+        if (str_contains(strtolower($ct), 'text/html')) {
+            $extracted_html = $body;
+        } else {
+            $extracted_text = $body;
+        }
     }
 
-    // Strip internal MIME boundary traces
-    $body = preg_replace('/----?=_Part_[^\r\n]+/i', '', $body);
-    $body = preg_replace('/Content-Type:[^\r\n]+/i', '', $body);
-    $body = preg_replace('/Content-Transfer-Encoding:[^\r\n]+/i', '', $body);
+    // Fallback: If plain text is empty, generate clean text from HTML
+    if (empty($extracted_text)) {
+        if (!empty($extracted_html)) {
+            $extracted_text = strip_tags(preg_replace('/<br\s*\/?>/i', "\n", $extracted_html));
+        } else {
+            $extracted_text = quoted_printable_decode($raw_body);
+        }
+    }
 
-    return trim($body);
+    return [
+        'text' => trim($extracted_text),
+        'html' => trim($extracted_html)
+    ];
 }
 
-/**
- * Parse a single Maildir email file into headers + body.
- */
 function mailcow_parse_email_file(string $filepath): ?array {
     if (!is_readable($filepath)) return null;
     $raw = file_get_contents($filepath);
@@ -229,8 +218,10 @@ function mailcow_parse_email_file(string $filepath): ?array {
     $header_text = $parts[0] ?? '';
     $raw_body = $parts[1] ?? '';
 
+    // Unfold multiline headers
+    $unfolded_headers = preg_replace('/\r?\n[ \t]+/', ' ', $header_text);
     $headers = [];
-    $lines = preg_split('/\r?\n/', $header_text);
+    $lines = preg_split('/\r?\n/', $unfolded_headers);
     foreach ($lines as $line) {
         if (preg_match('/^(\S+?):\s*(.*)$/', $line, $m)) {
             $k = strtolower($m[1]);
@@ -238,7 +229,7 @@ function mailcow_parse_email_file(string $filepath): ?array {
         }
     }
 
-    $clean_body = mailcow_clean_body($raw_body, $headers);
+    $parsed_bodies = mailcow_clean_body($raw_body, $headers);
 
     return [
         'uid'     => $uid,
@@ -246,13 +237,11 @@ function mailcow_parse_email_file(string $filepath): ?array {
         'subject' => $headers['subject'] ?? '',
         'date'    => $headers['date'] ?? '',
         'raw'     => $raw,
-        'body'    => $clean_body,
+        'body'    => $parsed_bodies['text'],
+        'html'    => $parsed_bodies['html']
     ];
 }
 
-/**
- * Fetch email list in INBOX by reading Maildir directly.
- */
 function mailcow_fetch_inbox(string $email): array {
     $maildir = mailcow_maildir_path($email);
     mailcow_fix_maildir_permissions($maildir);
@@ -293,7 +282,6 @@ function mailcow_fetch_inbox(string $email): array {
     return $result;
 }
 
-/** Fetch full email content (header + body text). */
 function mailcow_fetch_message(string $email, int $uid): ?string {
     $maildir = mailcow_maildir_path($email);
     mailcow_fix_maildir_permissions($maildir);
@@ -319,6 +307,9 @@ function mailcow_fetch_message(string $email, int $uid): ?string {
                     $out  = "hdr.from: {$parsed['from']}\n";
                     $out .= "hdr.subject: {$parsed['subject']}\n";
                     $out .= "hdr.date: {$parsed['date']}\n";
+                    if (!empty($parsed['html'])) {
+                        $out .= "text.html: {$parsed['html']}\n";
+                    }
                     $out .= "text.utf8: {$body}\n";
                     return $out;
                 }
@@ -328,7 +319,6 @@ function mailcow_fetch_message(string $email, int $uid): ?string {
     return null;
 }
 
-/** Send test email to mailbox. */
 function mailcow_send_test(string $to): bool {
     $subject = 'Teak Email test ' . date('Y-m-d H:i');
     $body = "This is a test email.\nYour code is: 123456\nSent " . date('c') . "\n";
