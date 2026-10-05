@@ -1,6 +1,6 @@
 <?php
 /**
- * inbox_view.php — Modern Clean Inbox Viewer with Safe Auto-Link & Inline OTP.
+ * inbox_view.php — Modern Clean Inbox Viewer with Dark Theme & Safe Links.
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../src/db.php';
@@ -15,6 +15,7 @@ $user = require_login();
 $uid = (int)$user['id'];
 $email = $_GET['email'] ?? '';
 $msg_id = (int)($_GET['msg'] ?? 0);
+$view_mode = $_GET['view'] ?? 'text'; // default to native clean text view
 
 $inbox = inbox_owned($uid, $email);
 if (!$inbox) {
@@ -115,17 +116,16 @@ $total_pages = max(1, (int)ceil($total_emails / $per_page));
 $display_emails = array_slice($emails, ($page - 1) * $per_page, $per_page);
 
 /**
- * Format plain text into clean, secure HTML with clickable links and highlighted OTPs.
+ * Format plain text into clean, dark-themed HTML with clickable links and highlighted OTPs.
  */
 function render_clean_email_text(string $text, ?string $otp_code): string {
-    // 1. Sanitize HTML entities first (Prevents XSS completely)
+    // 1. Sanitize HTML entities (XSS safe)
     $escaped = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 
     // 2. Safe Auto-Linkify (Only matches http:// or https:// URLs)
     $url_pattern = '/(https?:\/\/[^\s<>"\'\)]+)/i';
     $linked = preg_replace_callback($url_pattern, function($m) {
         $url = $m[1];
-        // Clean trailing punctuation attached to URL
         $trailing = '';
         if (preg_match('/[.,;:!?]+$/', $url, $pm)) {
             $trailing = $pm[0];
@@ -138,7 +138,6 @@ function render_clean_email_text(string $text, ?string $otp_code): string {
     if (!empty($otp_code)) {
         $otp_escaped = htmlspecialchars($otp_code, ENT_QUOTES, 'UTF-8');
         $otp_replacement = '<span style="background:#064e3b;border:1px solid #10b981;color:#a7f3d0;font-family:monospace;font-weight:800;font-size:1.15em;padding:2px 8px;border-radius:6px;letter-spacing:0.1em;cursor:pointer" title="Click to copy OTP" onclick="copyOtpHero(\'' . $otp_escaped . '\')">' . $otp_escaped . '</span>';
-        // Replace only whole word boundaries for the OTP
         $linked = preg_replace('/\b' . preg_quote($otp_escaped, '/') . '\b/', $otp_replacement, $linked, 1);
     }
 
@@ -232,6 +231,12 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     <a href="?email=<?= urlencode($email) ?>" class="btn btn-sm btn-ghost">← Back to Message List</a>
 
     <div style="display:flex;gap:8px;align-items:center">
+      <?php if ($html_body): ?>
+        <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&view=<?= $view_mode === 'html' ? 'text' : 'html' ?>" class="btn-copy" style="text-decoration:none">
+          <?= $view_mode === 'html' ? '📄 Plain Text View' : '🎨 HTML Card View' ?>
+        </a>
+      <?php endif; ?>
+
       <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&export=eml" class="btn-copy" style="text-decoration:none">📥 Download .EML</a>
       <?php
       $rec_info = extract_receipt($raw);
@@ -255,9 +260,9 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     </div>
   </div>
 
-  <?php if ($html_body): ?>
+  <?php if ($html_body && $view_mode === 'html'): ?>
     <div style="background:#fff;padding:0;overflow:hidden;border-radius:10px;border:1px solid #374151">
-      <iframe id="email-frame" style="width:100%;min-height:400px;border:none;background:#fff;display:block" sandbox="allow-same-origin"></iframe>
+      <iframe id="email-frame" style="width:100%;min-height:300px;border:none;background:#fff;display:block" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
     </div>
     <script>
     (function() {
@@ -268,17 +273,18 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
           try {
             if (frame.contentDocument && frame.contentDocument.body) {
               const h = frame.contentDocument.body.scrollHeight;
-              if (h > 0) frame.style.height = (h + 40) + 'px';
+              if (h > 0) frame.style.height = (h + 30) + 'px';
             }
           } catch (e) {
-            frame.style.height = '500px';
+            frame.style.height = '400px';
           }
         });
       }
     })();
     </script>
   <?php else: ?>
-    <div class="msg-view" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:0.95rem;line-height:1.7;background:#0a0e1a;border-radius:10px;padding:20px;border:1px solid #1f2937;color:#e2e8f0">
+    <!-- Clean Dark-Themed Text View with Native Clickable Links -->
+    <div class="msg-view" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:0.95rem;line-height:1.8;background:#0a0e1a;border-radius:10px;padding:24px;border:1px solid #1f2937;color:#e2e8f0;white-space:normal">
       <?= render_clean_email_text($clean_text_body, $otp) ?>
     </div>
   <?php endif; ?>
