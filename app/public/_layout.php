@@ -14,35 +14,34 @@ function page_header(string $title, array $user = null): void {
         $balance = function_exists('credit_balance') ? credit_balance($uid) : 0;
         $tier = function_exists('user_tier') ? user_tier($uid) : 1;
 
-        $isDashboard = ($currentPage === 'dashboard.php');
-        $isInboxes = in_array($currentPage, ['inboxes.php', 'inbox_view.php'], true);
-        $isSend = ($currentPage === 'send.php');
-        $isSent = ($currentPage === 'sent.php');
-        $isWarmup = ($currentPage === 'warmup.php');
-	        $isExpenses = ($currentPage === 'expenses.php');
-	        $isDomains = ($currentPage === 'domains.php');
-	        $isBuyDomain = ($currentPage === 'buy-domain.php');
-	        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
+		        $isDashboard = ($currentPage === 'dashboard.php');
+		        $isUnified = ($currentPage === 'unified.php');
+		        $isInboxes = in_array($currentPage, ['inboxes.php', 'inbox_view.php'], true);
+		        $isSend = ($currentPage === 'send.php');
+		        $isSent = ($currentPage === 'sent.php');
+		        $isWarmup = ($currentPage === 'warmup.php');
+		        $isExpenses = ($currentPage === 'expenses.php');
+		        $isDomains = ($currentPage === 'domains.php');
+		        $isBuyDomain = ($currentPage === 'buy-domain.php');
+		        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
 
-	        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
-	        $adminLink = !empty($user['is_admin'])
-	            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>'
-	            : '';
+		        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
+		        $adminLink = !empty($user['is_admin'])
+		            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>'
+		            : '';
 
-	        $nav = '<nav class="topnav">
-	            <div class="nav-inner">
-	                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
-	                <div class="nav-links" id="main-nav-links">
-	                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
-	                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
-	                    <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">🧾 Expenses</a>
-	                    <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
-	                    <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">Sent</a>
-	                    <a href="/warmup.php" class="nav-link' . ($isWarmup ? ' active' : '') . '">Warmup</a>
-	                    <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
-	                    <a href="/buy-domain.php" class="nav-link' . ($isBuyDomain ? ' active' : '') . '">Buy Domain</a>
-	                    <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
-	                    ' . $adminLink . '
+		        $nav = '<nav class="topnav">
+		            <div class="nav-inner">
+		                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
+		                <div class="nav-links" id="main-nav-links">
+		                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
+		                    <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">📬 Unified Inbox</a>
+		                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
+		                    <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">🧾 Expenses</a>
+		                    <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
+		                    <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
+		                    <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
+		                    ' . $adminLink . '
 	                    <div class="nav-mobile-user">
 	                        <div class="nav-mobile-info">
 	                            <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>

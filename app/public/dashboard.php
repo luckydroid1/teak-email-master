@@ -168,6 +168,7 @@ page_header('Dashboard', $user);
     <p>Manage your active inboxes, OTP extractions, and AI MCP automations.</p>
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <a href="/unified.php" class="btn" style="background:#8b5cf6;font-size:0.85rem">📬 Unified Inbox Stream</a>
     <a href="/inbox_view.php?email=<?= !empty($inboxes) ? urlencode($inboxes[0]['email_address']) : '' ?>" class="btn" style="background:#10b981;font-size:0.85rem">⚡ Live OTP Viewer</a>
     <a href="/send.php" class="btn btn-ghost" style="font-size:0.85rem">✉️ Send Email</a>
   </div>
