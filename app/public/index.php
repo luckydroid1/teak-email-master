@@ -14,7 +14,7 @@ if ($request_uri !== '/' && $request_uri !== '/index.php') {
     page_header('404 — Not Found');
     echo '<div class="card" style="text-align:center;max-width:400px;margin:80px auto">
       <h2>🔍 Page Not Found</h2>
-      <p style="color:#94a3b8;margin-top:12px">The page you're looking for doesn't exist.</p>
+      <p style="color:#94a3b8;margin-top:12px">The page you are looking for does not exist.</p>
       <p style="margin-top:20px"><a href="/" class="btn">Back to Home</a></p>
     </div>';
     page_footer();
