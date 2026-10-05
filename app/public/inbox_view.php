@@ -1,6 +1,6 @@
 <?php
 /**
- * inbox_view.php — Modern Clean Inbox Viewer & 1-Click OTP Parser.
+ * inbox_view.php — Modern Clean Inbox Viewer with Safe Auto-Link & Inline OTP.
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../src/db.php';
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_test_otp'])) {
     if (csrf_validate()) {
         $test_code = strval(rand(100000, 999999));
         $test_subject = "Your Security Verification Code: $test_code";
-        $test_body = "Hello,\n\nYour one-time verification code is:\n\n$test_code\n\nThis code expires in 10 minutes. If you did not request this, please ignore.\n\n— Teak Email QA Simulator";
+        $test_body = "Hello,\n\nYour one-time verification code is:\n\n$test_code\n\nVerify your account by visiting https://teak.email/verify.php?token=" . bin2hex(random_bytes(16)) . "\n\nThis code expires in 10 minutes.\n\n— Teak Email QA Simulator";
         mail_send($email, $test_subject, $test_body);
         $test_sent = true;
     }
@@ -76,7 +76,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'json') {
     exit;
 }
 
-$read_raw = null; $otp = null; $html_body = null; $subject_line = ''; $sender_display = '';
+$read_raw = null; $otp = null; $html_body = null; $clean_text_body = ''; $subject_line = ''; $sender_display = '';
 if ($msg_id > 0) {
     $raw = mailcow_fetch_message($email, $msg_id);
     if ($raw !== null) {
@@ -95,6 +95,14 @@ if ($msg_id > 0) {
         if (preg_match('/text\.html:\s*([\s\S]+?)(?=\n[a-z0-9_.-]+:|$)/i', $raw, $m)) {
             $html_body = trim($m[1]);
         }
+
+        // Extract pure clean text body
+        if (preg_match('/text\.utf8:\s*([\s\S]+)$/i', $raw, $m)) {
+            $clean_text_body = trim($m[1]);
+        } else {
+            $clean_text_body = trim($raw);
+        }
+
         credit_mutate($uid, -1, 'api_call', "read:$msg_id");
     }
 }
@@ -106,14 +114,35 @@ $page = max(1, (int)($_GET['p'] ?? 1));
 $total_pages = max(1, (int)ceil($total_emails / $per_page));
 $display_emails = array_slice($emails, ($page - 1) * $per_page, $per_page);
 
-// Check latest email OTP for quick banner if not currently reading single email
-$latest_otp = null;
-if ($read_raw === null && !empty($emails)) {
-    $first_raw = mailcow_fetch_message($email, (int)$emails[0]['uid']);
-    if ($first_raw) {
-        $p_first = extract_otp($first_raw);
-        $latest_otp = $p_first['otp'];
+/**
+ * Format plain text into clean, secure HTML with clickable links and highlighted OTPs.
+ */
+function render_clean_email_text(string $text, ?string $otp_code): string {
+    // 1. Sanitize HTML entities first (Prevents XSS completely)
+    $escaped = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+
+    // 2. Safe Auto-Linkify (Only matches http:// or https:// URLs)
+    $url_pattern = '/(https?:\/\/[^\s<>"\'\)]+)/i';
+    $linked = preg_replace_callback($url_pattern, function($m) {
+        $url = $m[1];
+        // Clean trailing punctuation attached to URL
+        $trailing = '';
+        if (preg_match('/[.,;:!?]+$/', $url, $pm)) {
+            $trailing = $pm[0];
+            $url = substr($url, 0, -strlen($trailing));
+        }
+        return '<a href="' . $url . '" target="_blank" rel="noopener noreferrer nofollow" style="color:#60a5fa;text-decoration:underline;word-break:break-all;font-weight:600">' . $url . '</a>' . $trailing;
+    }, $escaped);
+
+    // 3. Inline highlight OTP code if present
+    if (!empty($otp_code)) {
+        $otp_escaped = htmlspecialchars($otp_code, ENT_QUOTES, 'UTF-8');
+        $otp_replacement = '<span style="background:#064e3b;border:1px solid #10b981;color:#a7f3d0;font-family:monospace;font-weight:800;font-size:1.15em;padding:2px 8px;border-radius:6px;letter-spacing:0.1em;cursor:pointer" title="Click to copy OTP" onclick="copyOtpHero(\'' . $otp_escaped . '\')">' . $otp_escaped . '</span>';
+        // Replace only whole word boundaries for the OTP
+        $linked = preg_replace('/\b' . preg_quote($otp_escaped, '/') . '\b/', $otp_replacement, $linked, 1);
     }
+
+    return nl2br($linked);
 }
 
 require_once __DIR__ . '/_layout.php';
@@ -135,39 +164,6 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
   animation: pulseGlow 1.8s infinite ease-in-out;
 }
 
-.otp-hero-card {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.25) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  border-radius: 14px;
-  padding: 20px 24px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.otp-code-box {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  color: #a7f3d0;
-  background: #064e3b;
-  padding: 6px 18px;
-  border-radius: 10px;
-  border: 1px solid rgba(52, 211, 153, 0.5);
-  cursor: pointer;
-  transition: all 0.15s;
-  display: inline-block;
-}
-.otp-code-box:hover {
-  transform: scale(1.03);
-  background: #047857;
-  color: #fff;
-  box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
-}
-
 .mail-item {
   display: flex;
   align-items: center;
@@ -186,16 +182,13 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
   background: #0c1322;
   transform: translateX(2px);
 }
-.mail-item.active {
-  border-color: #10b981;
-  background: rgba(16, 185, 129, 0.08);
-}
 </style>
 
 <!-- Top Navigation & Controls Bar -->
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
   <div style="display:flex;align-items:center;gap:10px">
     <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
+    <a href="/unified.php" class="btn btn-sm btn-ghost">📬 Unified Stream</a>
     <a href="/inboxes.php" class="btn btn-sm btn-ghost">All Inboxes</a>
   </div>
 
@@ -231,24 +224,6 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     <?php endif; ?>
   </div>
 </div>
-
-<!-- 🔐 Highlighted OTP Hero Banner (If single message viewed OR newest email contains OTP) -->
-<?php $active_otp = $otp ?? $latest_otp; ?>
-<?php if ($active_otp !== null): ?>
-<div class="otp-hero-card">
-  <div>
-    <div style="color:#86efac;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:4px">
-      <span>🔐 Detected Verification Code / OTP</span>
-      <span style="font-size:0.75rem;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,0.2);color:#6ee7b7">Auto Extracted</span>
-    </div>
-    <div style="font-size:0.82rem;color:#94a3b8">One-click to copy into your verification form or AI prompt.</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <div class="otp-code-box" id="otp-hero-val" title="Click to copy OTP" onclick="copyOtpHero('<?= htmlspecialchars($active_otp, ENT_QUOTES) ?>')"><?= htmlspecialchars($active_otp) ?></div>
-    <button type="button" class="btn btn-sm btn-success" onclick="copyOtpHero('<?= htmlspecialchars($active_otp, ENT_QUOTES) ?>')">📋 Copy</button>
-  </div>
-</div>
-<?php endif; ?>
 
 <?php if ($read_raw !== null): ?>
 <!-- 📧 Detailed Single Message View -->
@@ -303,7 +278,9 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     })();
     </script>
   <?php else: ?>
-    <div class="msg-view" style="white-space:pre-wrap;background:#0a0e1a;border-radius:10px;padding:16px;border:1px solid #1f2937"><?= htmlspecialchars($read_raw) ?></div>
+    <div class="msg-view" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:0.95rem;line-height:1.7;background:#0a0e1a;border-radius:10px;padding:20px;border:1px solid #1f2937;color:#e2e8f0">
+      <?= render_clean_email_text($clean_text_body, $otp) ?>
+    </div>
   <?php endif; ?>
 </div>
 
@@ -358,16 +335,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 function copyOtpHero(val) {
   if (!val) return;
   navigator.clipboard.writeText(val).then(() => {
-    const box = document.getElementById('otp-hero-val');
-    if (box) {
-      const orig = box.textContent;
-      box.textContent = 'COPIED!';
-      box.style.background = '#059669';
-      setTimeout(() => {
-        box.textContent = orig;
-        box.style.background = '#064e3b';
-      }, 1200);
-    }
+    alert('Code ' + val + ' copied to clipboard!');
   });
 }
 

@@ -59,125 +59,161 @@ function mailcow_reset_mailbox_password(string $email, string $new_password): bo
 
 /** Check if domain exists in Mailcow. */
 function mailcow_domain_exists(string $domain): bool {
-    $st = db()->prepare('SELECT 1 FROM domain WHERE domain = ?');
+    $pdo = db();
+    $st = $pdo->prepare('SELECT COUNT(*) FROM domain WHERE domain = ?');
     $st->execute([$domain]);
-    return (bool)$st->fetchColumn();
+    return (int)$st->fetchColumn() > 0;
 }
 
 /** Check if domain is active in Mailcow. */
 function mailcow_domain_active(string $domain): bool {
-    $st = db()->prepare('SELECT 1 FROM domain WHERE domain = ? AND active = 1');
+    $pdo = db();
+    $st = $pdo->prepare('SELECT active FROM domain WHERE domain = ?');
     $st->execute([$domain]);
     return (bool)$st->fetchColumn();
 }
 
-/** Add a new domain to Mailcow. */
-function mailcow_add_domain(string $domain): array {
+/**
+ * Add a domain to Mailcow via MySQL.
+ */
+function mailcow_add_domain(string $domain, string $description = ''): array {
+    $domain = strtolower(trim($domain));
+    if (mailcow_domain_exists($domain)) {
+        return ['ok' => true, 'domain' => $domain, 'existing' => true];
+    }
     $pdo = db();
     try {
         $st = $pdo->prepare(
-            'INSERT INTO domain (domain, description, aliases, mailboxes, quota, active)
-             VALUES (?, ?, 400, 10, 10240, 1)'
+            'INSERT INTO domain (domain, description, aliases, mailboxes, maxquota, quota, transport, backupmx, active)
+             VALUES (?, ?, 0, 0, 0, 0, \'virtual\', 0, 1)'
         );
-        $st->execute([$domain, "Custom domain for Teak Email"]);
-        return ['ok' => true];
+        $st->execute([$domain, $description ?: "Added via Teak Email"]);
+        return ['ok' => true, 'domain' => $domain, 'existing' => false];
     } catch (Throwable $e) {
-        $msg = $e->getMessage();
-        if (strpos($msg, 'Duplicate entry') !== false) {
-            return ['error' => 'Domain already exists'];
-        }
-        return ['error' => 'Failed to add domain: ' . $msg];
+        return ['error' => 'Failed to add domain: ' . $e->getMessage()];
     }
 }
 
 /** List all domains in Mailcow. */
 function mailcow_list_domains(): array {
-    $st = db()->prepare('SELECT domain, description, active FROM domain WHERE domain != "" ORDER BY domain');
-    $st->execute();
-    return $st->fetchAll(PDO::FETCH_ASSOC);
+    $pdo = db();
+    $st = $pdo->query('SELECT domain, description, active, created FROM domain ORDER BY domain ASC');
+    return $st->fetchAll();
 }
 
 /**
- * Compute Maildir path for a given email address.
- * Path: /var/mail/{domain}/{local_part}/Maildir/
+ * Maildir path resolver.
+ * Mailcow stores mail in /var/vmail/{domain}/{local_part}/
  */
 function mailcow_maildir_path(string $email): string {
     [$lp, $dom] = explode('@', $email, 2);
-    return "/var/mail/$dom/$lp/Maildir";
+    // Sanitize to prevent path traversal
+    $lp = preg_replace('/[^a-zA-Z0-9._-]/', '', $lp);
+    $dom = preg_replace('/[^a-zA-Z0-9.-]/', '', $dom);
+    return "/var/vmail/$dom/$lp";
 }
 
 /**
- * Fix Maildir permissions so www-data (PHP-FPM) can read files.
- * Postfix creates files as 0600 (postfix:postfix). This adds group-read
- * for the postfix group that www-data belongs to.
- *
- * SAFETY NET: Primary fix is adding www-data to postfix group + cron script.
- * This function handles race conditions where mail arrives between cron runs.
- * Uses filemtime() to only re-fix directories with recent changes (skip if
- * all files already group-readable).
+ * Fix permissions on a Maildir folder so www-data can read email files.
+ * Mailcow writes as vmail:vmail (0600 or 0660).
+ * www-data is added to the postfix group, so we ensure group read access.
  */
 function mailcow_fix_maildir_permissions(string $maildir): void {
     if (!is_dir($maildir)) return;
 
-    // Fix parent directories (domain/user level) — ensure setgid + group traverse
-    $parts = explode('/', trim($maildir, '/'));
-    $cumulative = '';
-    $mail_found = false;
-    foreach ($parts as $part) {
-        $cumulative .= '/' . $part;
-        if ($part === 'mail') {
-            $mail_found = true;
-            continue;
+    foreach (['new', 'cur'] as $sub) {
+        $dir = "$maildir/$sub";
+        if (!is_dir($dir)) continue;
+        @chmod($dir, 02770);
+        @chgrp($dir, 'postfix');
+
+        $has_unreadable = false;
+        $files = @scandir($dir);
+        if ($files) {
+            foreach ($files as $f) {
+                if ($f === '.' || $f === '..') continue;
+                $fp = "$dir/$f";
+                if (is_file($fp) && !@is_readable($fp)) {
+                    $has_unreadable = true;
+                    break;
+                }
+            }
         }
-        if ($mail_found && is_dir($cumulative)) {
-            @chmod($cumulative, 02770); // setgid + rwxrwx---
-            @chgrp($cumulative, 'postfix');
+
+        if ($has_unreadable) {
+            @exec("sudo /usr/bin/chmod -R 0660 " . escapeshellarg($dir));
+        }
+    }
+}
+
+/**
+ * Decode and clean up MIME / Quoted-Printable / Multi-part bodies.
+ */
+function mailcow_clean_body(string $raw_body, array $headers = []): string {
+    $body = $raw_body;
+
+    // Check if multipart
+    $ct = $headers['content-type'] ?? '';
+    if (preg_match('/boundary=["\']?([^"\'\s;]+)["\']?/i', $ct, $bm)) {
+        $boundary = $bm[1];
+        $parts = explode("--$boundary", $body);
+        $extracted_text = '';
+        $extracted_html = '';
+
+        foreach ($parts as $part) {
+            if (trim($part) === '' || trim($part) === '--') continue;
+            $subparts = preg_split('/\r?\n\r?\n/', trim($part), 2);
+            $subhead = strtolower($subparts[0] ?? '');
+            $subbody = $subparts[1] ?? '';
+
+            if (str_contains($subhead, 'quoted-printable')) {
+                $subbody = quoted_printable_decode($subbody);
+            } elseif (str_contains($subhead, 'base64')) {
+                $subbody = base64_decode(trim($subbody));
+            }
+
+            if (str_contains($subhead, 'text/html') && empty($extracted_html)) {
+                $extracted_html = $subbody;
+            } elseif (str_contains($subhead, 'text/plain') && empty($extracted_text)) {
+                $extracted_text = $subbody;
+            }
+        }
+
+        if (!empty($extracted_text)) {
+            $body = $extracted_text;
+        } elseif (!empty($extracted_html)) {
+            $body = strip_tags($extracted_html);
+        }
+    } else {
+        $cte = strtolower($headers['content-transfer-encoding'] ?? '');
+        if (str_contains($cte, 'quoted-printable') || str_contains($body, '=\r\n') || str_contains($body, '=\n')) {
+            $body = quoted_printable_decode($body);
+        } elseif (str_contains($cte, 'base64')) {
+            $body = base64_decode(trim($body));
         }
     }
 
-	    foreach (['new', 'cur', 'tmp'] as $sub) {
-	        $dir = "$maildir/$sub";
-	        if (!is_dir($dir)) continue;
-	        // Ensure directory is group-readable with setgid
-	        @chmod($dir, 02770);
-	        @chgrp($dir, 'postfix');
-	        
-	        $has_unreadable = false;
-	        $files = @scandir($dir);
-	        if ($files) {
-	            foreach ($files as $f) {
-	                if ($f === '.' || $f === '..') continue;
-	                $fp = "$dir/$f";
-	                if (is_file($fp) && !@is_readable($fp)) {
-	                    $has_unreadable = true;
-	                    break;
-	                }
-	            }
-	        }
-	        
-	        if ($has_unreadable) {
-	            // Use sudo chmod helper to make all files group readable immediately
-	            @exec("sudo /usr/bin/chmod -R 0660 " . escapeshellarg($dir));
-	        }
-	    }
+    // Strip internal MIME boundary traces
+    $body = preg_replace('/----?=_Part_[^\r\n]+/i', '', $body);
+    $body = preg_replace('/Content-Type:[^\r\n]+/i', '', $body);
+    $body = preg_replace('/Content-Transfer-Encoding:[^\r\n]+/i', '', $body);
+
+    return trim($body);
 }
 
 /**
  * Parse a single Maildir email file into headers + body.
- * Returns ['uid' => filename-based, 'from' => ..., 'subject' => ..., 'date' => ..., 'raw' => ...]
  */
 function mailcow_parse_email_file(string $filepath): ?array {
     if (!is_readable($filepath)) return null;
     $raw = file_get_contents($filepath);
     if ($raw === false) return null;
 
-    // uid = crc32 of filename (stable, matches doveadm convention)
     $uid = (string)(crc32(basename($filepath)) & 0x7FFFFFFF);
 
-    // Parse headers & body cleanly
     $parts = preg_split('/\r?\n\r?\n/', $raw, 2);
     $header_text = $parts[0] ?? '';
-    $body = $parts[1] ?? '';
+    $raw_body = $parts[1] ?? '';
 
     $headers = [];
     $lines = preg_split('/\r?\n/', $header_text);
@@ -188,27 +224,26 @@ function mailcow_parse_email_file(string $filepath): ?array {
         }
     }
 
+    $clean_body = mailcow_clean_body($raw_body, $headers);
+
     return [
         'uid'     => $uid,
         'from'    => $headers['from'] ?? '',
         'subject' => $headers['subject'] ?? '',
         'date'    => $headers['date'] ?? '',
         'raw'     => $raw,
-        'body'    => $body,
+        'body'    => $clean_body,
     ];
 }
 
 /**
  * Fetch email list in INBOX by reading Maildir directly.
- * Falls back to doveadm if direct read fails (permission issues).
- * @return array list of ['uid','from','subject','date']
  */
 function mailcow_fetch_inbox(string $email): array {
     $maildir = mailcow_maildir_path($email);
     mailcow_fix_maildir_permissions($maildir);
     $result = [];
 
-    // Scan new/ and cur/ directories
     foreach (['new', 'cur'] as $sub) {
         $dir = "$maildir/$sub";
         if (!is_dir($dir)) continue;
@@ -218,33 +253,30 @@ function mailcow_fetch_inbox(string $email): array {
             if ($f === '.' || $f === '..') continue;
             $filepath = "$dir/$f";
             if (!is_file($filepath)) continue;
-            // Check readability before parsing (skip unreadable files gracefully)
             if (!@is_readable($filepath)) {
-                // Try one more permission fix attempt
                 @chmod($filepath, 0640);
                 @chgrp($filepath, 'postfix');
                 if (!@is_readable($filepath)) continue;
             }
-	            $parsed = mailcow_parse_email_file($filepath);
-	            if ($parsed) {
-	                $mtime = @filemtime($filepath) ?: 0;
-	                $result[] = [
-	                    'uid'     => $parsed['uid'],
-	                    'from'    => $parsed['from'],
-	                    'subject' => $parsed['subject'],
-	                    'date'    => $parsed['date'],
-	                    '_mtime'  => $mtime,
-	                ];
-	            }
-	        }
-	    }
+            $parsed = mailcow_parse_email_file($filepath);
+            if ($parsed) {
+                $mtime = @filemtime($filepath) ?: 0;
+                $result[] = [
+                    'uid'     => $parsed['uid'],
+                    'from'    => $parsed['from'],
+                    'subject' => $parsed['subject'],
+                    'date'    => $parsed['date'],
+                    '_mtime'  => $mtime,
+                ];
+            }
+        }
+    }
 
-	    // Sort by file modification time descending (newest email first)
-	    usort($result, function ($a, $b) {
-	        return $b['_mtime'] <=> $a['_mtime'];
-	    });
+    usort($result, function ($a, $b) {
+        return $b['_mtime'] <=> $a['_mtime'];
+    });
 
-	    return $result; // newest first
+    return $result;
 }
 
 /** Fetch full email content (header + body text). */
@@ -252,7 +284,6 @@ function mailcow_fetch_message(string $email, int $uid): ?string {
     $maildir = mailcow_maildir_path($email);
     mailcow_fix_maildir_permissions($maildir);
 
-    // Find the file whose crc32 matches the uid
     foreach (['new', 'cur'] as $sub) {
         $dir = "$maildir/$sub";
         if (!is_dir($dir)) continue;
@@ -264,14 +295,12 @@ function mailcow_fetch_message(string $email, int $uid): ?string {
             if (!is_file($filepath)) continue;
             $fileUid = (string)(crc32($f) & 0x7FFFFFFF);
             if ((int)$fileUid === $uid) {
-                // Ensure file is readable
                 if (!@is_readable($filepath)) {
                     @chmod($filepath, 0640);
                     @chgrp($filepath, 'postfix');
                 }
                 $parsed = mailcow_parse_email_file($filepath);
                 if ($parsed) {
-                    // Build output for OTP parser compatibility.
                     $body = rtrim($parsed['body'], "\r\n");
                     $out  = "hdr.from: {$parsed['from']}\n";
                     $out .= "hdr.subject: {$parsed['subject']}\n";
@@ -285,7 +314,7 @@ function mailcow_fetch_message(string $email, int $uid): ?string {
     return null;
 }
 
-/** Send test email to mailbox (for end-to-end verification after deploy). */
+/** Send test email to mailbox. */
 function mailcow_send_test(string $to): bool {
     $subject = 'Teak Email test ' . date('Y-m-d H:i');
     $body = "This is a test email.\nYour code is: 123456\nSent " . date('c') . "\n";
