@@ -103,14 +103,28 @@ function mailcow_list_domains(): array {
 
 /**
  * Maildir path resolver.
- * Mailcow stores mail in /var/vmail/{domain}/{local_part}/
+ * Handles both /var/mail/{domain}/{local_part}/Maildir and /var/vmail/{domain}/{local_part}/
  */
 function mailcow_maildir_path(string $email): string {
     [$lp, $dom] = explode('@', $email, 2);
     // Sanitize to prevent path traversal
     $lp = preg_replace('/[^a-zA-Z0-9._-]/', '', $lp);
     $dom = preg_replace('/[^a-zA-Z0-9.-]/', '', $dom);
-    return "/var/vmail/$dom/$lp";
+
+    $candidates = [
+        "/var/mail/$dom/$lp/Maildir",
+        "/var/mail/$dom/$lp",
+        "/var/vmail/$dom/$lp/Maildir",
+        "/var/vmail/$dom/$lp",
+    ];
+
+    foreach ($candidates as $cand) {
+        if (is_dir($cand)) {
+            return $cand;
+        }
+    }
+
+    return "/var/mail/$dom/$lp/Maildir";
 }
 
 /**
