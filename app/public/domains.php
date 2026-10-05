@@ -1,6 +1,6 @@
 <?php
 /**
- * domains.php — Manage custom domains (manual + auto-sync from registrars).
+ * domains.php — Modern Domain Management & Setup Wizard.
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../src/db.php';
@@ -18,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_domain'])) {
     } else {
         $domain = strtolower(trim($_POST['domain'] ?? ''));
         if (!preg_match('/^[a-z0-9]+([-.][a-z0-9]+)*\.[a-z]{2,}$/', $domain)) {
-            $error = 'Invalid domain name';
+            $error = 'Invalid domain name. Example: mydomain.com';
         } elseif (mailcow_domain_exists($domain)) {
-            $error = 'Domain already added';
+            $error = "Domain '$domain' is already registered in the system.";
         } else {
             $res = mailcow_add_domain($domain);
             if ($res['ok']) {
-                $success = "Domain '$domain' added! Set up DNS records below.";
+                $success = "🎉 Domain '$domain' added! Configure the DNS records below to start receiving emails.";
             } else {
                 $error = $res['error'] ?? 'Failed to add domain';
             }
@@ -42,13 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sync_registrar'])) {
         $auth_secret = trim($_POST['auth_secret'] ?? '');
 
         if (empty($registrar) || empty($auth_key)) {
-            $error = 'Please select a registrar and enter your API key';
+            $error = 'Please select a registrar and enter your API credentials.';
         } else {
             $result = registrar_sync($registrar, $auth_key, $auth_secret);
             if (isset($result['error'])) {
                 $error = $result['error'];
             } else {
-                $success = "Synced from {$result['total']} domains: {$result['added']} new, {$result['existing']} already existed.";
+                $success = "🎉 Synced {$result['total']} domains from registrar ({$result['added']} new, {$result['existing']} existing).";
             }
         }
     }
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_dns_domain'])) 
         $chk_dom = strtolower(trim($_POST['check_dns_domain']));
         $mx_records = @dns_get_record($chk_dom, DNS_MX) ?: [];
         $txt_records = @dns_get_record($chk_dom, DNS_TXT) ?: [];
-        
+
         $has_mx = false;
         foreach ($mx_records as $mx) {
             if (isset($mx['target']) && str_contains(strtolower($mx['target']), 'teak.email')) {
@@ -90,197 +90,237 @@ $domains = mailcow_list_domains();
 $registrars = registrar_list();
 
 require_once __DIR__ . '/_layout.php';
-page_header('Domains', $user);
+page_header('Custom Domains', $user);
 ?>
-<div style="max-width:640px;margin:30px auto">
 
-  <div style="text-align:center;margin-bottom:20px">
-    <h1 style="font-size:1.5rem;margin-bottom:6px">🌐 Multiple & Custom Domains</h1>
-    <p class="sub" style="margin:0">Connect unlimited fresh or aged domains via registrar auto-sync or manual DNS setup.</p>
-  </div>
+<style>
+.tab-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border: 1px solid #374151;
+  background: #0f172a;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #3b82f6;
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
 
-  <div class="card" style="border-left:4px solid #10b981;background:rgba(16,185,129,0.06);margin-bottom:18px;padding:16px">
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:1.4rem">✨</span>
-      <div>
-        <h4 style="margin:0;font-size:.92rem;color:#86efac">Aged Domains & Instant Reputation</h4>
-        <p style="margin:2px 0 0;font-size:.82rem;color:#cbd5e1">Connect your aged domains (domains with existing DNS/email history) to bypass warmup completely and start agent operations immediately.</p>
-      </div>
+.dns-row {
+  display: grid;
+  grid-template-columns: 80px 80px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background: #0a0e1a;
+  border-radius: 8px;
+  border: 1px solid #1f2937;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+@media(max-width: 650px) {
+  .dns-row { grid-template-columns: 1fr; gap: 8px; }
+}
+</style>
+
+<div style="max-width:760px;margin:10px auto 40px">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🌐 Custom Brand Domains</h1>
+      <p style="color:#94a3b8;font-size:0.88rem;margin:0">Add your own domain names to create branded inboxes with full SPF & DKIM support.</p>
     </div>
+    <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Back to Dashboard</a>
   </div>
 
-  <?php alert($error, $success); ?>
+  <?php if ($error): ?>
+    <div class="alert alert-e" style="margin-bottom:20px"><?= htmlspecialchars($error) ?></div>
+  <?php endif; ?>
+  <?php if ($success): ?>
+    <div class="alert alert-s" style="margin-bottom:20px"><?= $success ?></div>
+  <?php endif; ?>
 
   <?php if ($dns_report): ?>
-  <div class="card" style="border-color:#3b82f6;background:rgba(59,130,246,0.05);margin-bottom:16px">
-    <h3 style="color:#93c5fd;margin:0 0 8px">🔍 DNS Health Report: <?= htmlspecialchars($dns_report['domain']) ?></h3>
-    <div style="font-size:.85rem;line-height:1.7">
-      <div>MX Record to Teak: <?= $dns_report['has_mx'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (Pointing to mail.teak.email)</span>' : '<span style="color:#fca5a5;font-weight:700">✗ Missing (Add MX to mail.teak.email)</span>' ?></div>
-      <div>SPF TXT Record: <?= $dns_report['has_spf'] ? '<span style="color:#86efac;font-weight:700">✓ Found (SPF protection active)</span>' : '<span style="color:#fbbf24;font-weight:700">⚠️ Missing v=spf1 record</span>' ?></div>
+  <div class="card" style="border-color:#3b82f6;background:rgba(59,130,246,0.06);margin-bottom:20px">
+    <h3 style="color:#93c5fd;margin:0 0 10px;font-size:1.05rem">🔍 DNS Verification Status: <?= htmlspecialchars($dns_report['domain']) ?></h3>
+    <div style="font-size:0.88rem;line-height:1.8">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span>MX Record (Incoming Mail):</span>
+        <?= $dns_report['has_mx'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (Pointing to mail.teak.email)</span>' : '<span style="color:#fca5a5;font-weight:700">✗ Missing (Point MX to mail.teak.email)</span>' ?>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span>SPF Protection Record:</span>
+        <?= $dns_report['has_spf'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (SPF TXT record active)</span>' : '<span style="color:#fbbf24;font-weight:700">⚠️ Optional (Add TXT v=spf1)</span>' ?>
+      </div>
     </div>
   </div>
   <?php endif; ?>
 
-  <!-- Auto-Sync from Registrar -->
-  <div class="card" style="border-left:4px solid #8b5cf6">
-    <h3 style="margin:0 0 4px;font-size:1rem">⚡ Auto-Sync from Registrar</h3>
-    <p style="font-size:.85rem;color:#94a3b8;margin-bottom:14px">Connect your registrar account to import all domains automatically.</p>
+  <!-- Add Domain Tabs (Manual vs Registrar Auto-Sync) -->
+  <div style="display:flex;gap:10px;margin-bottom:16px">
+    <button type="button" class="tab-btn active" id="tab-btn-manual" onclick="switchDomainTab('manual')">➕ Add Domain Manually</button>
+    <button type="button" class="tab-btn" id="tab-btn-sync" onclick="switchDomainTab('sync')">⚡ Registrar Auto-Sync</button>
+  </div>
 
-    <form method="post" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Syncing...';b.disabled=true;}">
+  <!-- Tab 1: Manual Add Domain -->
+  <div id="pane-manual" class="tab-pane active card" style="border-left:4px solid #3b82f6">
+    <h3 style="margin:0 0 6px;font-size:1.05rem">Connect Domain via DNS</h3>
+    <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:14px">Type your domain name below. We will provide the exact DNS records to point to Teak Email.</p>
+
+    <form method="POST" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <?php csrf_field(); ?>
+      <input type="hidden" name="add_domain" value="1">
+      <div style="flex:1;min-width:240px">
+        <input type="text" name="domain" placeholder="e.g. mycompany.com or mail.brand.io" required style="margin:0" autofocus>
+      </div>
+      <button type="submit" class="btn" style="white-space:nowrap">➕ Add Domain</button>
+    </form>
+  </div>
+
+  <!-- Tab 2: Registrar Auto Sync -->
+  <div id="pane-sync" class="tab-pane card" style="border-left:4px solid #8b5cf6">
+    <h3 style="margin:0 0 6px;font-size:1.05rem">⚡ Auto-Import from Registrar API</h3>
+    <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:14px">Automatically import and configure domain records from your registrar account.</p>
+
+    <form method="POST">
       <?php csrf_field(); ?>
       <input type="hidden" name="sync_registrar" value="1">
 
-      <label style="font-size:.8rem;color:#94a3b8;display:block;margin-bottom:4px">Registrar</label>
-      <select name="registrar" id="registrar-select" required
-              style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.9rem;margin-bottom:12px">
-        <option value="">Select a registrar...</option>
-        <?php foreach ($registrars as $key => $r): ?>
-          <option value="<?= $key ?>"><?= htmlspecialchars($r['name']) ?></option>
+      <label>Select Registrar</label>
+      <select name="registrar" id="registrar-select" required>
+        <option value="">Choose registrar...</option>
+        <?php foreach ($registrars as $k => $r): ?>
+          <option value="<?= htmlspecialchars($k) ?>"><?= htmlspecialchars($r['name']) ?></option>
         <?php endforeach; ?>
       </select>
 
-      <!-- Dynamic auth fields -->
-      <div id="auth-fields">
-        <div id="auth-token-field" style="display:none">
-          <label style="font-size:.8rem;color:#94a3b8;display:block;margin-bottom:4px" id="auth-label">API Key</label>
-          <input type="text" name="auth_key" id="auth-key" placeholder="..."
-                 style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.9rem;margin-bottom:8px">
-          <p style="font-size:.75rem;color:#64748b;margin:0 0 12px" id="auth-help"></p>
-        </div>
-        <div id="auth-key-secret-field" style="display:none">
-          <label style="font-size:.8rem;color:#94a3b8;display:block;margin-bottom:4px" id="auth-secret-label">Secret Key</label>
-          <input type="text" name="auth_secret" id="auth-secret" placeholder="..."
-                 style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.9rem;margin-bottom:8px">
-          <p style="font-size:.75rem;color:#64748b;margin:0 0 12px" id="auth-help2"></p>
-        </div>
+      <div id="auth-token-field" style="display:none">
+        <label id="auth-label">API Key / Token</label>
+        <input type="text" name="auth_key" id="auth-key" placeholder="Enter API Key...">
+        <p style="font-size:0.76rem;color:#64748b;margin:-8px 0 12px" id="auth-help"></p>
       </div>
 
-      <button type="submit" class="btn" style="background:#8b5cf6;width:100%">⚡ Sync Domains</button>
+      <div id="auth-key-secret-field" style="display:none">
+        <label id="auth-secret-label">Secret Key</label>
+        <input type="text" name="auth_secret" id="auth-secret" placeholder="Enter Secret Key...">
+        <p style="font-size:0.76rem;color:#64748b;margin:-8px 0 12px" id="auth-help2"></p>
+      </div>
+
+      <button type="submit" class="btn" style="background:#8b5cf6;width:100%">⚡ Sync All Domains</button>
     </form>
   </div>
 
-  <!-- Manual Add -->
-  <div class="card" style="border-left:4px solid #3b82f6">
-    <h3 style="margin:0 0 4px;font-size:1rem">➕ Add Domain Manually</h3>
-    <p style="font-size:.85rem;color:#94a3b8;margin-bottom:12px">Enter a domain name to add it directly.</p>
-    <form method="post" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap">
-      <?php csrf_field(); ?>
-      <input type="hidden" name="add_domain" value="1">
-      <div style="flex:1;min-width:200px">
-        <input type="text" name="domain" placeholder="yourdomain.com" required
-               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.95rem">
-      </div>
-      <button type="submit" class="btn" style="margin-bottom:0">Add</button>
-    </form>
-  </div>
+  <!-- Required DNS Records Box with 1-Click Copy -->
+  <div class="card" style="border-left:4px solid #f59e0b;margin-top:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+      <h3 style="margin:0;font-size:1.05rem;color:#fde68a">📋 Required DNS Records</h3>
+      <span style="font-size:0.76rem;color:#94a3b8">Add these records at your DNS Manager (Cloudflare/Namecheap/GoDaddy)</span>
+    </div>
+    <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:14px">Point these 3 records to route incoming emails to Teak Email server:</p>
 
-  <?php if (!empty($domains)): ?>
-  <!-- DNS Instructions -->
-  <div class="card" style="border-left:4px solid #f59e0b">
-    <h3 style="margin:0 0 8px;font-size:1rem">⚠️ DNS Setup Required</h3>
-    <p style="font-size:.85rem;color:#94a3b8;margin-bottom:12px">After adding a domain, add these DNS records at your registrar:</p>
-    <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:14px;font-size:.85rem;overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse">
-        <tr style="border-bottom:1px solid #334155">
-          <td style="padding:6px 0;color:#94a3b8;font-weight:600">Type</td>
-          <td style="padding:6px 0;color:#94a3b8;font-weight:600">Name</td>
-          <td style="padding:6px 0;color:#94a3b8;font-weight:600">Value</td>
-          <td style="padding:6px 0;color:#94a3b8;font-weight:600;text-align:right">Action</td>
-        </tr>
-        <tr style="border-bottom:1px solid #1e293b">
-          <td style="padding:6px 0;color:#60a5fa">MX</td>
-          <td style="padding:6px 0;color:#e2e8f0">@</td>
-          <td style="padding:6px 0;color:#e2e8f0;font-family:monospace;font-size:.8rem">mail.teak.email (priority 10)</td>
-          <td style="padding:6px 0;text-align:right"><button type="button" class="btn-copy" onclick="copyToClipboard('mail.teak.email', this)">Copy</button></td>
-        </tr>
-        <tr style="border-bottom:1px solid #1e293b">
-          <td style="padding:6px 0;color:#60a5fa">TXT</td>
-          <td style="padding:6px 0;color:#e2e8f0">@</td>
-          <td style="padding:6px 0;color:#e2e8f0;font-family:monospace;font-size:.8rem">v=spf1 mx a ~all</td>
-          <td style="padding:6px 0;text-align:right"><button type="button" class="btn-copy" onclick="copyToClipboard('v=spf1 mx a ~all', this)">Copy</button></td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;color:#60a5fa">CNAME</td>
-          <td style="padding:6px 0;color:#e2e8f0">mta-sts</td>
-          <td style="padding:6px 0;color:#e2e8f0;font-family:monospace;font-size:.8rem">mta-sts.teak.email</td>
-          <td style="padding:6px 0;text-align:right"><button type="button" class="btn-copy" onclick="copyToClipboard('mta-sts.teak.email', this)">Copy</button></td>
-        </tr>
-      </table>
+    <!-- MX Record -->
+    <div class="dns-row">
+      <span style="font-weight:700;color:#60a5fa">MX</span>
+      <span style="color:#cbd5e1;font-family:monospace">@</span>
+      <span style="color:#f8fafc;font-family:monospace">mail.teak.email <span style="color:#94a3b8;font-size:0.75rem">(Priority 10)</span></span>
+      <button type="button" class="btn-copy" onclick="copyToClipboard('mail.teak.email', this)">📋 Copy</button>
+    </div>
+
+    <!-- SPF Record -->
+    <div class="dns-row">
+      <span style="font-weight:700;color:#60a5fa">TXT</span>
+      <span style="color:#cbd5e1;font-family:monospace">@</span>
+      <span style="color:#f8fafc;font-family:monospace">v=spf1 mx a ~all</span>
+      <button type="button" class="btn-copy" onclick="copyToClipboard('v=spf1 mx a ~all', this)">📋 Copy</button>
+    </div>
+
+    <!-- CNAME Record -->
+    <div class="dns-row">
+      <span style="font-weight:700;color:#60a5fa">CNAME</span>
+      <span style="color:#cbd5e1;font-family:monospace">mta-sts</span>
+      <span style="color:#f8fafc;font-family:monospace">mta-sts.teak.email</span>
+      <button type="button" class="btn-copy" onclick="copyToClipboard('mta-sts.teak.email', this)">📋 Copy</button>
     </div>
   </div>
 
-  <!-- Domain list -->
-  <div class="card">
-    <h3 style="margin:0 0 12px;font-size:1rem">Your Domains</h3>
-    <?php foreach ($domains as $d): ?>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #334155;font-size:.9rem;flex-wrap:wrap;gap:8px">
-        <div>
-          <span style="font-weight:600;color:#e2e8f0"><?= htmlspecialchars($d['domain']) ?></span>
-          <?php if ($d['active']): ?>
-            <span style="background:#14532d;color:#86efac;font-size:.7rem;padding:2px 8px;border-radius:10px;margin-left:8px">Active</span>
-          <?php else: ?>
-            <span style="background:#7f1d1d;color:#fca5a5;font-size:.7rem;padding:2px 8px;border-radius:10px;margin-left:8px">Pending DNS</span>
-          <?php endif; ?>
-          <?php if (!empty($d['description']) && str_starts_with($d['description'], 'Synced')): ?>
-            <span style="background:#1e293b;color:#94a3b8;font-size:.7rem;padding:2px 8px;border-radius:10px;margin-left:4px">🔗 <?= htmlspecialchars($d['description']) ?></span>
-          <?php endif; ?>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <form method="post" style="display:inline;margin:0">
-            <?php csrf_field(); ?>
-            <input type="hidden" name="check_dns_domain" value="<?= htmlspecialchars($d['domain']) ?>">
-            <button type="submit" class="btn-sm btn-ghost">🔍 Verify DNS</button>
-          </form>
-          <a href="/inboxes.php?domain=<?= urlencode($d['domain']) ?>" style="color:#3b82f6;font-size:.85rem;text-decoration:none">Create inbox →</a>
-        </div>
-      </div>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
+  <!-- Connected Domains List -->
+  <div class="card" style="margin-top:20px">
+    <h3 style="margin:0 0 14px;font-size:1.1rem;color:#f8fafc">Connected Domains (<?= count($domains) ?>)</h3>
+    <?php if (empty($domains)): ?>
+      <p style="color:#94a3b8;font-size:0.88rem;margin:0">No custom domains connected yet.</p>
+    <?php else: ?>
+      <?php foreach ($domains as $d): ?>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;margin-bottom:8px;flex-wrap:wrap;gap:10px">
+          <div>
+            <span style="font-weight:700;font-size:0.95rem;color:#f8fafc"><?= htmlspecialchars($d['domain']) ?></span>
+            <?php if ($d['active']): ?>
+              <span style="background:rgba(34,197,94,0.15);border:1px solid #22c55e;color:#86efac;font-size:0.72rem;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:8px">✓ Active</span>
+            <?php else: ?>
+              <span style="background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#fca5a5;font-size:0.72rem;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:8px">Pending DNS</span>
+            <?php endif; ?>
+          </div>
 
-  <!-- Shared domains -->
-  <div class="card">
-    <h3 style="margin:0 0 8px;font-size:1rem">📦 Shared Domains</h3>
-    <p style="font-size:.85rem;color:#94a3b8;margin-bottom:12px">Use these domains without any DNS setup:</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <?php $shared = cfg()['pool_domains'] ?? []; foreach ($shared as $sd): ?>
-        <span style="background:#1e293b;border:1px solid #334155;padding:6px 14px;border-radius:20px;font-size:.85rem;color:#cbd5e1">
-          <?= htmlspecialchars($sd) ?>
-        </span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <form method="POST" style="display:inline;margin:0">
+              <?php csrf_field(); ?>
+              <input type="hidden" name="check_dns_domain" value="<?= htmlspecialchars($d['domain']) ?>">
+              <button type="submit" class="btn-sm btn-ghost" title="Check live DNS records">🔍 Verify DNS</button>
+            </form>
+            <a href="/inboxes.php?domain=<?= urlencode($d['domain']) ?>" class="btn-sm btn-success">+ Create Inbox</a>
+          </div>
+        </div>
       <?php endforeach; ?>
-    </div>
+    <?php endif; ?>
   </div>
 
 </div>
 
 <script>
-// Registrar selector — show/hide auth fields dynamically
-const registrars = <?= json_encode($registrars) ?>;
-const sel = document.getElementById('registrar-select');
-const tokenField = document.getElementById('auth-token-field');
-const ksField = document.getElementById('auth-key-secret-field');
-
-sel.addEventListener('change', () => {
-  const r = registrars[sel.value];
-  if (!r) { tokenField.style.display = 'none'; ksField.style.display = 'none'; return; }
-
-  if (r.auth_type === 'token') {
-    tokenField.style.display = 'block';
-    ksField.style.display = 'none';
-    document.getElementById('auth-label').textContent = r.auth_label;
-    document.getElementById('auth-key').placeholder = r.auth_placeholder;
-    document.getElementById('auth-help').innerHTML = r.help + ' <a href="' + r.docs_url + '" target="_blank" style="color:#3b82f6">Get key →</a>';
+function switchDomainTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  if (tab === 'manual') {
+    document.getElementById('tab-btn-manual').classList.add('active');
+    document.getElementById('pane-manual').classList.add('active');
   } else {
-    tokenField.style.display = 'block';
-    ksField.style.display = 'block';
-    document.getElementById('auth-label').textContent = r.auth_label;
-    document.getElementById('auth-key').placeholder = r.auth_placeholder;
-    document.getElementById('auth-secret-label').textContent = r.auth_secret_label;
-    document.getElementById('auth-secret').placeholder = r.auth_secret_placeholder;
-    document.getElementById('auth-help').innerHTML = r.help;
-    document.getElementById('auth-help2').innerHTML = '<a href="' + r.docs_url + '" target="_blank" style="color:#3b82f6">Get credentials →</a>';
+    document.getElementById('tab-btn-sync').classList.add('active');
+    document.getElementById('pane-sync').classList.add('active');
   }
-});
+}
+
+const regSelect = document.getElementById('registrar-select');
+if (regSelect) {
+  regSelect.addEventListener('change', function() {
+    const v = this.value;
+    const tf = document.getElementById('auth-token-field');
+    const sf = document.getElementById('auth-key-secret-field');
+    const hl = document.getElementById('auth-label');
+    const hp = document.getElementById('auth-help');
+    if (!v) {
+      tf.style.display = 'none';
+      sf.style.display = 'none';
+      return;
+    }
+    if (v === 'spaceship' || v === 'namecheap') {
+      tf.style.display = 'block';
+      sf.style.display = 'block';
+      hl.textContent = 'API Key';
+      hp.textContent = 'Found in your ' + v + ' account developer settings.';
+    } else {
+      tf.style.display = 'block';
+      sf.style.display = 'none';
+      hl.textContent = 'API Token';
+      hp.textContent = 'Found in your registrar API tokens dashboard.';
+    }
+  });
+}
 </script>
 
 <?php page_footer(); ?>
