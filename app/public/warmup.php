@@ -1,6 +1,6 @@
 <?php
 /**
- * warmup.php — Email warmup dashboard.
+ * warmup.php — Modern Domain Warmup & Deliverability Dashboard.
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../src/db.php';
@@ -16,17 +16,17 @@ $error = $success = '';
 // Handle start/stop warmup
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_validate()) {
-        $error = 'Invalid form submission. Please try again.';
+        $error = 'Invalid form submission or session expired. Please try again.';
     } else {
         $email = $_POST['email'] ?? '';
         if (!inbox_owned($uid, $email)) {
-            $error = 'Inbox not found';
+            $error = 'Inbox not found or access denied.';
         } elseif (isset($_POST['start_warmup'])) {
             $res = warmup_start($email);
-            $res['ok'] ? $success = "Warmup started for $email" : $error = $res['error'];
+            $res['ok'] ? $success = "🔥 Warmup cycle started for <strong>$email</strong>" : $error = $res['error'];
         } elseif (isset($_POST['stop_warmup'])) {
             warmup_stop($email);
-            $success = "Warmup paused for $email";
+            $success = "⏸️ Warmup cycle paused for <strong>$email</strong>";
         }
     }
 }
@@ -36,118 +36,97 @@ $inboxes = inbox_list($uid);
 require_once __DIR__ . '/_layout.php';
 page_header('Email Warmup', $user);
 ?>
-<div style="max-width:640px;margin:30px auto">
 
-  <div style="text-align:center;margin-bottom:24px">
-    <h1 style="font-size:1.5rem;margin-bottom:6px">🔥 Email Warmup</h1>
-    <p class="sub" style="margin:0">Automatically send/receive emails to build your domain reputation.</p>
+<div style="max-width:760px;margin:10px auto 40px">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🔥 Email & Domain Warmup</h1>
+      <p style="color:#94a3b8;font-size:0.88rem;margin:0">Simulate human engagement to build sender reputation and maximize inbox placement.</p>
+    </div>
+    <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Back to Dashboard</a>
   </div>
 
-  <?php alert($error, $success); ?>
+  <?php if ($error): ?>
+    <div class="alert alert-e" style="margin-bottom:20px"><?= htmlspecialchars($error) ?></div>
+  <?php endif; ?>
+  <?php if ($success): ?>
+    <div class="alert alert-s" style="margin-bottom:20px"><?= $success ?></div>
+  <?php endif; ?>
 
-  <!-- How it works & Aged Domain Advantage -->
-  <div class="grid2" style="margin-bottom:16px">
+  <!-- Guidance Cards -->
+  <div class="grid2" style="margin-bottom:20px">
     <div class="card" style="border-left:4px solid #f59e0b;margin-bottom:0">
-      <h3 style="margin:0 0 8px;font-size:1rem">🔥 How Warmup Works (New Domains)</h3>
-      <div style="font-size:.84rem;color:#94a3b8;line-height:1.6">
-        <p>✅ Inboxes exchange natural emails automatically</p>
-        <p>✅ Opens & engagement simulated in background</p>
-        <p>✅ Builds domain sender reputation over 2-3 weeks</p>
+      <h3 style="margin:0 0 6px;font-size:1.05rem;color:#fde68a">🔥 New Domains (Requires Warmup)</h3>
+      <div style="font-size:0.84rem;color:#cbd5e1;line-height:1.7">
+        <div>✓ Automatic peer-to-peer email exchanges</div>
+        <div>✓ Simulated opens & thread engagement</div>
+        <div>✓ Reaches optimal score over 2–3 weeks</div>
       </div>
-      <p style="font-size:.78rem;color:#64748b;margin-top:8px">💡 Best with 2+ inboxes per domain.</p>
     </div>
 
     <div class="card" style="border-left:4px solid #10b981;margin-bottom:0">
-      <h3 style="margin:0 0 8px;font-size:1rem;color:#86efac">⚡ Aged Domains (Skip Warmup)</h3>
-      <div style="font-size:.84rem;color:#cbd5e1;line-height:1.6">
-        <p>🚀 <strong>Already have aged domains/emails?</strong></p>
-        <p>Aged domains with established DNS history do <strong>not</strong> need warmup. You can start sending and receiving instantly with peak deliverability.</p>
+      <h3 style="margin:0 0 6px;font-size:1.05rem;color:#86efac">⚡ Aged Domains (Skip Warmup)</h3>
+      <div style="font-size:0.84rem;color:#cbd5e1;line-height:1.7">
+        <p style="margin:0">Aged domains with established historical DNS records do not require warmup and are ready for peak volume immediately.</p>
+        <a href="/domains.php" style="color:#34d399;font-weight:600;font-size:0.8rem;display:inline-block;margin-top:6px">Manage Custom Domains →</a>
       </div>
-      <a href="/domains.php" style="display:inline-block;font-size:.78rem;color:#34d399;font-weight:600;margin-top:8px">Connect Aged Domain in Domains tab →</a>
     </div>
   </div>
 
-  <?php if (empty($inboxes)): ?>
+  <!-- Inboxes Warmup Status -->
   <div class="card">
-    <p style="color:#94a3b8">Create at least 2 inboxes to start warmup.</p>
-    <a href="/inboxes.php" class="btn" style="margin-top:12px">Create Inbox</a>
-  </div>
-  <?php else: ?>
+    <h2 style="font-size:1.15rem;color:#f8fafc;margin:0 0 16px">Mailbox Warmup Status (<?= count($inboxes) ?>)</h2>
 
-  <!-- Warmup status per inbox -->
-  <div class="card">
-    <h3 style="margin:0 0 12px;font-size:1rem">Your Inboxes</h3>
-    <?php foreach ($inboxes as $in):
-      $status = warmup_status($in['email_address']);
-    ?>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #334155;flex-wrap:wrap;gap:8px">
-      <div style="flex:1;min-width:200px">
-        <div style="font-weight:600;font-size:.9rem;color:#e2e8f0"><?= htmlspecialchars($in['email_address']) ?></div>
-        <div style="font-size:.8rem;color:#64748b;margin-top:2px">
-          <?php if ($status['enabled']): ?>
-            <span style="color:#22c55e">🔥 Warming</span> ·
-            Sent: <?= $status['emails_sent'] ?> ·
-            Received: <?= $status['emails_received'] ?> ·
-            Score: <?= $status['score'] ?>/100
-          <?php else: ?>
-            <span style="color:#64748b">Inactive</span>
-          <?php endif; ?>
-        </div>
-        <?php if ($status['enabled']): ?>
-        <div style="background:#1e293b;border-radius:20px;height:6px;margin-top:6px;overflow:hidden">
-          <div style="background:linear-gradient(90deg,#f59e0b,#ef4444);height:100%;width:<?= min(100, $status['score']) ?>%;border-radius:20px"></div>
-        </div>
-        <?php endif; ?>
+    <?php if (empty($inboxes)): ?>
+      <div style="text-align:center;padding:40px 16px;background:#0a0e1a;border-radius:10px;border:1px dashed #334155">
+        <p style="color:#94a3b8;font-size:0.88rem;margin:0 0 12px">Create at least 2 inboxes to start automated warmup exchanges.</p>
+        <a href="/dashboard.php" class="btn btn-sm">Create Inbox Now</a>
       </div>
-      <div>
-        <?php if ($status['enabled']): ?>
-          <form method="post" style="display:inline" onsubmit="const b=this.querySelector('button');if(b){b.textContent='Pausing...';b.disabled=true;}">
-            <?php csrf_field(); ?>
-            <input type="hidden" name="email" value="<?= htmlspecialchars($in['email_address']) ?>">
-            <button type="submit" name="stop_warmup" style="background:#7f1d1d;color:#fca5a5;padding:6px 14px;border-radius:6px;border:none;font-size:.8rem;cursor:pointer">Pause Warmup</button>
-          </form>
-        <?php else: ?>
-          <form method="post" style="display:inline" onsubmit="const b=this.querySelector('button');if(b){b.textContent='Starting...';b.disabled=true;}">
-            <?php csrf_field(); ?>
-            <input type="hidden" name="email" value="<?= htmlspecialchars($in['email_address']) ?>">
-            <button type="submit" name="start_warmup" style="background:#14532d;color:#86efac;padding:6px 14px;border-radius:6px;border:none;font-size:.8rem;cursor:pointer">Start Warmup</button>
-          </form>
-        <?php endif; ?>
-      </div>
-    </div>
-    <?php endforeach; ?>
-  </div>
+    <?php else: ?>
+      <?php foreach ($inboxes as $in):
+        $status = warmup_status($in['email_address']);
+      ?>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;margin-bottom:10px;flex-wrap:wrap;gap:12px">
+          <div style="flex:1;min-width:220px">
+            <div style="font-weight:700;font-size:0.95rem;color:#f8fafc"><?= htmlspecialchars($in['email_address']) ?></div>
+            <div style="font-size:0.8rem;color:#94a3b8;margin-top:4px">
+              <?php if ($status['enabled']): ?>
+                <span style="color:#22c55e;font-weight:700">🔥 Active Warming</span> ·
+                Sent: <?= $status['emails_sent'] ?> ·
+                Received: <?= $status['emails_received'] ?> ·
+                Score: <strong style="color:#f8fafc"><?= $status['score'] ?>/100</strong>
+              <?php else: ?>
+                <span style="color:#64748b">Inactive / Paused</span>
+              <?php endif; ?>
+            </div>
+            <?php if ($status['enabled']): ?>
+              <div style="background:#1e293b;border-radius:20px;height:6px;margin-top:8px;overflow:hidden">
+                <div style="background:linear-gradient(90deg,#f59e0b,#22c55e);height:100%;width:<?= min(100, $status['score']) ?>%;border-radius:20px"></div>
+              </div>
+            <?php endif; ?>
+          </div>
 
-  <!-- Warmup pairs info -->
-  <?php
-  $active_count = 0;
-  foreach ($inboxes as $in) {
-      $s = warmup_status($in['email_address']);
-      if ($s['enabled']) $active_count++;
-  }
-  ?>
-  <div class="card" style="border-left:4px solid #3b82f6">
-    <h3 style="margin:0 0 8px;font-size:1rem">📊 Warmup Stats</h3>
-    <div style="display:flex;gap:16px;flex-wrap:wrap">
-      <div>
-        <div style="font-size:1.4rem;font-weight:700;color:#3b82f6"><?= $active_count ?></div>
-        <div style="font-size:.75rem;color:#64748b">Active inboxes</div>
-      </div>
-      <div>
-        <div style="font-size:1.4rem;font-weight:700;color:#22c55e"><?= intdiv($active_count, 2) ?></div>
-        <div style="font-size:.75rem;color:#64748b">Warmup pairs</div>
-      </div>
-      <div>
-        <div style="font-size:1.4rem;font-weight:700;color:#f59e0b">~<?= $active_count * 5 ?></div>
-        <div style="font-size:.75rem;color:#64748b">Emails/day</div>
-      </div>
-    </div>
-    <?php if ($active_count < 2): ?>
-    <p style="font-size:.85rem;color:#fbbf24;margin-top:10px">⚠️ Add at least 2 inboxes and start warmup on both for the system to work.</p>
+          <div>
+            <?php if ($status['enabled']): ?>
+              <form method="POST" style="display:inline;margin:0" onsubmit="const b=this.querySelector('button');b.textContent='Pausing...';b.disabled=true;">
+                <?php csrf_field(); ?>
+                <input type="hidden" name="email" value="<?= htmlspecialchars($in['email_address']) ?>">
+                <button type="submit" name="stop_warmup" class="btn-sm btn-danger">Pause</button>
+              </form>
+            <?php else: ?>
+              <form method="POST" style="display:inline;margin:0" onsubmit="const b=this.querySelector('button');b.textContent='Starting...';b.disabled=true;">
+                <?php csrf_field(); ?>
+                <input type="hidden" name="email" value="<?= htmlspecialchars($in['email_address']) ?>">
+                <button type="submit" name="start_warmup" class="btn-sm btn-success">Start Warmup</button>
+              </form>
+            <?php endif; ?>
+          </div>
+        </div>
+      <?php endforeach; ?>
     <?php endif; ?>
   </div>
 
-  <?php endif; ?>
-
 </div>
+
 <?php page_footer(); ?>

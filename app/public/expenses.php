@@ -1,10 +1,8 @@
 <?php
 /**
- * expenses.php — UI Rekapitulasi & Ekstraksi Struk / Invoice (Receipts & Expenses).
- * Fitur delegasi staf finance / perusahaan untuk pembukuan & ekspor CSV.
+ * expenses.php — Modern Financial Invoices & Receipts Management.
  */
 declare(strict_types=1);
-
 require_once __DIR__ . '/../src/db.php';
 require_once __DIR__ . '/../src/auth.php';
 require_once __DIR__ . '/../src/inbox.php';
@@ -27,13 +25,13 @@ if ($action === 'export_csv' && !empty($selected_inbox)) {
     }
     $all_messages = mailcow_fetch_inbox($selected_inbox);
     $filename = 'expenses_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $selected_inbox) . '_' . date('Ymd_His') . '.csv';
-    
+
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
-    
+
     $out = fopen('php://output', 'w');
     fputcsv($out, ['UID', 'Date', 'Vendor / Merchant', 'Currency', 'Amount', 'Invoice / Reference #', 'Subject', 'From Email']);
-    
+
     foreach ($all_messages as $m) {
         $raw = mailcow_fetch_message($selected_inbox, (int)$m['uid']);
         $rec = extract_receipt($raw ?? '');
@@ -96,152 +94,104 @@ if (!empty($selected_inbox) && inbox_owned($uid, $selected_inbox)) {
 }
 
 require_once __DIR__ . '/_layout.php';
-page_header('Expenses & Receipts', $user);
+page_header('Receipts & Expenses', $user);
 ?>
 
-<div class="card" style="margin-bottom:20px">
-  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-    <div>
-      <h1 style="font-size:1.35rem;display:flex;align-items:center;gap:8px">
-        🧾 Company Expenses & Receipts
-      </h1>
-      <p class="sub" style="margin-bottom:0;margin-top:4px">
-        Automated invoice parsing & expense management for your finance team.
-      </p>
-    </div>
-    <?php if (!empty($selected_inbox) && count($receipt_items) > 0): ?>
-      <a href="/expenses.php?inbox=<?= urlencode($selected_inbox) ?>&currency=<?= urlencode($filter_currency) ?>&action=export_csv" class="btn btn-sm btn-success" style="padding:8px 16px;font-size:0.85rem">
-        📥 Export to CSV
-      </a>
-    <?php endif; ?>
-  </div>
-</div>
+<div style="max-width:880px;margin:10px auto 40px">
 
-<!-- Controls: Inbox Selector & Filter -->
-<div class="card" style="padding:16px;margin-bottom:20px">
-  <form method="GET" action="/expenses.php" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:flex-end">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
-      <label for="inbox_select" style="font-size:0.8rem;color:#94a3b8">Selected Inbox</label>
-      <select name="inbox" id="inbox_select" onchange="this.form.submit()" style="margin-bottom:0">
-        <?php if (empty($inboxes)): ?>
-          <option value="">No inboxes found</option>
-        <?php else: ?>
-          <?php foreach ($inboxes as $ib): ?>
-            <option value="<?= htmlspecialchars($ib['email_address']) ?>" <?= $ib['email_address'] === $selected_inbox ? 'selected' : '' ?>>
-              <?= htmlspecialchars($ib['email_address']) ?>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🧾 Company Expenses & Receipts</h1>
+      <p style="color:#94a3b8;font-size:0.88rem;margin:0">Automated invoice scanning and structured financial bookkeeping.</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <?php if (!empty($selected_inbox) && count($receipt_items) > 0): ?>
+        <a href="/expenses.php?inbox=<?= urlencode($selected_inbox) ?>&currency=<?= urlencode($filter_currency) ?>&action=export_csv" class="btn btn-sm btn-success">📥 Export CSV</a>
+      <?php endif; ?>
+      <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Inbox Selector & Filter Bar -->
+  <div class="card" style="margin-bottom:20px;padding:16px 20px;background:#111827">
+    <form method="GET" action="/expenses.php" style="display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:center;margin:0">
+      <div>
+        <label style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;display:block">Select Mailbox</label>
+        <select name="inbox" onchange="this.form.submit()" style="margin:0;background:#060a12;border-color:#334155">
+          <?php foreach ($inboxes as $in): ?>
+            <option value="<?= htmlspecialchars($in['email_address']) ?>" <?= $selected_inbox === $in['email_address'] ? 'selected' : '' ?>>
+              <?= htmlspecialchars($in['email_address']) ?>
             </option>
           <?php endforeach; ?>
-        <?php endif; ?>
-      </select>
-    </div>
+        </select>
+      </div>
 
-    <div>
-      <label for="currency_select" style="font-size:0.8rem;color:#94a3b8">Currency Filter</label>
-      <select name="currency" id="currency_select" onchange="this.form.submit()" style="margin-bottom:0">
-        <option value="all" <?= $filter_currency === 'all' ? 'selected' : '' ?>>All Currencies</option>
-        <option value="USD" <?= $filter_currency === 'USD' ? 'selected' : '' ?>>USD ($)</option>
-        <option value="IDR" <?= $filter_currency === 'IDR' ? 'selected' : '' ?>>IDR (Rp)</option>
-        <option value="EUR" <?= $filter_currency === 'EUR' ? 'selected' : '' ?>>EUR (€)</option>
-        <option value="GBP" <?= $filter_currency === 'GBP' ? 'selected' : '' ?>>GBP (£)</option>
-        <option value="SGD" <?= $filter_currency === 'SGD' ? 'selected' : '' ?>>SGD ($)</option>
-      </select>
-    </div>
-  </form>
-</div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;display:block">Currency</label>
+        <select name="currency" onchange="this.form.submit()" style="margin:0;background:#060a12;border-color:#334155">
+          <option value="all" <?= $filter_currency === 'all' ? 'selected' : '' ?>>All Currencies</option>
+          <?php foreach (array_keys($total_expenses_by_currency) as $curr_code): ?>
+            <option value="<?= htmlspecialchars($curr_code) ?>" <?= $filter_currency === $curr_code ? 'selected' : '' ?>>
+              <?= htmlspecialchars($curr_code) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
 
-<!-- Expense Metric Cards -->
-<div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:20px">
-  <div class="stat">
-    <div class="n" style="color:#60a5fa"><?= $total_receipt_count ?></div>
-    <div class="l">Receipts Found</div>
+      <div style="align-self:end">
+        <noscript><button type="submit" class="btn btn-sm">Filter</button></noscript>
+      </div>
+    </form>
   </div>
-  <?php if (empty($total_expenses_by_currency)): ?>
-    <div class="stat">
-      <div class="n" style="color:#94a3b8">$0.00</div>
-      <div class="l">Total Tracked</div>
-    </div>
-  <?php else: ?>
-    <?php foreach ($total_expenses_by_currency as $c => $tot): ?>
-      <div class="stat">
-        <div class="n" style="color:#34d399">
-          <?= htmlspecialchars($c) ?> <?= number_format($tot, 2) ?>
-        </div>
-        <div class="l">Total (<?= htmlspecialchars($c) ?>)</div>
+
+  <!-- Total Summary Card -->
+  <?php if (!empty($total_expenses_by_currency)): ?>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">
+    <?php foreach ($total_expenses_by_currency as $curr => $total): ?>
+      <div class="card" style="padding:16px 20px;border-left:4px solid #10b981;margin-bottom:0">
+        <div style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase">Total <?= htmlspecialchars($curr) ?></div>
+        <div style="font-size:1.5rem;font-weight:800;color:#86efac;margin-top:4px"><?= htmlspecialchars($curr) ?> <?= number_format((float)$total, 2) ?></div>
       </div>
     <?php endforeach; ?>
+  </div>
   <?php endif; ?>
-</div>
 
-<!-- Receipt List / Table -->
-<div class="card" style="padding:0;overflow:hidden">
-  <div style="padding:16px;border-bottom:1px solid #1f2937;display:flex;justify-content:space-between;align-items:center">
-    <h2 style="font-size:1rem;margin:0;color:#f8fafc">Captured Invoices & Struk</h2>
-    <span style="font-size:0.8rem;color:#94a3b8"><?= count($receipt_items) ?> item(s)</span>
+  <!-- Receipts List -->
+  <div class="card">
+    <h2 style="font-size:1.15rem;color:#f8fafc;margin:0 0 16px">📋 Extracted Invoices (<?= count($receipt_items) ?>)</h2>
+
+    <?php if (empty($receipt_items)): ?>
+      <div style="text-align:center;padding:40px 16px;background:#0a0e1a;border-radius:10px;border:1px dashed #334155">
+        <div style="font-size:2.2rem;margin-bottom:8px">🧾</div>
+        <h3 style="margin:0 0 6px;color:#f1f5f9">No Invoices Detected</h3>
+        <p style="color:#94a3b8;font-size:0.85rem;max-width:400px;margin:0 auto">
+          When this inbox receives Stripe receipts, PayPal statements, or merchant invoices, they will automatically parse here.
+        </p>
+      </div>
+    <?php else: ?>
+      <?php foreach ($receipt_items as $item): ?>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;margin-bottom:10px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-weight:700;font-size:1rem;color:#f8fafc;display:flex;align-items:center;gap:8px">
+              <span><?= htmlspecialchars($item['vendor']) ?></span>
+              <span style="font-size:0.75rem;padding:2px 8px;border-radius:8px;background:rgba(59,130,246,0.15);color:#93c5fd;font-weight:600">Inv #<?= htmlspecialchars($item['invoice_no']) ?></span>
+            </div>
+            <div style="font-size:0.8rem;color:#94a3b8;margin-top:4px">
+              <?= htmlspecialchars($item['date']) ?> · <?= htmlspecialchars(substr($item['subject'], 0, 50)) ?>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:1.2rem;font-weight:800;color:#86efac;text-align:right">
+              <?= htmlspecialchars($item['currency']) ?> <?= number_format((float)$item['amount'], 2) ?>
+            </div>
+            <a href="/inbox_view.php?email=<?= urlencode($selected_inbox) ?>&msg=<?= (int)$item['uid'] ?>" class="btn-sm btn-ghost">View Raw →</a>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
   </div>
 
-  <?php if (empty($selected_inbox)): ?>
-    <div style="padding:32px;text-align:center;color:#94a3b8">
-      Please create an inbox first to track company expenses.
-    </div>
-  <?php elseif (empty($receipt_items)): ?>
-    <div style="padding:32px;text-align:center;color:#94a3b8">
-      <p style="font-size:1.1rem;margin-bottom:6px">📭 No receipts detected yet in this inbox</p>
-      <p style="font-size:0.85rem;color:#64748b;max-width:480px;margin:0 auto">
-        Forward SaaS subscription emails, vendor receipts, or digital invoices to <strong><?= htmlspecialchars($selected_inbox) ?></strong> to automatically parse expenses.
-      </p>
-    </div>
-  <?php else: ?>
-    <!-- Responsive Table Container -->
-    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-      <table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.88rem;min-width:640px">
-        <thead>
-          <tr style="background:#0b1120;color:#94a3b8;border-bottom:1px solid #1f2937">
-            <th style="padding:12px 16px">Vendor / Merchant</th>
-            <th style="padding:12px 16px">Invoice #</th>
-            <th style="padding:12px 16px">Date</th>
-            <th style="padding:12px 16px;text-align:right">Amount</th>
-            <th style="padding:12px 16px;text-align:center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($receipt_items as $item): ?>
-            <tr style="border-bottom:1px solid #1f2937;transition:background .15s">
-              <td style="padding:12px 16px">
-                <div style="font-weight:600;color:#f8fafc"><?= htmlspecialchars($item['vendor']) ?></div>
-                <div style="font-size:0.75rem;color:#64748b;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                  <?= htmlspecialchars($item['subject']) ?>
-                </div>
-              </td>
-              <td style="padding:12px 16px;font-family:monospace;font-size:0.82rem;color:#cbd5e1">
-                <?= htmlspecialchars($item['invoice_no']) ?>
-              </td>
-              <td style="padding:12px 16px;color:#94a3b8;font-size:0.82rem;white-space:nowrap">
-                <?= htmlspecialchars($item['date']) ?>
-              </td>
-              <td style="padding:12px 16px;text-align:right;font-weight:700;color:#34d399;white-space:nowrap">
-                <?= htmlspecialchars($item['currency']) ?> <?= number_format((float)$item['amount'], 2) ?>
-              </td>
-              <td style="padding:12px 16px;text-align:center;white-space:nowrap">
-                <a href="/inbox_view.php?email=<?= urlencode($selected_inbox) ?>&uid=<?= (int)$item['uid'] ?>" class="btn-sm btn-ghost" style="padding:4px 10px;font-size:0.75rem">
-                  View Email ↗
-                </a>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
-  <?php endif; ?>
-</div>
-
-<div class="card" style="margin-top:20px;border-color:#334155;background:#0f172a">
-  <h3 style="font-size:0.95rem;color:#93c5fd;margin-bottom:6px">🤖 AI Agent & MCP Integration for Staff</h3>
-  <p class="sub" style="font-size:0.82rem;margin-bottom:8px">
-    Staff finance can automate downloading these receipts using Cursor, Claude, or script via our MCP tools:
-  </p>
-  <div style="background:#020617;padding:10px 14px;border-radius:6px;font-family:monospace;font-size:0.8rem;color:#38bdf8">
-    Tools: <strong>list_receipts(email)</strong> | <strong>get_receipt(email, uid)</strong> | <strong>GET /api/inboxes/{email}/receipts</strong>
-  </div>
 </div>
 
 <?php page_footer(); ?>
