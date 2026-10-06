@@ -85,28 +85,28 @@ admin_header('PayPal & Settings', $user, 'settings');
         </h2>
         <p class="sub">Enter your PayPal REST API credentials below. When configured, checkout buttons on the pricing table and user dashboard will generate real PayPal orders.</p>
 
-	        <form method="POST" action="/admin/settings.php">
-	            <?php csrf_field(); ?>
-	            <input type="hidden" name="action" value="save_paypal">
+		        <form method="POST" action="/admin/settings.php" autocomplete="off">
+		            <?php csrf_field(); ?>
+		            <input type="hidden" name="action" value="save_paypal">
 
-            <div style="margin-bottom:16px">
-                <label for="paypal_mode">Environment Mode</label>
-                <select name="paypal_mode" id="paypal_mode">
-                    <option value="sandbox" <?= $paypalMode === 'sandbox' ? 'selected' : '' ?>>🧪 Sandbox (Testing / Development)</option>
-                    <option value="live" <?= $paypalMode === 'live' ? 'selected' : '' ?>>🚀 Live (Production Real Payments)</option>
-                </select>
-                <div style="font-size:0.75rem;color:#64748b;margin-top:4px">Use Sandbox for testing accounts or Live when ready to charge real credit cards / balances.</div>
-            </div>
+	            <div style="margin-bottom:16px">
+	                <label for="paypal_mode">Environment Mode</label>
+	                <select name="paypal_mode" id="paypal_mode">
+	                    <option value="sandbox" <?= $paypalMode === 'sandbox' ? 'selected' : '' ?>>🧪 Sandbox (Testing / Development)</option>
+	                    <option value="live" <?= $paypalMode === 'live' ? 'selected' : '' ?>>🚀 Live (Production Real Payments)</option>
+	                </select>
+	                <div style="font-size:0.75rem;color:#64748b;margin-top:4px">Use Sandbox for testing accounts or Live when ready to charge real credit cards / balances.</div>
+	            </div>
 
-            <div style="margin-bottom:16px">
-                <label for="paypal_client_id">PayPal Client ID</label>
-                <input type="text" name="paypal_client_id" id="paypal_client_id" value="<?= htmlspecialchars($paypalClientId) ?>" placeholder="e.g. AVSkX... or your live client id" autocomplete="off" required>
-            </div>
+	            <div style="margin-bottom:16px">
+	                <label for="paypal_client_id">PayPal Client ID</label>
+	                <input type="text" name="paypal_client_id" id="paypal_client_id" value="<?= htmlspecialchars($paypalClientId) ?>" placeholder="e.g. AVSkX... or your live client id" autocomplete="new-password" required>
+	            </div>
 
-            <div style="margin-bottom:16px">
-                <label for="paypal_secret">PayPal Secret Key</label>
-                <input type="password" name="paypal_secret" id="paypal_secret" value="<?= htmlspecialchars($paypalSecret) ?>" placeholder="e.g. EK9x..." autocomplete="off" required>
-            </div>
+	            <div style="margin-bottom:16px">
+	                <label for="paypal_secret">PayPal Secret Key</label>
+	                <input type="password" name="paypal_secret" id="paypal_secret" value="<?= htmlspecialchars($paypalSecret) ?>" placeholder="e.g. EK9x..." autocomplete="new-password" required>
+	            </div>
 
             <div style="margin-bottom:20px">
                 <label for="paypal_currency">Currency Code</label>
