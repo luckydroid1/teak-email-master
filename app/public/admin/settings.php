@@ -1,6 +1,6 @@
 <?php
 /**
- * admin/settings.php — PayPal credentials and system configuration with Modern 2-Column UX.
+ * admin/settings.php — PayPal credentials and system configuration with Modern Layout.
  */
 declare(strict_types=1);
 
@@ -68,22 +68,15 @@ $paypalCurrency = setting_get('paypal_currency', 'USD');
 
 $isConfigured = !empty($paypalClientId) && !empty($paypalSecret);
 
-admin_header('System & Payment Settings', $user, 'settings');
+admin_header('PayPal & System Settings', $user, 'settings');
 ?>
 
 <style>
-.settings-card {
-  background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
 .settings-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.25fr 0.75fr;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 .form-group {
   margin-bottom: 0;
@@ -134,24 +127,24 @@ admin_header('System & Payment Settings', $user, 'settings');
   border-radius: 6px;
   cursor: pointer;
 }
-@media(max-width: 768px) {
-  .settings-grid { grid-template-columns: 1fr; gap: 14px; }
+@media(max-width: 900px) {
+  .settings-grid { grid-template-columns: 1fr; }
 }
 </style>
 
-<div style="max-width:960px;margin:0 auto">
+<?php if ($msg_success): ?>
+  <div class="alert alert-s" style="margin-bottom:20px"><?= htmlspecialchars($msg_success) ?></div>
+<?php endif; ?>
+<?php if ($msg_error): ?>
+  <div class="alert alert-e" style="margin-bottom:20px"><?= htmlspecialchars($msg_error) ?></div>
+<?php endif; ?>
 
-  <?php if ($msg_success): ?>
-    <div class="alert alert-s" style="margin-bottom:20px"><?= htmlspecialchars($msg_success) ?></div>
-  <?php endif; ?>
-  <?php if ($msg_error): ?>
-    <div class="alert alert-e" style="margin-bottom:20px"><?= htmlspecialchars($msg_error) ?></div>
-  <?php endif; ?>
+<div class="settings-grid">
 
-  <!-- PayPal Payment Gateway Settings Box (Exact Reference UX) -->
-  <div class="settings-card">
+  <!-- Left Column: PayPal Payment Gateway Settings -->
+  <div class="card" style="margin-bottom:0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
-      <h2 style="font-size:1.3rem;font-weight:800;color:#f8fafc;margin:0">PayPal Payment Gateway Settings</h2>
+      <h2 style="font-size:1.25rem;font-weight:800;color:#f8fafc;margin:0">💳 PayPal Payment Gateway</h2>
       <?php if ($isConfigured): ?>
         <?php if ($paypalMode === 'live'): ?>
           <span style="background:rgba(34,197,94,0.15);border:1px solid #22c55e;color:#86efac;font-size:0.75rem;font-weight:700;padding:4px 12px;border-radius:20px">LIVE Active</span>
@@ -163,15 +156,15 @@ admin_header('System & Payment Settings', $user, 'settings');
       <?php endif; ?>
     </div>
 
-    <p style="font-size:0.86rem;color:#94a3b8;margin:0 0 20px;line-height:1.6">
+    <p style="font-size:0.85rem;color:#94a3b8;margin:0 0 20px;line-height:1.6">
       Connect your official PayPal developer credentials to automate client subscriptions and checkout payments. Secret keys are encrypted with <strong>AES-GCM 256-bit</strong> at rest.
     </p>
 
-    <form method="POST" action="/admin/settings.php" autocomplete="off" id="paypal-form">
+    <form method="POST" action="/admin/settings.php" autocomplete="off">
       <?php csrf_field(); ?>
       <input type="hidden" name="action" value="save_paypal">
 
-      <div class="settings-grid">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
         <!-- Environment Mode -->
         <div class="form-group">
           <label for="paypal_mode">Environment Mode <span class="req">*</span></label>
@@ -203,9 +196,9 @@ admin_header('System & Payment Settings', $user, 'settings');
         </div>
       </div>
 
-      <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap">
-        <button type="button" onclick="document.getElementById('test-conn-form').submit()" class="btn btn-ghost" style="padding:10px 20px;font-size:0.88rem">Test Connection</button>
-        <button type="submit" class="btn" style="padding:10px 24px;font-size:0.88rem;background:#0284c7;font-weight:700">Save Credentials</button>
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:20px;flex-wrap:wrap">
+        <button type="button" onclick="document.getElementById('test-conn-form').submit()" class="btn btn-ghost" style="padding:8px 18px;font-size:0.86rem">Test Connection</button>
+        <button type="submit" class="btn" style="padding:8px 22px;font-size:0.86rem;background:#0284c7;font-weight:700">Save Credentials</button>
       </div>
     </form>
 
@@ -215,9 +208,9 @@ admin_header('System & Payment Settings', $user, 'settings');
     </form>
   </div>
 
-  <!-- Admin Account Security Card -->
-  <div class="settings-card" style="max-width:540px">
-    <h3 style="font-size:1.1rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🔑 Change Admin Password</h3>
+  <!-- Right Column: Admin Account Security -->
+  <div class="card" style="margin-bottom:0">
+    <h3 style="font-size:1.1rem;font-weight:800;color:#f8fafc;margin:0 0 6px">🔑 Admin Security</h3>
     <p style="font-size:0.82rem;color:#94a3b8;margin:0 0 16px">Update credentials for currently logged in administrator (<strong><?= htmlspecialchars($user['email']) ?></strong>).</p>
 
     <form method="POST" action="/admin/settings.php" autocomplete="off">
@@ -225,7 +218,7 @@ admin_header('System & Payment Settings', $user, 'settings');
       <input type="hidden" name="action" value="change_admin_password">
 
       <div style="margin-bottom:12px" class="form-group">
-        <label for="new_password">New Password (min 8 characters)</label>
+        <label for="new_password">New Password (min 8 chars)</label>
         <input type="password" name="new_password" id="new_password" placeholder="••••••••" required minlength="8" autocomplete="new-password">
       </div>
 
