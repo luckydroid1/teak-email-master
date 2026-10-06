@@ -68,7 +68,7 @@ $paypalCurrency = setting_get('paypal_currency', 'USD');
 
 $isConfigured = !empty($paypalClientId) && !empty($paypalSecret);
 
-admin_page_header('System & Payment Settings', $user);
+admin_header('System & Payment Settings', $user, 'settings');
 ?>
 
 <style>
@@ -255,4 +255,4 @@ function togglePass(inputId, btn) {
 }
 </script>
 
-<?php admin_page_footer(); ?>
+<?php admin_footer(); ?>
