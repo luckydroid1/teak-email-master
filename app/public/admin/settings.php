@@ -19,22 +19,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $action = $_POST['action'] ?? '';
 
-        if ($action === 'save_paypal') {
-            $clientId = trim($_POST['paypal_client_id'] ?? '');
-            $secret   = trim($_POST['paypal_secret'] ?? '');
-            $webhookId = trim($_POST['paypal_webhook_id'] ?? '');
-            $mode     = in_array($_POST['paypal_mode'] ?? '', ['sandbox', 'live'], true) ? $_POST['paypal_mode'] : 'sandbox';
-            $currency = strtoupper(trim($_POST['paypal_currency'] ?? 'USD'));
+	        if ($action === 'save_paypal') {
+	            $clientId = trim($_POST['paypal_client_id'] ?? '');
+	            $secret   = trim($_POST['paypal_secret'] ?? '');
+	            $webhookId = trim($_POST['paypal_webhook_id'] ?? '');
+	            $mode     = in_array($_POST['paypal_mode'] ?? '', ['sandbox', 'live'], true) ? $_POST['paypal_mode'] : 'sandbox';
+	            $currency = strtoupper(trim($_POST['paypal_currency'] ?? 'USD'));
 
-            setting_set('paypal_client_id', $clientId);
-            setting_set('paypal_secret', $secret);
-            setting_set('paypal_webhook_id', $webhookId);
-            setting_set('paypal_mode', $mode);
-            setting_set('paypal_currency', $currency);
+	            setting_set('paypal_client_id', $clientId);
+	            setting_set('paypal_secret', $secret);
+	            setting_set('paypal_webhook_id', $webhookId);
+	            setting_set('paypal_mode', $mode);
+	            setting_set('paypal_currency', $currency);
 
-            audit($user['id'], 'admin_save_paypal_settings', 'web', "mode=$mode currency=$currency");
-            $msg_success = '✓ PayPal gateway credentials saved successfully!';
-        } elseif ($action === 'change_admin_password') {
+	            audit($user['id'], 'admin_save_paypal_settings', 'web', "mode=$mode currency=$currency");
+	            $msg_success = '✓ PayPal gateway credentials saved successfully!';
+	        } elseif ($action === 'save_pricing') {
+	            require_once __DIR__ . '/../../src/redeem.php';
+	            for ($t = 1; $t <= 5; $t++) {
+	                $price = trim($_POST["tier_{$t}_price"] ?? '');
+	                $credits = trim($_POST["tier_{$t}_credits"] ?? '');
+	                $inboxSlots = trim($_POST["tier_{$t}_inbox_slots"] ?? '');
+	                $domains = trim($_POST["tier_{$t}_domains"] ?? '');
+	                $retention = trim($_POST["tier_{$t}_retention"] ?? '');
+
+	                if ($price !== '') setting_set("tier_{$t}_price", $price);
+	                if ($credits !== '') setting_set("tier_{$t}_credits", $credits);
+	                if ($inboxSlots !== '') setting_set("tier_{$t}_inbox_slots", $inboxSlots);
+	                if ($domains !== '') setting_set("tier_{$t}_domains", $domains);
+	                if ($retention !== '') setting_set("tier_{$t}_retention", $retention);
+	            }
+	            audit($user['id'], 'admin_save_pricing_settings', 'web');
+	            $msg_success = '✓ Pricing & Plan Tier settings saved successfully!';
+	        } elseif ($action === 'change_admin_password') {
             $newPass = $_POST['new_password'] ?? '';
             $newPassConfirm = $_POST['new_password_confirm'] ?? '';
 
@@ -216,13 +233,72 @@ admin_header('PayPal & System Settings', $user, 'settings');
     </div>
   </form>
 
-  <form method="POST" action="/admin/settings.php" id="test-conn-form" style="display:none">
-    <?php csrf_field(); ?>
-    <input type="hidden" name="action" value="test_paypal">
-  </form>
-</div>
+	  <form method="POST" action="/admin/settings.php" id="test-conn-form" style="display:none">
+	    <?php csrf_field(); ?>
+	    <input type="hidden" name="action" value="test_paypal">
+	  </form>
+	</div>
 
-<!-- 🔑 Admin Security Box (Full Width / Separate Section) -->
+	<!-- 🏷️ Pricing & Plan Tiers Settings Box -->
+	<?php
+	require_once __DIR__ . '/../../src/redeem.php';
+	?>
+	<div class="full-settings-box" style="border-top:4px solid #10b981">
+	  <div style="margin-bottom:18px">
+	    <h2 style="font-size:1.35rem;font-weight:800;color:#f8fafc;margin:0 0 6px;display:flex;align-items:center;gap:10px">
+	      <span>Plan Tiers & Pricing Configuration</span>
+	    </h2>
+	    <p style="font-size:0.9rem;color:#94a3b8;margin:0">
+	      Configure prices (USD), credit allocations, mailbox limits, and retention periods for each plan tier. Changes instantly apply to PayPal Checkout and user upgrades.
+	    </p>
+	  </div>
+
+	  <form method="POST" action="/admin/settings.php">
+	    <?php csrf_field(); ?>
+	    <input type="hidden" name="action" value="save_pricing">
+
+	    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px">
+	      <?php for ($t = 1; $t <= 5; $t++): 
+	          $tInfo = tier_info($t);
+	      ?>
+	        <div style="background:#0a0e1a;border:1px solid #1f2937;border-radius:12px;padding:18px">
+	          <div style="font-weight:700;font-size:1.05rem;color:#38bdf8;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+	            <span>Tier <?= $t ?> Plan</span>
+	            <span style="font-size:0.8rem;color:#94a3b8">AppSumo / PayPal Plan #<?= $t ?></span>
+	          </div>
+	          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px">
+	            <div class="form-field">
+	              <label style="font-size:0.8rem;color:#cbd5e1">Price (USD $)</label>
+	              <input type="number" step="0.01" min="0" name="tier_<?= $t ?>_price" value="<?= htmlspecialchars((string)($tInfo['price'] ?? 1)) ?>" required>
+	            </div>
+	            <div class="form-field">
+	              <label style="font-size:0.8rem;color:#cbd5e1">Credits</label>
+	              <input type="number" min="0" name="tier_<?= $t ?>_credits" value="<?= htmlspecialchars((string)($tInfo['credits'] ?? 3000)) ?>" required>
+	            </div>
+	            <div class="form-field">
+	              <label style="font-size:0.8rem;color:#cbd5e1">Inbox Slots</label>
+	              <input type="number" min="1" name="tier_<?= $t ?>_inbox_slots" value="<?= htmlspecialchars((string)($tInfo['inbox_slots'] ?? 3)) ?>" required>
+	            </div>
+	            <div class="form-field">
+	              <label style="font-size:0.8rem;color:#cbd5e1">Domain Slots</label>
+	              <input type="number" min="1" name="tier_<?= $t ?>_domains" value="<?= htmlspecialchars((string)($tInfo['domains'] ?? 1)) ?>" required>
+	            </div>
+	            <div class="form-field">
+	              <label style="font-size:0.8rem;color:#cbd5e1">Retention (Days)</label>
+	              <input type="number" min="1" name="tier_<?= $t ?>_retention" value="<?= htmlspecialchars((string)($tInfo['retention'] ?? 7)) ?>" required>
+	            </div>
+	          </div>
+	        </div>
+	      <?php endfor; ?>
+	    </div>
+
+	    <div style="display:flex;justify-content:flex-end">
+	      <button type="submit" class="btn" style="padding:10px 26px;font-size:0.9rem;background:#10b981;font-weight:700">💾 Save Pricing & Plans</button>
+	    </div>
+	  </form>
+	</div>
+
+	<!-- 🔑 Admin Security Box (Full Width / Separate Section) -->
 <div class="full-settings-box" style="border-top:4px solid #f59e0b">
   <div style="margin-bottom:18px">
     <h3 style="font-size:1.2rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🔑 Change Admin Password</h3>

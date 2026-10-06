@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/credits.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/settings.php';
 
 /** Tier table: [credits, inbox_slots, domains, api_full, retention_days, price_usd] */
 const TIER_TABLE = [
@@ -18,7 +19,23 @@ const TIER_TABLE = [
 ];
 
 function tier_info(int $tier): ?array {
-    return TIER_TABLE[$tier] ?? null;
+    $def = TIER_TABLE[$tier] ?? null;
+    if (!$def) return null;
+
+    $price = setting_get("tier_{$tier}_price");
+    $credits = setting_get("tier_{$tier}_credits");
+    $inbox_slots = setting_get("tier_{$tier}_inbox_slots");
+    $domains = setting_get("tier_{$tier}_domains");
+    $retention = setting_get("tier_{$tier}_retention");
+
+    return [
+        'price'       => ($price !== null && $price !== '') ? (float)$price : $def['price'],
+        'credits'     => ($credits !== null && $credits !== '') ? (int)$credits : $def['credits'],
+        'inbox_slots' => ($inbox_slots !== null && $inbox_slots !== '') ? (int)$inbox_slots : $def['inbox_slots'],
+        'domains'     => ($domains !== null && $domains !== '') ? (int)$domains : $def['domains'],
+        'api'         => $def['api'],
+        'retention'   => ($retention !== null && $retention !== '') ? (int)$retention : $def['retention'],
+    ];
 }
 
 /** Redeem code. Requires user to be logged in. */
