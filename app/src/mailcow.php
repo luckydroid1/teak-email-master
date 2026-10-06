@@ -84,7 +84,7 @@ function mailcow_add_domain(string $domain, string $description = ''): array {
 
 function mailcow_list_domains(): array {
     $pdo = db();
-    $st = $pdo->query('SELECT domain, description, active, created FROM domain ORDER BY domain ASC');
+    $st = $pdo->query('SELECT domain, description, active FROM domain ORDER BY domain ASC');
     return $st->fetchAll();
 }
 
