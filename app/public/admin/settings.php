@@ -78,6 +78,12 @@ admin_header('PayPal & System Settings', $user, 'settings');
   gap: 20px;
   margin-bottom: 24px;
 }
+.paypal-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
 .form-group {
   margin-bottom: 0;
 }
@@ -130,6 +136,10 @@ admin_header('PayPal & System Settings', $user, 'settings');
 @media(max-width: 900px) {
   .settings-grid { grid-template-columns: 1fr; }
 }
+@media(max-width: 600px) {
+  .paypal-form-grid { grid-template-columns: 1fr; gap: 12px; }
+  .card { padding: 16px; }
+}
 </style>
 
 <?php if ($msg_success): ?>
@@ -164,7 +174,7 @@ admin_header('PayPal & System Settings', $user, 'settings');
       <?php csrf_field(); ?>
       <input type="hidden" name="action" value="save_paypal">
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="paypal-form-grid">
         <!-- Environment Mode -->
         <div class="form-group">
           <label for="paypal_mode">Environment Mode <span class="req">*</span></label>
