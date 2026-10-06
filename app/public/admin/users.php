@@ -72,8 +72,8 @@ admin_header('Users & Roles', $user, 'users');
         <span style="font-size:0.85rem;color:#94a3b8">Total: <strong><?= count($users) ?></strong> users</span>
     </div>
 
-    <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table style="width:100%;min-width:680px;border-collapse:collapse;font-size:0.86rem;white-space:nowrap">
             <thead>
                 <tr style="border-bottom:2px solid #374151;text-align:left;color:#94a3b8">
                     <th style="padding:10px 8px">ID</th>
@@ -110,11 +110,11 @@ admin_header('Users & Roles', $user, 'users');
                         </td>
                         <td style="padding:10px 8px;text-align:right">
                             <div style="display:inline-flex;gap:6px">
-	                                <form method="POST" action="/admin/users.php" style="display:inline" onsubmit="return confirm('Change admin role for this user?')">
-	                                    <?php csrf_field(); ?>
-	                                    <input type="hidden" name="action" value="toggle_admin">
+                                <form method="POST" action="/admin/users.php" style="display:inline" onsubmit="return confirm('Change admin role for this user?')">
+                                    <?php csrf_field(); ?>
+                                    <input type="hidden" name="action" value="toggle_admin">
                                     <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                    <button type="submit" class="btn btn-sm btn-ghost" style="padding:4px 8px;font-size:0.75rem">
+                                    <button type="submit" class="btn btn-sm btn-ghost" style="padding:4px 8px;font-size:0.75rem;white-space:nowrap">
                                         <?= !empty($u['is_admin']) ? 'Demote' : 'Promote Admin' ?>
                                     </button>
                                 </form>

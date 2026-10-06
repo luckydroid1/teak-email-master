@@ -29,7 +29,28 @@ $recentPayments = $pdo->query("SELECT p.*, u.email FROM ia_payments p LEFT JOIN 
 admin_header('Overview', $user, 'overview');
 ?>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:24px">
+<style>
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+@media (max-width: 480px) {
+  .admin-stat-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+</style>
+
+<div class="admin-stat-grid">
     <div class="card" style="margin-bottom:0">
         <div style="font-size:0.8rem;color:#94a3b8;font-weight:600;text-transform:uppercase">Total Users</div>
         <div style="font-size:1.8rem;font-weight:800;color:#38bdf8;margin-top:4px"><?= number_format($totalUsers) ?></div>
@@ -52,67 +73,71 @@ admin_header('Overview', $user, 'overview');
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div class="grid2">
     <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px">
             <h3 style="margin:0">Recent Users</h3>
-            <a href="/admin/users.php" class="btn btn-sm btn-ghost">View All →</a>
+            <a href="/admin/users.php" class="btn btn-sm btn-ghost" style="white-space:nowrap">View All →</a>
         </div>
-        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
-            <thead>
-                <tr style="border-bottom:1px solid #374151;text-align:left;color:#94a3b8">
-                    <th style="padding:6px 0">Email</th>
-                    <th style="padding:6px 0">Role</th>
-                    <th style="padding:6px 0">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($recentUsers)): ?>
-                    <tr><td colspan="3" style="padding:12px 0;color:#64748b">No users found.</td></tr>
-                <?php else: foreach ($recentUsers as $ru): ?>
-                    <tr style="border-bottom:1px solid #1f2937">
-                        <td style="padding:8px 0;font-weight:500"><?= htmlspecialchars($ru['email']) ?></td>
-                        <td style="padding:8px 0"><?= !empty($ru['is_admin']) ? '<span style="color:#f59e0b;font-weight:700">Admin</span>' : 'User' ?></td>
-                        <td style="padding:8px 0">
-                            <span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.72rem;background:<?= $ru['status']==='active'?'rgba(34,197,94,0.15)':'rgba(239,68,68,0.15)' ?>;color:<?= $ru['status']==='active'?'#4ade80':'#f87171' ?>">
-                                <?= htmlspecialchars($ru['status']) ?>
-                            </span>
-                        </td>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;white-space:nowrap">
+                <thead>
+                    <tr style="border-bottom:1px solid #374151;text-align:left;color:#94a3b8">
+                        <th style="padding:8px 8px 8px 0">Email</th>
+                        <th style="padding:8px">Role</th>
+                        <th style="padding:8px 0 8px 8px;text-align:right">Status</th>
                     </tr>
-                <?php endforeach; endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if (empty($recentUsers)): ?>
+                        <tr><td colspan="3" style="padding:12px 0;color:#64748b">No users found.</td></tr>
+                    <?php else: foreach ($recentUsers as $ru): ?>
+                        <tr style="border-bottom:1px solid #1f2937">
+                            <td style="padding:10px 8px 10px 0;font-weight:500;max-width:180px;overflow:hidden;text-overflow:ellipsis" title="<?= htmlspecialchars($ru['email']) ?>"><?= htmlspecialchars($ru['email']) ?></td>
+                            <td style="padding:10px 8px"><?= !empty($ru['is_admin']) ? '<span style="color:#f59e0b;font-weight:700">Admin</span>' : '<span style="color:#94a3b8">User</span>' ?></td>
+                            <td style="padding:10px 0 10px 8px;text-align:right">
+                                <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;background:<?= $ru['status']==='active'?'rgba(34,197,94,0.15)':'rgba(239,68,68,0.15)' ?>;color:<?= $ru['status']==='active'?'#4ade80':'#f87171' ?>">
+                                    <?= htmlspecialchars($ru['status']) ?>
+                                </span>
+                            </td>
+                        </tr>
+                    <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px">
             <h3 style="margin:0">Recent PayPal Orders</h3>
-            <a href="/admin/transactions.php" class="btn btn-sm btn-ghost">View All →</a>
+            <a href="/admin/transactions.php" class="btn btn-sm btn-ghost" style="white-space:nowrap">View All →</a>
         </div>
-        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
-            <thead>
-                <tr style="border-bottom:1px solid #374151;text-align:left;color:#94a3b8">
-                    <th style="padding:6px 0">User</th>
-                    <th style="padding:6px 0">Amount</th>
-                    <th style="padding:6px 0">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($recentPayments)): ?>
-                    <tr><td colspan="3" style="padding:12px 0;color:#64748b">No PayPal transactions recorded yet.</td></tr>
-                <?php else: foreach ($recentPayments as $rp): ?>
-                    <tr style="border-bottom:1px solid #1f2937">
-                        <td style="padding:8px 0;font-weight:500"><?= htmlspecialchars($rp['email'] ?? 'User #'.$rp['user_id']) ?></td>
-                        <td style="padding:8px 0;font-weight:700;color:#f59e0b">$<?= number_format((float)$rp['amount'], 2) ?></td>
-                        <td style="padding:8px 0">
-                            <span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.72rem;background:<?= $rp['status']==='completed'?'rgba(34,197,94,0.15)':'rgba(245,158,11,0.15)' ?>;color:<?= $rp['status']==='completed'?'#4ade80':'#fbbf24' ?>">
-                                <?= htmlspecialchars($rp['status']) ?>
-                            </span>
-                        </td>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;white-space:nowrap">
+                <thead>
+                    <tr style="border-bottom:1px solid #374151;text-align:left;color:#94a3b8">
+                        <th style="padding:8px 8px 8px 0">User</th>
+                        <th style="padding:8px">Amount</th>
+                        <th style="padding:8px 0 8px 8px;text-align:right">Status</th>
                     </tr>
-                <?php endforeach; endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if (empty($recentPayments)): ?>
+                        <tr><td colspan="3" style="padding:12px 0;color:#64748b">No PayPal transactions recorded yet.</td></tr>
+                    <?php else: foreach ($recentPayments as $rp): ?>
+                        <tr style="border-bottom:1px solid #1f2937">
+                            <td style="padding:10px 8px 10px 0;font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis"><?= htmlspecialchars($rp['email'] ?? 'User #'.$rp['user_id']) ?></td>
+                            <td style="padding:10px 8px;font-weight:700;color:#f59e0b">$<?= number_format((float)$rp['amount'], 2) ?></td>
+                            <td style="padding:10px 0 10px 8px;text-align:right">
+                                <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;background:<?= $rp['status']==='completed'?'rgba(34,197,94,0.15)':'rgba(245,158,11,0.15)' ?>;color:<?= $rp['status']==='completed'?'#4ade80':'#fbbf24' ?>">
+                                    <?= htmlspecialchars($rp['status']) ?>
+                                </span>
+                            </td>
+                        </tr>
+                    <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

@@ -67,32 +67,39 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
-/* Navigation */
-.nav-wrap {
-  border-bottom: 1px solid var(--border-subtle);
-  background: color-mix(in oklch, var(--bg-page) 88%, transparent);
-  backdrop-filter: blur(16px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.nav-container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.brand {
-  font-weight: 800;
-  font-size: 1.12rem;
-  letter-spacing: -0.03em;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+	/* Navigation */
+	.nav-wrap {
+	  border-bottom: 1px solid var(--border-subtle);
+	  background: color-mix(in oklch, var(--bg-page) 88%, transparent);
+	  backdrop-filter: blur(16px);
+	  position: sticky;
+	  top: 0;
+	  z-index: 100;
+	}
+	.nav-container {
+	  max-width: 1140px;
+	  margin: 0 auto;
+	  padding: 0 24px;
+	  height: 64px;
+	  display: flex;
+	  align-items: center;
+	  justify-content: space-between;
+	  gap: 16px;
+	}
+	.brand {
+	  font-weight: 800;
+	  font-size: 1.12rem;
+	  letter-spacing: -0.03em;
+	  display: flex;
+	  align-items: center;
+	  gap: 10px;
+	  flex-shrink: 0;
+	}
+	.brand img {
+	  height: 26px;
+	  width: auto;
+	  display: block;
+	}
 .brand-wordmark {
   display: inline-flex;
   align-items: baseline;
@@ -681,28 +688,36 @@ a { color: inherit; text-decoration: none; }
   .comp-box {
     padding: 20px 16px;
   }
-  .nav-container {
-    padding: 0 16px;
-    height: 56px;
-  }
-  .brand {
-    font-size: 0.95rem;
-    white-space: nowrap;
-  }
-  .brand-badge {
-    display: none;
-  }
-  .nav-links {
-    gap: 8px;
-  }
-  .nav-links .nav-link {
-    display: none; /* Hide text links on mobile to prevent navbar crowding */
-  }
-  .nav-links .btn {
-    padding: 6px 12px;
-    font-size: 0.78rem;
-    white-space: nowrap;
-  }
+	  .nav-container {
+	    padding: 0 14px;
+	    height: 54px;
+	    gap: 8px;
+	  }
+	  .brand {
+	    font-size: 0.95rem;
+	    white-space: nowrap;
+	    gap: 6px;
+	  }
+	  .brand img {
+	    height: 21px;
+	    max-width: 120px;
+	    object-fit: contain;
+	  }
+	  .brand-badge {
+	    display: none;
+	  }
+	  .nav-links {
+	    gap: 6px;
+	    flex-shrink: 0;
+	  }
+	  .nav-links .nav-link {
+	    display: none; /* Hide text links on mobile to prevent navbar crowding */
+	  }
+	  .nav-links .btn {
+	    padding: 6px 10px;
+	    font-size: 0.76rem;
+	    white-space: nowrap;
+	  }
   .container {
     padding: 0 16px;
   }

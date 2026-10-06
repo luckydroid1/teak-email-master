@@ -128,6 +128,13 @@ page_header('Dashboard', $user);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
+.quick-form-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
 .inbox-table-card {
   background: #111827;
   border: 1px solid #1f2937;
@@ -155,7 +162,9 @@ page_header('Dashboard', $user);
 @media(max-width: 900px) {
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media(max-width: 600px) {
+@media(max-width: 680px) {
+  .quick-box { padding: 16px; }
+  .quick-form-grid { grid-template-columns: 1fr; gap: 10px; }
   .stat-grid { grid-template-columns: 1fr; gap: 12px; }
   .inbox-row { flex-direction: column; align-items: flex-start; }
   .inbox-actions { width: 100%; justify-content: flex-start; }
@@ -225,12 +234,12 @@ page_header('Dashboard', $user);
     <?php csrf_field(); ?>
     <input type="hidden" name="quick_create_inbox" value="1">
     
-    <div style="display:grid;grid-template-columns:1.2fr 1fr auto;gap:10px;align-items:center">
+    <div class="quick-form-grid">
       <div>
-        <input type="text" id="quick_local_part" name="local_part" placeholder="e.g. auth-bot-01 (or leave blank for random)" pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]?" style="margin:0;background:#060a12;border-color:#334155" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')">
+        <input type="text" id="quick_local_part" name="local_part" placeholder="e.g. auth-bot-01 (or blank for random)" pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]?" style="margin:0;background:#060a12;border-color:#334155;width:100%" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')">
       </div>
       <div>
-        <select name="domain" style="margin:0;background:#060a12;border-color:#334155" required>
+        <select name="domain" style="margin:0;background:#060a12;border-color:#334155;width:100%" required>
           <?php if (!empty($eligible['pool'])): ?>
             <optgroup label="🌐 Shared Domain Pool">
               <?php foreach ($eligible['pool'] as $d): ?>

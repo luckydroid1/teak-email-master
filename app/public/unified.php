@@ -71,10 +71,10 @@ page_header('Unified Inbox', $user);
 
 <style>
 .triage-tab {
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   border: 1px solid #374151;
   background: #0f172a;
   color: #94a3b8;
@@ -83,6 +83,8 @@ page_header('Unified Inbox', $user);
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .triage-tab.active {
   background: #2563eb;
@@ -109,6 +111,33 @@ page_header('Unified Inbox', $user);
   transform: translateX(2px);
 }
 
+.stream-meta-top {
+  display: contents;
+}
+.stream-content {
+  display: contents;
+}
+.stream-from {
+  width: 160px;
+  font-weight: 600;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stream-subject {
+  flex: 1;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stream-date {
+  font-size: 0.76rem;
+  color: #64748b;
+  white-space: nowrap;
+}
+
 .inbox-badge {
   font-size: 0.75rem;
   font-weight: 700;
@@ -127,17 +156,57 @@ page_header('Unified Inbox', $user);
   font-family: monospace;
   font-size: 0.82rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 .otp-pill:hover {
   background: #047857;
   color: #fff;
+}
+
+@media (max-width: 768px) {
+  .stream-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+  .stream-meta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  .stream-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+  }
+  .stream-from {
+    width: 100%;
+    font-size: 0.88rem;
+    color: #38bdf8;
+  }
+  .stream-subject {
+    width: 100%;
+    font-size: 0.82rem;
+  }
+  #stream-search {
+    width: 100% !important;
+  }
+  .triage-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
 }
 </style>
 
@@ -177,7 +246,7 @@ page_header('Unified Inbox', $user);
   <!-- Smart Triage Tabs & Global Filter -->
   <div class="card" style="margin-bottom:16px;padding:14px 18px;background:#111827">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="triage-wrapper" style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch">
         <button type="button" class="triage-tab active" id="tab-all" onclick="filterTriage('all')">
           <span>📨 All Messages</span> (<span id="count-all"><?= count($stream) ?></span>)
         </button>
@@ -189,8 +258,8 @@ page_header('Unified Inbox', $user);
         </button>
       </div>
 
-      <div>
-        <input type="text" id="stream-search" placeholder="🔍 Search sender, subject, or inbox..." oninput="searchStream()" style="margin:0;padding:6px 14px;font-size:0.85rem;width:240px;background:#060a12;border-color:#334155">
+      <div style="flex:1;min-width:200px">
+        <input type="text" id="stream-search" placeholder="🔍 Search sender, subject, or inbox..." oninput="searchStream()" style="margin:0;padding:6px 14px;font-size:0.85rem;width:100%;background:#060a12;border-color:#334155">
       </div>
     </div>
   </div>
@@ -207,20 +276,24 @@ page_header('Unified Inbox', $user);
       </div>
     <?php else: ?>
       <?php foreach ($stream as $m): ?>
-        <a href="/inbox_view.php?email=<?= urlencode($m['inbox_email']) ?>&msg=<?= $m['uid'] ?>" 
-           class="stream-row stream-item" 
+        <a href="/inbox_view.php?email=<?= urlencode($m['inbox_email']) ?>&msg=<?= $m['uid'] ?>"
+           class="stream-row stream-item"
            data-isotp="<?= $m['is_otp'] ? '1' : '0' ?>"
            data-isreceipt="<?= $m['is_receipt'] ? '1' : '0' ?>"
            data-search="<?= strtolower(htmlspecialchars($m['from'] . ' ' . $m['subject'] . ' ' . $m['inbox_email'])) ?>">
-          
-          <span class="inbox-badge"><?= htmlspecialchars($m['inbox_email']) ?></span>
 
-          <div style="width:160px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            <?= htmlspecialchars(substr($m['from'] ?: 'Unknown', 0, 24)) ?>
+          <div class="stream-meta-top">
+            <span class="inbox-badge"><?= htmlspecialchars($m['inbox_email']) ?></span>
+            <div class="stream-date"><?= htmlspecialchars(substr($m['date'], 0, 16)) ?></div>
           </div>
 
-          <div style="flex:1;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            <?= htmlspecialchars($m['subject']) ?>
+          <div class="stream-content">
+            <div class="stream-from">
+              <?= htmlspecialchars(substr($m['from'] ?: 'Unknown', 0, 32)) ?>
+            </div>
+            <div class="stream-subject">
+              <?= htmlspecialchars($m['subject']) ?>
+            </div>
           </div>
 
           <?php if ($m['is_otp'] && !empty($m['otp_code'])): ?>
@@ -228,14 +301,10 @@ page_header('Unified Inbox', $user);
               🔐 <?= htmlspecialchars($m['otp_code']) ?>
             </span>
           <?php elseif ($m['is_receipt']): ?>
-            <span style="font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.15);color:#fde68a;font-weight:700">
+            <span style="font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.15);color:#fde68a;font-weight:700;white-space:nowrap">
               🧾 <?= htmlspecialchars($m['receipt_curr']) ?> <?= number_format((float)($m['receipt_amt'] ?? 0), 2) ?>
             </span>
           <?php endif; ?>
-
-          <div style="font-size:0.76rem;color:#64748b;white-space:nowrap">
-            <?= htmlspecialchars(substr($m['date'], 0, 16)) ?>
-          </div>
         </a>
       <?php endforeach; ?>
     <?php endif; ?>

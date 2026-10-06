@@ -25,13 +25,13 @@ admin_header('Transactions', $user, 'transactions');
 ?>
 
 <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h2 style="margin:0">PayPal Order & Payment History</h2>
-        <span style="font-size:0.85rem;color:#94a3b8">Latest 100 transactions</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <h2 style="margin:0;font-size:1.15rem">PayPal Order & Payment History</h2>
+        <span style="font-size:0.8rem;color:#94a3b8">Latest 100 transactions</span>
     </div>
 
-    <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table style="width:100%;min-width:680px;border-collapse:collapse;font-size:0.86rem;white-space:nowrap">
             <thead>
                 <tr style="border-bottom:2px solid #374151;text-align:left;color:#94a3b8">
                     <th style="padding:10px 8px">ID</th>
@@ -46,8 +46,8 @@ admin_header('Transactions', $user, 'transactions');
             <tbody>
                 <?php if (empty($payments)): ?>
                     <tr>
-                        <td colspan="7" style="text-align:center;padding:24px;color:#64748b">
-                            No PayPal transactions recorded yet. Once users upgrade via PayPal checkout, transactions will appear here.
+                        <td colspan="7" style="text-align:center;padding:32px 16px;color:#64748b;white-space:normal">
+                            No PayPal transactions recorded yet.<br>Once users upgrade via PayPal checkout, transactions will appear here.
                         </td>
                     </tr>
                 <?php else: foreach ($payments as $p): ?>
