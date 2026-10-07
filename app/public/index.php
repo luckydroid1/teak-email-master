@@ -241,6 +241,12 @@ a { color: inherit; text-decoration: none; }
   border-radius: 8px;
 }
 
+.nowrap { white-space: nowrap; }
+.d-desk { display: inline; }
+@media (max-width: 768px) {
+  .d-desk { display: none; }
+}
+
 /* Hero Section */
 .hero {
   padding: 90px 0 60px;
@@ -263,11 +269,12 @@ a { color: inherit; text-decoration: none; }
 .hero-title {
   font-size: clamp(2.3rem, 5.5vw, 3.8rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
   letter-spacing: -0.035em;
   color: #f8fafc;
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto 20px;
+  text-wrap: balance;
 }
 .gradient-text {
   background: linear-gradient(135deg, #38bdf8 15%, #a855f7 60%, #ec4899 100%);
@@ -733,7 +740,9 @@ footer {
     </div>
 
     <h1 class="hero-title">
-      The Clean Email Runtime for <span class="gradient-text">Autonomous AI Agents</span>, Multi-Brand Ops & Developers.
+      The Clean Email Runtime for<br class="d-desk">
+      <span class="gradient-text">Autonomous AI Agents</span>,<br class="d-desk">
+      <span class="nowrap">Multi-Brand Ops</span> &amp; Developers.
     </h1>
 
     <p class="hero-desc">
@@ -866,7 +875,7 @@ footer {
             <li><span class="check">✓</span> IMAP / SMTP credentials for every mailbox</li>
           </ul>
         </div>
-        <a href="/dashboard.php" class="btn btn-ghost btn-sm">Launch Dashboard →</a>
+        <a href="/checkout.php?tier=3" class="btn btn-ghost btn-sm">Explore Multi-Brand Inboxes →</a>
       </div>
 
       <!-- Bento 2 -->
@@ -882,7 +891,7 @@ footer {
             <li><span class="check">✓</span> Zero captcha or phone verification hurdles</li>
           </ul>
         </div>
-        <a href="/api_keys.php" class="btn btn-primary btn-sm">Get MCP API Key →</a>
+        <a href="/checkout.php?tier=2" class="btn btn-primary btn-sm">Get MCP API Key &amp; Inboxes →</a>
       </div>
 
       <!-- Bento 3 -->
@@ -898,7 +907,7 @@ footer {
             <li><span class="check">✓</span> REST API ready for CI/CD pipelines</li>
           </ul>
         </div>
-        <a href="/signup.php" class="btn btn-ghost btn-sm">Start Testing Sandbox →</a>
+        <a href="/checkout.php?tier=1" class="btn btn-ghost btn-sm">Launch Developer Sandbox →</a>
       </div>
     </div>
   </div>
@@ -928,7 +937,7 @@ footer {
             <li>Shared domain pool (<?= htmlspecialchars((string)($t1['domains'] ?? 1)) ?> dom)</li>
           </ul>
         </div>
-        <a href="/signup.php" class="btn btn-ghost btn-sm" style="width:100%">Start for $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo</a>
+        <a href="/checkout.php?tier=1" class="btn btn-ghost btn-sm" style="width:100%">Start for $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo</a>
       </div>
 
       <!-- Tier 2: Pro Builder (Featured) -->
@@ -946,7 +955,7 @@ footer {
             <li>Custom domain sync (<?= htmlspecialchars((string)($t2['domains'] ?? 3)) ?> doms)</li>
           </ul>
         </div>
-        <a href="/signup.php" class="btn btn-primary btn-sm" style="width:100%">Start Pro Plan →</a>
+        <a href="/checkout.php?tier=2" class="btn btn-primary btn-sm" style="width:100%">Start Pro Plan →</a>
       </div>
 
       <!-- Tier 3 -->
@@ -963,7 +972,7 @@ footer {
             <li>Multiple domains (<?= htmlspecialchars((string)($t3['domains'] ?? 5)) ?> doms)</li>
           </ul>
         </div>
-        <a href="/signup.php" class="btn btn-ghost btn-sm" style="width:100%">Start Business</a>
+        <a href="/checkout.php?tier=3" class="btn btn-ghost btn-sm" style="width:100%">Start Business</a>
       </div>
 
       <!-- Tier 4 -->
@@ -980,7 +989,7 @@ footer {
             <li>High rate limit (<?= htmlspecialchars((string)($t4['domains'] ?? 10)) ?> doms)</li>
           </ul>
         </div>
-        <a href="/signup.php" class="btn btn-ghost btn-sm" style="width:100%">Start Scale Plan</a>
+        <a href="/checkout.php?tier=4" class="btn btn-ghost btn-sm" style="width:100%">Start Scale Plan</a>
       </div>
 
       <!-- Tier 5 -->
@@ -997,7 +1006,7 @@ footer {
             <li>VIP SLA support (<?= htmlspecialchars((string)($t5['domains'] ?? 20)) ?> doms)</li>
           </ul>
         </div>
-        <a href="/signup.php" class="btn btn-ghost btn-sm" style="width:100%">Start Enterprise</a>
+        <a href="/checkout.php?tier=5" class="btn btn-ghost btn-sm" style="width:100%">Start Enterprise</a>
       </div>
     </div>
   </div>

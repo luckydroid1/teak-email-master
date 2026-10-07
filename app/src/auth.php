@@ -46,8 +46,13 @@ function current_user(): ?array {
 
 function require_login(): array {
     $u = current_user();
-    if (!$u) {
-        header('Location: /login.php');
+    if ($u === null) {
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        if ($uri !== '' && $uri !== '/' && $uri !== '/login.php') {
+            header('Location: /login.php?redirect=' . urlencode($uri));
+        } else {
+            header('Location: /login.php');
+        }
         exit;
     }
     return $u;
