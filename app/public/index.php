@@ -5,6 +5,13 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../src/db.php';
+require_once __DIR__ . '/../src/redeem.php';
+
+$t1 = tier_info(1);
+$t2 = tier_info(2);
+$t3 = tier_info(3);
+$t4 = tier_info(4);
+$t5 = tier_info(5);
 
 // If not root URI, this is a 404 (due to try_files fallback)
 $request_uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
@@ -995,93 +1002,93 @@ footer {
       <p>Flexible monthly subscriptions designed for indie builders, AI operators, and scaling teams. Cancel or switch anytime.</p>
     </div>
 
-    <div class="pricing-ladder">
-      <!-- Tier 1: Micro / Starter -->
-      <div class="price-card">
-        <div>
-          <div class="tier-code">MICRO / STARTER</div>
-          <div class="tier-cost">$1<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
-          <div class="tier-sub">billed monthly</div>
-          <ul class="tier-specs">
-            <li><strong>3,000</strong> credits / month</li>
-            <li><strong>3</strong> active inbox slots</li>
-            <li>Basic REST API access</li>
-            <li>7-day email retention</li>
-            <li>Shared domain pool</li>
-          </ul>
-        </div>
-        <a href="/signup.php" class="btn btn-outline btn-sm">Start for $1/mo</a>
-      </div>
+	    <div class="pricing-ladder">
+	      <!-- Tier 1: Micro / Starter -->
+	      <div class="price-card">
+	        <div>
+	          <div class="tier-code">MICRO / STARTER</div>
+	          <div class="tier-cost">$<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?><span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+	          <div class="tier-sub">billed monthly</div>
+	          <ul class="tier-specs">
+	            <li><strong><?= number_format((int)($t1['credits'] ?? 3000)) ?></strong> credits / month</li>
+	            <li><strong><?= htmlspecialchars((string)($t1['inbox_slots'] ?? 3)) ?></strong> active inbox slots</li>
+	            <li>Basic REST API access</li>
+	            <li><?= htmlspecialchars((string)($t1['retention'] ?? 7)) ?>-day email retention</li>
+	            <li>Shared domain pool (<?= htmlspecialchars((string)($t1['domains'] ?? 1)) ?> domain)</li>
+	          </ul>
+	        </div>
+	        <a href="/signup.php" class="btn btn-outline btn-sm">Start for $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo</a>
+	      </div>
 
-      <!-- Tier 2: Pro Builder (Featured) -->
-      <div class="price-card pop">
-        <span class="price-card-tag">Most Popular</span>
-        <div>
-          <div class="tier-code" style="color:var(--accent)">PRO BUILDER</div>
-          <div class="tier-cost" style="color:var(--accent)">$7<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
-          <div class="tier-sub">billed monthly</div>
-          <ul class="tier-specs">
-            <li><strong>25,000</strong> credits / month</li>
-            <li><strong>25</strong> active inbox slots</li>
-            <li><strong>Full API + MCP Server</strong></li>
-            <li>14-day email retention</li>
-            <li>Custom domain sync (3 domains)</li>
-          </ul>
-        </div>
-        <a href="/signup.php" class="btn btn-primary btn-sm">Start Pro Plan</a>
-      </div>
+	      <!-- Tier 2: Pro Builder (Featured) -->
+	      <div class="price-card pop">
+	        <span class="price-card-tag">Most Popular</span>
+	        <div>
+	          <div class="tier-code" style="color:var(--accent)">PRO BUILDER</div>
+	          <div class="tier-cost" style="color:var(--accent)">$<?= htmlspecialchars((string)($t2['price'] ?? 7)) ?><span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+	          <div class="tier-sub">billed monthly</div>
+	          <ul class="tier-specs">
+	            <li><strong><?= number_format((int)($t2['credits'] ?? 25000)) ?></strong> credits / month</li>
+	            <li><strong><?= htmlspecialchars((string)($t2['inbox_slots'] ?? 25)) ?></strong> active inbox slots</li>
+	            <li><strong>Full API + MCP Server</strong></li>
+	            <li><?= htmlspecialchars((string)($t2['retention'] ?? 14)) ?>-day email retention</li>
+	            <li>Custom domain sync (<?= htmlspecialchars((string)($t2['domains'] ?? 3)) ?> domains)</li>
+	          </ul>
+	        </div>
+	        <a href="/signup.php" class="btn btn-primary btn-sm">Start Pro Plan</a>
+	      </div>
 
-      <!-- Tier 3: Business / Agency -->
-      <div class="price-card">
-        <div>
-          <div class="tier-code">BUSINESS / AGENCY</div>
-          <div class="tier-cost">$17<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
-          <div class="tier-sub">billed monthly</div>
-          <ul class="tier-specs">
-            <li><strong>70,000</strong> credits / month</li>
-            <li><strong>70</strong> active inbox slots</li>
-            <li>Full API + MCP Server</li>
-            <li>30-day email retention</li>
-            <li>Multiple custom domains (5 domains)</li>
-          </ul>
-        </div>
-        <a href="/signup.php" class="btn btn-outline btn-sm">Start Business</a>
-      </div>
+	      <!-- Tier 3: Business / Agency -->
+	      <div class="price-card">
+	        <div>
+	          <div class="tier-code">BUSINESS / AGENCY</div>
+	          <div class="tier-cost">$<?= htmlspecialchars((string)($t3['price'] ?? 17)) ?><span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+	          <div class="tier-sub">billed monthly</div>
+	          <ul class="tier-specs">
+	            <li><strong><?= number_format((int)($t3['credits'] ?? 70000)) ?></strong> credits / month</li>
+	            <li><strong><?= htmlspecialchars((string)($t3['inbox_slots'] ?? 70)) ?></strong> active inbox slots</li>
+	            <li>Full API + MCP Server</li>
+	            <li><?= htmlspecialchars((string)($t3['retention'] ?? 30)) ?>-day email retention</li>
+	            <li>Multiple custom domains (<?= htmlspecialchars((string)($t3['domains'] ?? 5)) ?> domains)</li>
+	          </ul>
+	        </div>
+	        <a href="/signup.php" class="btn btn-outline btn-sm">Start Business</a>
+	      </div>
 
-      <!-- Tier 4: Developer Scale -->
-      <div class="price-card">
-        <div>
-          <div class="tier-code">DEVELOPER SCALE</div>
-          <div class="tier-cost">$27<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
-          <div class="tier-sub">billed monthly</div>
-          <ul class="tier-specs">
-            <li><strong>125,000</strong> credits / month</li>
-            <li><strong>125</strong> active inbox slots</li>
-            <li>Priority API + MCP routing</li>
-            <li>45-day email retention</li>
-            <li>High rate limit (10 domains)</li>
-          </ul>
-        </div>
-        <a href="/signup.php" class="btn btn-outline btn-sm">Start Scale Plan</a>
-      </div>
+	      <!-- Tier 4: Developer Scale -->
+	      <div class="price-card">
+	        <div>
+	          <div class="tier-code">DEVELOPER SCALE</div>
+	          <div class="tier-cost">$<?= htmlspecialchars((string)($t4['price'] ?? 27)) ?><span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+	          <div class="tier-sub">billed monthly</div>
+	          <ul class="tier-specs">
+	            <li><strong><?= number_format((int)($t4['credits'] ?? 125000)) ?></strong> credits / month</li>
+	            <li><strong><?= htmlspecialchars((string)($t4['inbox_slots'] ?? 125)) ?></strong> active inbox slots</li>
+	            <li>Priority API + MCP routing</li>
+	            <li><?= htmlspecialchars((string)($t4['retention'] ?? 45)) ?>-day email retention</li>
+	            <li>High rate limit (<?= htmlspecialchars((string)($t4['domains'] ?? 10)) ?> domains)</li>
+	          </ul>
+	        </div>
+	        <a href="/signup.php" class="btn btn-outline btn-sm">Start Scale Plan</a>
+	      </div>
 
-      <!-- Tier 5: Enterprise -->
-      <div class="price-card">
-        <div>
-          <div class="tier-code">ENTERPRISE CUSTOM</div>
-          <div class="tier-cost">$37<span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
-          <div class="tier-sub">billed monthly</div>
-          <ul class="tier-specs">
-            <li><strong>190,000</strong> credits / month</li>
-            <li><strong>190</strong> inbox slots</li>
-            <li>Dedicated mail server IP</li>
-            <li>60-day email retention</li>
-            <li>VIP SLA support (20 domains)</li>
-          </ul>
-        </div>
-        <a href="/signup.php" class="btn btn-outline btn-sm">Start Enterprise</a>
-      </div>
-    </div>
+	      <!-- Tier 5: Enterprise -->
+	      <div class="price-card">
+	        <div>
+	          <div class="tier-code">ENTERPRISE CUSTOM</div>
+	          <div class="tier-cost">$<?= htmlspecialchars((string)($t5['price'] ?? 37)) ?><span style="font-size:1rem;color:var(--text-tertiary);font-weight:500">/mo</span></div>
+	          <div class="tier-sub">billed monthly</div>
+	          <ul class="tier-specs">
+	            <li><strong><?= number_format((int)($t5['credits'] ?? 190000)) ?></strong> credits / month</li>
+	            <li><strong><?= htmlspecialchars((string)($t5['inbox_slots'] ?? 190)) ?></strong> inbox slots</li>
+	            <li>Dedicated mail server IP</li>
+	            <li><?= htmlspecialchars((string)($t5['retention'] ?? 60)) ?>-day email retention</li>
+	            <li>VIP SLA support (<?= htmlspecialchars((string)($t5['domains'] ?? 20)) ?> domains)</li>
+	          </ul>
+	        </div>
+	        <a href="/signup.php" class="btn btn-outline btn-sm">Start Enterprise</a>
+	      </div>
+	    </div>
   </div>
 </section>
 
