@@ -82,13 +82,14 @@ function page_header(string $title, array $user = null): void {
 	a{color:#60a5fa}
 	img{content-visibility:auto}
 
-	/* Navigation */
-	.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
-	.nav-inner{max-width:1050px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:12px}
-	.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
-	.nav-brand img{height:22px;width:auto;display:block}
-.nav-links{display:flex;gap:3px;flex:1;overflow-x:auto}
-.nav-link{padding:6px 11px;border-radius:7px;font-size:.82rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s}
+		/* Navigation */
+		.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+		.nav-inner{max-width:1050px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:12px}
+		.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
+		.nav-brand img{height:22px;width:auto;display:block}
+	.nav-links{display:flex;gap:3px;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+	.nav-links::-webkit-scrollbar{display:none}
+	.nav-link{padding:6px 11px;border-radius:7px;font-size:.82rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s}
 .nav-link:hover{background:#1f2937;color:#f9fafb}
 .nav-link.active{background:#2563eb;color:#fff}
 .nav-user{display:flex;align-items:center;gap:8px;white-space:nowrap}

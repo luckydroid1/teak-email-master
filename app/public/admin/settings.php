@@ -26,8 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	            $mode     = in_array($_POST['paypal_mode'] ?? '', ['sandbox', 'live'], true) ? $_POST['paypal_mode'] : 'sandbox';
 	            $currency = strtoupper(trim($_POST['paypal_currency'] ?? 'USD'));
 
+	            // If secret left blank or unchanged mask, preserve existing encrypted secret
+	            if ($secret === '' || str_contains($secret, '•••') || str_contains($secret, '***')) {
+	                $secret = setting_get('paypal_secret', '') ?? '';
+	            }
+
 	            setting_set('paypal_client_id', $clientId);
-	            setting_set('paypal_secret', $secret);
+	            if ($secret !== '') {
+	                setting_set('paypal_secret', $secret);
+	            }
 	            setting_set('paypal_webhook_id', $webhookId);
 	            setting_set('paypal_mode', $mode);
 	            setting_set('paypal_currency', $currency);
@@ -211,14 +218,16 @@ admin_header('PayPal & System Settings', $user, 'settings');
         <input type="text" name="paypal_client_id" id="paypal_client_id" value="<?= htmlspecialchars($paypalClientId) ?>" placeholder="BAAFdGsaqQaf9ye4LyhTG8icYROQZi4OCVy..." autocomplete="new-password" required>
       </div>
 
-      <!-- Row 2, Col 1: PayPal Secret Key -->
-      <div class="form-field">
-        <label for="paypal_secret">PayPal Secret Key <span class="req">*</span></label>
-        <div class="pass-input-box">
-          <input type="password" name="paypal_secret" id="paypal_secret" value="<?= htmlspecialchars($paypalSecret) ?>" placeholder="••••••••••••••••••••••••••••••••" autocomplete="new-password" required style="padding-right:75px">
-          <button type="button" class="pass-show-btn" onclick="togglePass('paypal_secret', this)">Show</button>
-        </div>
-      </div>
+	      <!-- Row 2, Col 1: PayPal Secret Key -->
+	      <div class="form-field">
+	        <label for="paypal_secret">PayPal Secret Key <span class="req">*</span></label>
+	        <div class="pass-input-box">
+	          <input type="password" name="paypal_secret" id="paypal_secret" value="<?= !empty($paypalSecret) ? '••••••••••••••••••••••••••••••••' : '' ?>" placeholder="<?= !empty($paypalSecret) ? '•••••••••••••••••••••••••••••••• (Encrypted & Active)' : 'Enter PayPal Secret Key' ?>" autocomplete="new-password" style="padding-right:16px">
+	        </div>
+	        <span style="font-size:0.75rem;color:#64748b;margin-top:4px;display:block">
+	          <?= !empty($paypalSecret) ? '🔒 Secret key is encrypted with AES-256-GCM. Leave masked to keep current key, or type new to change.' : 'Enter your secret key from PayPal Developer Portal.' ?>
+	        </span>
+	      </div>
 
       <!-- Row 2, Col 2: PayPal Webhook ID -->
       <div class="form-field">
