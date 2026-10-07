@@ -54,6 +54,15 @@ if ($segment === 'healthz') {
     ], $db_ok ? 200 : 503);
 }
 
+// Public PayPal Webhook Endpoint (no Bearer auth required)
+if ($segment === 'paypal' && ($parts[1] ?? '') === 'webhook') {
+    require_once __DIR__ . '/../src/paypal.php';
+    $raw = file_get_contents('php://input');
+    $payload = json_decode($raw, true) ?: [];
+    $res = paypal_handle_webhook($payload);
+    api_json($res, 200);
+}
+
 // Parse Authorization header
 $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 if ($auth === '' && function_exists('getallheaders')) {

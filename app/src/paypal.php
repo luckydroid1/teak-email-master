@@ -224,5 +224,70 @@ function paypal_capture_order(string $orderId, int $userId): array {
 	        ];
 	    }
 
-    return ['error' => 'PayPal payment was not completed (Status: ' . $status . ').'];
-}
+	    return ['error' => 'PayPal payment was not completed (Status: ' . $status . ').'];
+	}
+
+	/**
+	 * Process incoming PayPal Webhook notification events.
+	 */
+	function paypal_handle_webhook(array $payload): array {
+	    $eventType = $payload['event_type'] ?? '';
+	    $resource  = $payload['resource'] ?? [];
+
+	    if (empty($eventType) || empty($resource)) {
+	        return ['ok' => false, 'error' => 'Empty webhook event payload'];
+	    }
+
+	    $pdo = db();
+
+	    if ($eventType === 'PAYMENT.CAPTURE.COMPLETED' || $eventType === 'CHECKOUT.ORDER.APPROVED') {
+	        $orderId = $resource['id'] ?? ($resource['supplementary_data']['related_ids']['order_id'] ?? '');
+	        $customId = $resource['custom_id'] ?? '';
+	        $userId = 0;
+	        $tier = 1;
+
+	        if ($customId) {
+	            $decoded = json_decode($customId, true);
+	            if (is_array($decoded)) {
+	                $userId = (int)($decoded['user_id'] ?? 0);
+	                $tier = (int)($decoded['tier'] ?? 1);
+	            }
+	        }
+
+	        // If not found in custom_id, lookup from ia_payments
+	        if ($userId === 0 && $orderId) {
+	            $st = $pdo->prepare('SELECT user_id, tier, status FROM ia_payments WHERE order_id = ?');
+	            $st->execute([$orderId]);
+	            $p = $st->fetch();
+	            if ($p) {
+	                $userId = (int)$p['user_id'];
+	                $tier = (int)$p['tier'];
+	                if ($p['status'] === 'completed') {
+	                    return ['ok' => true, 'message' => 'Already processed'];
+	                }
+	            }
+	        }
+
+	        if ($userId > 0 && $orderId) {
+	            $info = tier_info($tier) ?? tier_info(1);
+	            $credits = (int)($info['credits'] ?? 3000);
+
+	            // Mark payment completed
+	            $st = $pdo->prepare('INSERT INTO ia_payments (user_id, provider, order_id, tier, amount, currency, status, raw_payload)
+	                VALUES (?, "paypal", ?, ?, ?, ?, "completed", ?)
+	                ON DUPLICATE KEY UPDATE status = "completed", raw_payload = VALUES(raw_payload)');
+	            $amount = (float)($resource['amount']['value'] ?? $info['price'] ?? 1);
+	            $currency = $resource['amount']['currency_code'] ?? setting_get('paypal_currency', 'USD');
+	            $st->execute([$userId, $orderId, $tier, $amount, $currency, json_encode($payload)]);
+
+	            // Topup credits and update tier
+	            credit_mutate($userId, $credits, 'topup', "paypal_webhook=$orderId tier=$tier");
+	            $pdo->prepare('UPDATE ia_users SET trust_tier = ?, status = "active" WHERE id = ?')->execute([$tier, $userId]);
+	            audit($userId, 'paypal_webhook_processed', 'webhook', "event=$eventType order_id=$orderId");
+
+	            return ['ok' => true, 'fulfilled' => true, 'user_id' => $userId, 'order_id' => $orderId];
+	        }
+	    }
+
+	    return ['ok' => true, 'event' => $eventType, 'ignored' => true];
+	}
