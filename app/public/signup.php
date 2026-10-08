@@ -10,6 +10,7 @@ require_once __DIR__ . '/../src/auth.php';
 csrf_token();
 
 $error = '';
+$redirect = trim($_POST['redirect'] ?? $_GET['redirect'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_validate()) {
         $error = 'Invalid form submission. Please try again.';
@@ -18,8 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($res['error'])) {
             $error = $res['error'];
         } else {
-            // Redirect to check-email page — clearer UX
-            header('Location: /pending.php?email=' . urlencode($_POST['email']));
+            // Redirect to check-email page — preserve redirect
+            $redirParam = $redirect !== '' ? '&redirect=' . urlencode($redirect) : '';
+            header('Location: /pending.php?email=' . urlencode($_POST['email']) . $redirParam);
             exit;
         }
     }
@@ -44,6 +46,9 @@ alert($error, null);
 
   <form method="post" id="signup-form" onsubmit="const b=document.getElementById('signup-btn');if(b){b.textContent='Creating account...';b.disabled=true;}">
     <?php csrf_field(); ?>
+    <?php if ($redirect !== ''): ?>
+      <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
+    <?php endif; ?>
     <label for="su-email">Email Address</label>
     <input type="email" name="email" id="su-email" required autofocus autocomplete="email" placeholder="name@example.com">
     
@@ -61,8 +66,8 @@ alert($error, null);
     
     <button type="submit" class="btn" style="width:100%" id="signup-btn">Create Free Account →</button>
   </form>
-  
-  <p style="text-align:center;margin-top:16px;font-size:.85rem;color:#94a3b8">Already have an account? <a href="/login.php" style="color:#60a5fa;font-weight:600">Log In</a></p>
+
+  <p style="text-align:center;margin-top:16px;font-size:.85rem;color:#94a3b8">Already have an account? <a href="/login.php<?= $redirect !== '' ? '?redirect=' . urlencode($redirect) : '' ?>" style="color:#60a5fa;font-weight:600">Log In</a></p>
   </div>
 </div>
 <?php page_footer(); ?>

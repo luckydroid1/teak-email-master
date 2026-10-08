@@ -4,6 +4,7 @@ require_once __DIR__ . '/../src/db.php';
 require __DIR__ . '/_layout.php';
 
 $email = htmlspecialchars($_GET['email'] ?? '');
+$redirect = trim($_GET['redirect'] ?? '');
 page_header('Check Your Email');
 ?>
 <div class="card" style="max-width:480px;margin:60px auto;text-align:center">
@@ -27,11 +28,11 @@ page_header('Check Your Email');
 
   <p style="font-size:.85rem;color:#64748b;margin-top:16px">
     Didn't receive it? Check your spam folder, or
-    <a href="/signup.php" style="color:#3b82f6">try a different email</a>.
+    <a href="/signup.php<?= $redirect !== '' ? '?redirect=' . urlencode($redirect) : '' ?>" style="color:#3b82f6">try a different email</a>.
   </p>
 
   <div style="margin-top:24px;padding-top:16px;border-top:1px solid #334155">
-    <a href="/login.php" class="btn" style="text-decoration:none">Go to Login</a>
+    <a href="/login.php<?= $redirect !== '' ? '?redirect=' . urlencode($redirect) : '' ?>" class="btn" style="text-decoration:none">Go to Login</a>
   </div>
 </div>
 <?php page_footer(); ?>
