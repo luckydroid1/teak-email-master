@@ -17,7 +17,11 @@ if ($u !== null) {
         header('Location: ' . $redirect);
         exit;
     }
-    header('Location: /dashboard.php');
+    if (needs_onboarding($u)) {
+        header('Location: /getting-started.php');
+    } else {
+        header('Location: /dashboard.php');
+    }
     exit;
 }
 
