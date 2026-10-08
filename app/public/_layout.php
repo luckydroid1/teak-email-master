@@ -30,38 +30,42 @@ function page_header(string $title, array $user = null): void {
 		            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>'
 		            : '';
 
-		        $nav = '<nav class="topnav">
-		            <div class="nav-inner">
-		                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
-		                <div class="nav-links" id="main-nav-links">
-		                    <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
-		                    <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">📬 Unified Inbox</a>
-		                    <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
-		                    <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">🧾 Expenses</a>
-		                    <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
-		                    <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
-		                    <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
-		                    ' . $adminLink . '
-	                    <div class="nav-mobile-user">
-	                        <div class="nav-mobile-info">
-	                            <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
-	                            <span class="nav-tier-badge" title="Lifetime Tier">Tier ' . $tier . '</span>
-	                        </div>
-	                        <div class="nav-mobile-account">
-	                            <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">👤 ' . htmlspecialchars($user['email']) . '</span>
-	                            <a href="/logout.php" class="nav-logout">Logout</a>
-	                        </div>
-	                    </div>
-	                </div>
-	                <div class="nav-user">
-	                    <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
-	                    <span class="nav-tier-badge" title="Lifetime Tier">T' . $tier . '</span>
-	                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-	                    <a href="/logout.php" class="nav-logout">Logout</a>
-	                </div>
-                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
-            </div>
-        </nav>';
+			        $nav = '<nav class="topnav">
+			            <div class="nav-inner">
+			                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
+			                <div class="nav-links-wrapper" id="nav-links-wrapper">
+			                    <button type="button" class="nav-arrow-btn nav-arrow-left" id="nav-arrow-left" onclick="scrollNav(-1)" aria-label="Slide left">‹</button>
+			                    <div class="nav-links" id="main-nav-links">
+			                        <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
+			                        <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">📬 Unified Inbox</a>
+			                        <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
+			                        <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">🧾 Expenses</a>
+			                        <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
+			                        <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
+			                        <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
+			                        ' . $adminLink . '
+			                        <div class="nav-mobile-user">
+			                            <div class="nav-mobile-info">
+			                                <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
+			                                <span class="nav-tier-badge" title="Lifetime Tier">Tier ' . $tier . '</span>
+			                            </div>
+			                            <div class="nav-mobile-account">
+			                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">👤 ' . htmlspecialchars($user['email']) . '</span>
+			                                <a href="/logout.php" class="nav-logout">Logout</a>
+			                            </div>
+			                        </div>
+			                    </div>
+			                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
+			                </div>
+			                <div class="nav-user">
+			                    <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
+			                    <span class="nav-tier-badge" title="Lifetime Tier">T' . $tier . '</span>
+			                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+			                    <a href="/logout.php" class="nav-logout">Logout</a>
+			                </div>
+			                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
+			            </div>
+			        </nav>';
     }
 	    echo '<!DOCTYPE html><html lang="en"><head>
 		<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -82,36 +86,44 @@ function page_header(string $title, array $user = null): void {
 	a{color:#60a5fa}
 	img{content-visibility:auto}
 
-			/* Navigation */
-			.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
-			.nav-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:8px}
-			.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0;margin-right:4px}
-			.nav-brand img{height:22px;width:auto;display:block}
-		.nav-links{display:flex;gap:2px;flex:1;min-width:0;align-items:center;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding:0 4px;-webkit-overflow-scrolling:touch}
-		.nav-links::-webkit-scrollbar{display:none}
-		.nav-link{padding:5px 9px;border-radius:6px;font-size:.81rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s;flex-shrink:0}
-	.nav-link:hover{background:#1f2937;color:#f9fafb}
-	.nav-link.active{background:#2563eb;color:#fff}
-	.nav-user{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;margin-left:auto}
-	.nav-mobile-user{display:none}
-	.nav-credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:12px;flex-shrink:0}
-	.nav-tier-badge{background:#1e293b;border:1px solid #334155;color:#fbbf24;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0}
-	.nav-email{font-size:.78rem;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
-	.nav-logout{font-size:.78rem;color:#9ca3af;text-decoration:none;padding:4px 8px;border-radius:6px;border:1px solid #374151;flex-shrink:0}
-	.nav-logout:hover{background:#1f2937;color:#f9fafb;border-color:#4b5563}
-	.nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px;flex-shrink:0}
+				/* Navigation */
+				.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+				.nav-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:10px}
+				.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
+				.nav-brand img{height:22px;width:auto;display:block}
+				.nav-links-wrapper{display:flex;align-items:center;flex:1;min-width:0;position:relative;margin:0 4px}
+				.nav-arrow-btn{background:rgba(31,41,55,0.9);border:1px solid #374151;color:#94a3b8;width:24px;height:26px;border-radius:6px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;line-height:1;font-weight:bold;flex-shrink:0;transition:all .15s;z-index:3;user-select:none}
+				.nav-arrow-btn:hover{background:#374151;color:#f8fafc;border-color:#60a5fa}
+				.nav-arrow-btn:disabled{opacity:0.25;cursor:default;pointer-events:none}
+				.nav-arrow-left{margin-right:4px}
+				.nav-arrow-right{margin-left:4px}
+				.nav-links{display:flex;gap:4px;flex:1;align-items:center;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch;padding:0 2px}
+				.nav-links::-webkit-scrollbar{display:none}
+				.nav-links.grabbing{cursor:grabbing;scroll-behavior:auto}
+				.nav-link{padding:6px 12px;border-radius:7px;font-size:.83rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s;flex-shrink:0;user-select:none}
+				.nav-link:hover{background:#1f2937;color:#f9fafb}
+				.nav-link.active{background:#2563eb;color:#fff}
+				.nav-user{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;margin-left:auto}
+				.nav-mobile-user{display:none}
+				.nav-credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:12px;flex-shrink:0}
+				.nav-tier-badge{background:#1e293b;border:1px solid #334155;color:#fbbf24;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0}
+				.nav-email{font-size:.78rem;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+				.nav-logout{font-size:.78rem;color:#9ca3af;text-decoration:none;padding:4px 8px;border-radius:6px;border:1px solid #374151;flex-shrink:0}
+				.nav-logout:hover{background:#1f2937;color:#f9fafb;border-color:#4b5563}
+				.nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px;flex-shrink:0}
 
-	@media(max-width:980px){
-	    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);overflow-x:visible}
-	    .nav-links.open{display:flex}
-	    .nav-link{padding:10px 14px;font-size:.9rem;width:100%}
-	    .nav-user{display:none}
-	    .nav-toggle{display:block;margin-left:auto}
-	    .nav-mobile-user{display:flex;flex-direction:column;gap:10px;padding-top:12px;margin-top:8px;border-top:1px solid #1f2937}
-	    .nav-mobile-info{display:flex;gap:8px;align-items:center}
-	    .nav-mobile-account{display:flex;justify-content:space-between;align-items:center;gap:8px}
-	    .nav-email-mobile{font-size:.82rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-	}
+				@media(max-width:880px){
+				    .nav-arrow-btn{display:none !important}
+				    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);cursor:default}
+				    .nav-links.open{display:flex}
+				    .nav-link{padding:10px 14px;font-size:.9rem;width:100%}
+				    .nav-user{display:none}
+				    .nav-toggle{display:block;margin-left:auto}
+				    .nav-mobile-user{display:flex;flex-direction:column;gap:10px;padding-top:12px;margin-top:8px;border-top:1px solid #1f2937}
+				    .nav-mobile-info{display:flex;gap:8px;align-items:center}
+				    .nav-mobile-account{display:flex;justify-content:space-between;align-items:center;gap:8px}
+				    .nav-email-mobile{font-size:.82rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+				}
 
 /* Layout */
 .container{max-width:960px;margin:0 auto;padding:24px 16px;overflow-x:hidden}
@@ -254,14 +266,91 @@ function showToast(msg) {
 	    }, 2500);
 	}
 
-	// Enable horizontal mouse wheel scrolling on horizontal navbars & tab bars
+	function scrollNav(direction) {
+	    const el = document.getElementById(\'main-nav-links\');
+	    if (el) {
+	        el.scrollBy({ left: direction * 160, behavior: \'smooth\' });
+	        setTimeout(updateNavArrows, 200);
+	    }
+	}
+
+	function updateNavArrows() {
+	    const el = document.getElementById(\'main-nav-links\');
+	    const btnL = document.getElementById(\'nav-arrow-left\');
+	    const btnR = document.getElementById(\'nav-arrow-right\');
+	    if (!el) return;
+	    const isOverflow = el.scrollWidth > el.clientWidth + 2;
+	    if (!isOverflow || window.innerWidth <= 880) {
+	        if (btnL) btnL.style.display = \'none\';
+	        if (btnR) btnR.style.display = \'none\';
+	        return;
+	    }
+	    if (btnL) btnL.style.display = \'flex\';
+	    if (btnR) btnR.style.display = \'flex\';
+	    const atStart = el.scrollLeft <= 4;
+	    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+	    if (btnL) btnL.disabled = atStart;
+	    if (btnR) btnR.disabled = atEnd;
+	}
+
+	// Enable interactive mouse drag-to-scroll, wheel scroll & arrow assist
 	document.addEventListener(\'DOMContentLoaded\', () => {
+	    const nav = document.getElementById(\'main-nav-links\');
+	    if (nav) {
+	        let isDown = false;
+	        let startX = 0;
+	        let scrollLeft = 0;
+	        let isDragging = false;
+
+	        nav.addEventListener(\'mousedown\', (e) => {
+	            isDown = true;
+	            isDragging = false;
+	            startX = e.pageX - nav.offsetLeft;
+	            scrollLeft = nav.scrollLeft;
+	            nav.classList.add(\'grabbing\');
+	        });
+
+	        window.addEventListener(\'mouseup\', () => {
+	            isDown = false;
+	            if (nav) nav.classList.remove(\'grabbing\');
+	        });
+
+	        window.addEventListener(\'mousemove\', (e) => {
+	            if (!isDown) return;
+	            const x = e.pageX - nav.offsetLeft;
+	            const walk = (x - startX) * 1.4;
+	            if (Math.abs(walk) > 4) isDragging = true;
+	            nav.scrollLeft = scrollLeft - walk;
+	            updateNavArrows();
+	        });
+
+	        nav.querySelectorAll(\'a\').forEach(a => {
+	            a.addEventListener(\'click\', (e) => {
+	                if (isDragging) {
+	                    e.preventDefault();
+	                    e.stopPropagation();
+	                }
+	            });
+	        });
+
+	        nav.addEventListener(\'scroll\', updateNavArrows);
+	        window.addEventListener(\'resize\', updateNavArrows);
+	        setTimeout(() => {
+	            updateNavArrows();
+	            const active = nav.querySelector(\'.nav-link.active\');
+	            if (active && typeof active.scrollIntoView === \'function\') {
+	                active.scrollIntoView({ behavior: \'smooth\', block: \'nearest\', inline: \'center\' });
+	            }
+	        }, 150);
+	    }
+
 	    const scrollables = document.querySelectorAll(\'.nav-links, .admin-tabs-nav, .terminal-tabs, .price-scroll\');
 	    scrollables.forEach(el => {
 	        el.addEventListener(\'wheel\', (e) => {
 	            if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
 	                e.preventDefault();
 	                el.scrollLeft += e.deltaY;
+	                if (el.id === \'main-nav-links\') updateNavArrows();
 	            }
 	        }, { passive: false });
 	    });
