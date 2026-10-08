@@ -264,17 +264,25 @@ page_header('Unified Inbox', $user);
     </div>
   </div>
 
-  <!-- Unified Stream List -->
-  <div id="stream-container">
-    <?php if (empty($stream)): ?>
-      <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-        <div style="font-size:2.6rem;margin-bottom:8px"></div>
-        <h3 style="color:#f8fafc;margin-bottom:6px">Unified Stream is Empty</h3>
-        <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
-          Emails received across any of your <?= count($inboxes) ?> mailboxes will appear here automatically.
-        </p>
-      </div>
-    <?php else: ?>
+	  <!-- Unified Stream List -->
+	  <div id="stream-container">
+	    <?php if (empty($inboxes)): ?>
+	      <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
+	        <h3 style="color:#f8fafc;margin-bottom:6px">No Inboxes Created Yet</h3>
+	        <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
+	          Create your first email address to start receiving emails, OTPs, and invoices in your unified stream.
+	        </p>
+	        <a href="/dashboard.php" class="btn btn-sm btn-primary">Create Your First Inbox →</a>
+	      </div>
+	    <?php elseif (empty($stream)): ?>
+	      <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
+	        <h3 style="color:#f8fafc;margin-bottom:6px">Unified Stream is Empty</h3>
+	        <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
+	          Emails received across any of your <?= count($inboxes) ?> mailboxes will appear here automatically with real-time updates.
+	        </p>
+	        <a href="/inbox_view.php?email=<?= urlencode($inboxes[0]['email_address']) ?>" class="btn btn-sm btn-ghost">View <?= htmlspecialchars($inboxes[0]['email_address']) ?> →</a>
+	      </div>
+	    <?php else: ?>
       <?php foreach ($stream as $m): ?>
         <a href="/inbox_view.php?email=<?= urlencode($m['inbox_email']) ?>&msg=<?= $m['uid'] ?>"
            class="stream-row stream-item"

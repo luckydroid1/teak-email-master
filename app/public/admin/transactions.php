@@ -12,22 +12,42 @@ $user = require_admin();
 
 $pdo = db();
 
-// Fetch PayPal transactions
-$payments = $pdo->query("
-    SELECT p.*, u.email 
-    FROM ia_payments p 
-    LEFT JOIN ia_users u ON p.user_id = u.id 
-    ORDER BY p.id DESC 
+// Search filter
+$search = trim($_GET['q'] ?? '');
+$params = [];
+$whereClause = '';
+if ($search !== '') {
+    $whereClause = 'WHERE p.order_id LIKE ? OR u.email LIKE ? OR p.status LIKE ?';
+    $params = ["%$search%", "%$search%", "%$search%"];
+}
+
+$stmt = $pdo->prepare("
+    SELECT p.*, u.email
+    FROM ia_payments p
+    LEFT JOIN ia_users u ON p.user_id = u.id
+    $whereClause
+    ORDER BY p.id DESC
     LIMIT 100
-")->fetchAll();
+");
+$stmt->execute($params);
+$payments = $stmt->fetchAll();
 
 admin_header('Transactions', $user, 'transactions');
 ?>
 
 <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h2 style="margin:0;font-size:1.15rem">PayPal Order & Payment History</h2>
-        <span style="font-size:0.8rem;color:#94a3b8">Latest 100 transactions</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <div>
+            <h2 style="margin:0;font-size:1.15rem">PayPal Order & Payment History</h2>
+            <span style="font-size:0.8rem;color:#94a3b8">Latest 100 transactions</span>
+        </div>
+        <form method="GET" action="/admin/transactions.php" style="display:flex;gap:8px;margin:0">
+            <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Search Order ID, Email..." style="margin:0;padding:6px 12px;font-size:0.85rem;background:#060a12;border-color:#334155;width:220px">
+            <button type="submit" class="btn btn-sm">Search</button>
+            <?php if ($search !== ''): ?>
+                <a href="/admin/transactions.php" class="btn btn-sm btn-ghost">Reset</a>
+            <?php endif; ?>
+        </form>
     </div>
 
     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">

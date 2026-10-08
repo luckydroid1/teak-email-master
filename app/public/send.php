@@ -123,4 +123,37 @@ page_header('Compose Email', $user);
 
 </div>
 
+<script>
+(function() {
+  const form = document.querySelector('form[action="/send.php"]');
+  if (!form) return;
+  const toInput = form.querySelector('input[name="to"]');
+  const subjInput = form.querySelector('input[name="subject"]');
+  const bodyInput = form.querySelector('textarea[name="body"]');
+
+  // Restore draft if inputs are empty
+  if (toInput && subjInput && bodyInput) {
+    if (!toInput.value && localStorage.getItem('draft_to')) toInput.value = localStorage.getItem('draft_to');
+    if (!subjInput.value && localStorage.getItem('draft_subj')) subjInput.value = localStorage.getItem('draft_subj');
+    if (!bodyInput.value && localStorage.getItem('draft_body')) bodyInput.value = localStorage.getItem('draft_body');
+
+    const saveDraft = () => {
+      localStorage.setItem('draft_to', toInput.value);
+      localStorage.setItem('draft_subj', subjInput.value);
+      localStorage.setItem('draft_body', bodyInput.value);
+    };
+
+    toInput.addEventListener('input', saveDraft);
+    subjInput.addEventListener('input', saveDraft);
+    bodyInput.addEventListener('input', saveDraft);
+
+    form.addEventListener('submit', () => {
+      localStorage.removeItem('draft_to');
+      localStorage.removeItem('draft_subj');
+      localStorage.removeItem('draft_body');
+    });
+  }
+})();
+</script>
+
 <?php page_footer(); ?>

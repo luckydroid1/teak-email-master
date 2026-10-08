@@ -109,7 +109,14 @@ admin_header('Users & Roles', $user, 'users');
                             </span>
                         </td>
                         <td style="padding:10px 8px;text-align:right">
-                            <div style="display:inline-flex;gap:6px">
+                            <div style="display:inline-flex;gap:6px;align-items:center">
+                                <form method="POST" action="/admin/users.php" style="display:inline">
+                                    <?php csrf_field(); ?>
+                                    <input type="hidden" name="action" value="adjust_credits">
+                                    <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
+                                    <input type="hidden" name="credit_delta" value="1000">
+                                    <button type="submit" class="btn btn-sm btn-ghost" style="padding:4px 8px;font-size:0.75rem;color:#38bdf8;border-color:#334155" title="Add 1,000 Credits">+1k</button>
+                                </form>
                                 <form method="POST" action="/admin/users.php" style="display:inline" onsubmit="return confirm('Change admin role for this user?')">
                                     <?php csrf_field(); ?>
                                     <input type="hidden" name="action" value="toggle_admin">

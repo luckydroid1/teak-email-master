@@ -27,12 +27,12 @@ $loading = false;
 	        $error = 'Security session expired. Please refresh the page and try again.';
 	    } else {
 	        $res = paypal_create_order((int)$user['id'], $tier);
-	        if (!empty($res['approval_url'])) {
-	            header('Location: ' . $res['approval_url']);
-	            exit;
-	        } else {
-	            $error = $res['error'] ?? 'Could not initiate PayPal checkout. Please ensure PayPal credentials are set in Admin.';
-	        }
+        if (!empty($res['approval_url'])) {
+            header('Location: ' . $res['approval_url']);
+            exit;
+        } else {
+            $error = $res['error'] ?? 'Could not connect to PayPal payment gateway. Please try again shortly or contact support@teak.email.';
+        }
 	    }
 	}
 

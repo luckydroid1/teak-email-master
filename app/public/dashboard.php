@@ -198,6 +198,7 @@ page_header('Dashboard', $user);
     </div>
     <div class="stat-val" style="color:#60a5fa"><?= number_format($balance) ?></div>
     <div class="stat-lbl">Credits Available</div>
+    <div style="font-size:0.68rem;color:#64748b;margin-top:2px">1 credit = 1 email / OTP parsed</div>
   </div>
 
   <div class="stat-card">
@@ -206,6 +207,11 @@ page_header('Dashboard', $user);
     </div>
     <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $max_slots ?></span></div>
     <div class="stat-lbl">Inbox Slots Used</div>
+    <?php if ($used_slots >= $max_slots): ?>
+      <a href="/checkout.php?tier=<?= min(5, $tier + 1) ?>" style="font-size:0.7rem;color:#f59e0b;font-weight:700;text-decoration:none;display:inline-block;margin-top:2px">Slots Full · Upgrade Plan →</a>
+    <?php else: ?>
+      <div style="font-size:0.68rem;color:#64748b;margin-top:2px"><?= $max_slots - $used_slots ?> slots remaining</div>
+    <?php endif; ?>
   </div>
 
   <div class="stat-card">
@@ -214,6 +220,7 @@ page_header('Dashboard', $user);
     </div>
     <div class="stat-val" style="color:#fbbf24">Tier <?= $tier ?></div>
     <div class="stat-lbl">Account Tier</div>
+    <a href="/checkout.php?tier=<?= min(5, $tier + 1) ?>" style="font-size:0.68rem;color:#38bdf8;margin-top:2px;display:inline-block;text-decoration:none">Change Plan →</a>
   </div>
 
   <div class="stat-card">
@@ -222,6 +229,7 @@ page_header('Dashboard', $user);
     </div>
     <div class="stat-val" style="color:#34d399"><?= (int)($tier_info['retention_days'] ?? 30) ?>d</div>
     <div class="stat-lbl">Email Retention</div>
+    <div style="font-size:0.68rem;color:#64748b;margin-top:2px">Auto-purged after expiry</div>
   </div>
 </div>
 

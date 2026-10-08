@@ -113,6 +113,15 @@ page_header('Receipts & Expenses', $user);
   </div>
 
   <!-- Inbox Selector & Filter Bar -->
+  <?php if (empty($inboxes)): ?>
+    <div class="card" style="text-align:center;padding:40px 16px;background:#0a0e1a;border-radius:10px;border:1px dashed #334155;margin-bottom:20px">
+      <h3 style="margin:0 0 6px;color:#f1f5f9">No Active Inboxes</h3>
+      <p style="color:#94a3b8;font-size:0.85rem;max-width:400px;margin:0 auto 14px">
+        Create an inbox first to start tracking receipts and invoices automatically.
+      </p>
+      <a href="/dashboard.php" class="btn btn-sm btn-primary">Create Your First Inbox →</a>
+    </div>
+  <?php else: ?>
   <div class="card" style="margin-bottom:20px;padding:16px 20px;background:#111827">
     <form method="GET" action="/expenses.php" style="display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:center;margin:0">
       <div>
@@ -143,6 +152,7 @@ page_header('Receipts & Expenses', $user);
       </div>
     </form>
   </div>
+  <?php endif; ?>
 
   <!-- Total Summary Card -->
   <?php if (!empty($total_expenses_by_currency)): ?>
