@@ -5,7 +5,10 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../src/db.php';
+require_once __DIR__ . '/../src/auth.php';
 require_once __DIR__ . '/../src/redeem.php';
+
+$user = current_user();
 
 $t1 = tier_info(1);
 $t2 = tier_info(2);
@@ -740,8 +743,13 @@ footer {
       </nav>
 
       <div class="nav-actions">
-        <a href="/login.php" class="btn btn-ghost btn-sm">Log In</a>
-        <a href="/signup.php" class="btn btn-primary btn-sm">Start for $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo</a>
+        <?php if ($user): ?>
+          <a href="/dashboard.php" class="btn btn-primary btn-sm">Dashboard →</a>
+          <a href="/logout.php" class="btn btn-ghost btn-sm">Logout</a>
+        <?php else: ?>
+          <a href="/login.php" class="btn btn-ghost btn-sm">Log In</a>
+          <a href="/signup.php" class="btn btn-primary btn-sm">Start for $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo</a>
+        <?php endif; ?>
       </div>
     </div>
   </div>
@@ -751,13 +759,13 @@ footer {
 <main>
 <section class="hero">
   <div class="container">
-	    <div class="hero-tag">
-	      <span>● Protocol v2.4</span>
-	      <span>•</span>
-	      <span>Sub-50ms OTP</span>
-	      <span>•</span>
-	      <span>MCP Native</span>
-	    </div>
+    <div class="hero-tag">
+      <span>● Protocol v2.4</span>
+      <span>•</span>
+      <span>Sub-50ms OTP</span>
+      <span>•</span>
+      <span>MCP Native</span>
+    </div>
 
     <h1 class="hero-title">
       The Clean Email Runtime for<br class="d-desk">
@@ -770,7 +778,11 @@ footer {
     </p>
 
     <div class="hero-cta-group">
-      <a href="/signup.php" class="btn btn-glow">Deploy Your First Inbox →</a>
+      <?php if ($user): ?>
+        <a href="/dashboard.php" class="btn btn-glow">Go to Dashboard →</a>
+      <?php else: ?>
+        <a href="/signup.php" class="btn btn-glow">Deploy Your First Inbox →</a>
+      <?php endif; ?>
       <a href="/api_keys.php" class="btn btn-ghost">View MCP & REST API Docs</a>
     </div>
 

@@ -9,6 +9,18 @@ require_once __DIR__ . '/../src/auth.php';
 // Start session early (before any output) so CSRF cookie can be sent
 csrf_token();
 
+// If already logged in, redirect immediately
+$u = current_user();
+if ($u !== null) {
+    $redirect = trim($_GET['redirect'] ?? '');
+    if ($redirect !== '' && str_starts_with($redirect, '/') && !str_starts_with($redirect, '//')) {
+        header('Location: ' . $redirect);
+        exit;
+    }
+    header('Location: /dashboard.php');
+    exit;
+}
+
 $error = '';
 $redirect = trim($_POST['redirect'] ?? $_GET['redirect'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
