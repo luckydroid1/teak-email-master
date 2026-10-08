@@ -254,11 +254,11 @@ function showToast(msg) {
 	    }, 2500);
 	}
 
-	// Enable horizontal mouse wheel scrolling and click-drag on horizontal navbars & tab bars
-	document.addEventListener('DOMContentLoaded', () => {
-	    const scrollables = document.querySelectorAll('.nav-links, .admin-tabs-nav, .terminal-tabs, .price-scroll');
+	// Enable horizontal mouse wheel scrolling on horizontal navbars & tab bars
+	document.addEventListener(\'DOMContentLoaded\', () => {
+	    const scrollables = document.querySelectorAll(\'.nav-links, .admin-tabs-nav, .terminal-tabs, .price-scroll\');
 	    scrollables.forEach(el => {
-	        el.addEventListener('wheel', (e) => {
+	        el.addEventListener(\'wheel\', (e) => {
 	            if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
 	                e.preventDefault();
 	                el.scrollLeft += e.deltaY;
