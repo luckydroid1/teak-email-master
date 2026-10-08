@@ -29,6 +29,8 @@ function extract_otp(string $raw): array {
         foreach (OTP_KEYWORDS as $kw) {
             if (stripos($line, $kw) !== false) {
                 if (preg_match(OTP_PATTERN, $line, $m)) {
+                    $num = (int)$m[1];
+                    if ($num >= 2020 && $num <= 2035) continue; // Skip calendar years
                     return ['otp' => $m[1], 'text' => $text];
                 }
                 break; // keyword ketemu di baris ini, cek digit; kalau ga ada lanjut baris lain
@@ -48,7 +50,10 @@ function extract_otp(string $raw): array {
 
     // 3. Fallback: match OTP only near context words (no loose random digit match)
     if (preg_match('/(?:code|otp|pin|verification|passcode|token|key)[\s\:\-\=]+(\d{4,8})/i', $text, $m)) {
-        return ['otp' => $m[1], 'text' => $text];
+        $num = (int)$m[1];
+        if ($num < 2020 || $num > 2035) {
+            return ['otp' => $m[1], 'text' => $text];
+        }
     }
 
     return ['otp' => null, 'text' => $text];
