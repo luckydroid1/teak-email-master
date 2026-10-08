@@ -36,16 +36,18 @@ function extract_otp(string $raw): array {
         }
     }
 
-    // 2. Lines that are purely digits (OTPs are often sent separately)
+    // 2. Lines that are purely digits (OTPs are often sent standalone, exclude calendar years)
     foreach ($lines as $line) {
         $line = trim($line);
         if (preg_match('/^(\d{4,8})$/', $line, $m)) {
+            $num = (int)$m[1];
+            if ($num >= 2020 && $num <= 2035) continue; // Skip calendar years
             return ['otp' => $m[1], 'text' => $text];
         }
     }
 
-    // 3. Digit acak pertama di body
-    if (preg_match(OTP_PATTERN, $text, $m)) {
+    // 3. Fallback: match OTP only near context words (no loose random digit match)
+    if (preg_match('/(?:code|otp|pin|verification|passcode|token|key)[\s\:\-\=]+(\d{4,8})/i', $text, $m)) {
         return ['otp' => $m[1], 'text' => $text];
     }
 

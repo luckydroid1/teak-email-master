@@ -113,8 +113,9 @@ function page_header(string $title, array $user = null): void {
 				.nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px;flex-shrink:0}
 
 				@media(max-width:880px){
+				    .nav-links-wrapper{position:static;margin:0;flex:none}
 				    .nav-arrow-btn{display:none !important}
-				    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);cursor:default}
+				    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;width:100%;box-sizing:border-box;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);cursor:default;z-index:99}
 				    .nav-links.open{display:flex}
 				    .nav-link{padding:10px 14px;font-size:.9rem;width:100%}
 				    .nav-user{display:none}
