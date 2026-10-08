@@ -40,7 +40,7 @@ function tier_info(int $tier): ?array {
 
 /** Redeem code. Requires user to be logged in. */
 function redeem_code(int $uid, string $code): array {
-    $code = strtoupper(trim($code));
+    $code = preg_replace('/\s+/', '', strtoupper(trim($code)));
     $st = db()->prepare('SELECT * FROM ia_codes WHERE code = ?');
     $st->execute([$code]);
     $row = $st->fetch();
