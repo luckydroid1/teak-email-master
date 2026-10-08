@@ -38,7 +38,7 @@ alert($error, $success);
 ?>
 <div class="card card-highlight" style="max-width:420px;margin:48px auto">
   <div style="text-align:center;margin-bottom:16px">
-    <div style="font-size:2rem;margin-bottom:4px">🔑</div>
+    <div style="font-size:2rem;margin-bottom:4px"></div>
     <h2 style="font-size:1.3rem;margin-bottom:2px">Reset Password</h2>
     <p class="sub" style="margin:0">We will email you a secure link to reset your password</p>
   </div>

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_domain'])) {
         } else {
             $res = mailcow_add_domain($domain);
             if ($res['ok']) {
-                $success = "🎉 Domain '$domain' added! Configure the DNS records below to start receiving emails.";
+                $success = "Domain '$domain' added! Configure the DNS records below to start receiving emails.";
             } else {
                 $error = $res['error'] ?? 'Failed to add domain';
             }
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sync_registrar'])) {
             if (isset($result['error'])) {
                 $error = $result['error'];
             } else {
-                $success = "🎉 Synced {$result['total']} domains from registrar ({$result['added']} new, {$result['existing']} existing).";
+                $success = "Synced {$result['total']} domains from registrar ({$result['added']} new, {$result['existing']} existing).";
             }
         }
     }
@@ -134,7 +134,7 @@ page_header('Custom Domains', $user);
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🌐 Custom Brand Domains</h1>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">Custom Brand Domains</h1>
       <p style="color:#94a3b8;font-size:0.88rem;margin:0">Add your own domain names to create branded inboxes with full SPF & DKIM support.</p>
     </div>
     <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Back to Dashboard</a>
@@ -149,7 +149,7 @@ page_header('Custom Domains', $user);
 
   <?php if ($dns_report): ?>
   <div class="card" style="border-color:#3b82f6;background:rgba(59,130,246,0.06);margin-bottom:20px">
-    <h3 style="color:#93c5fd;margin:0 0 10px;font-size:1.05rem">🔍 DNS Verification Status: <?= htmlspecialchars($dns_report['domain']) ?></h3>
+    <h3 style="color:#93c5fd;margin:0 0 10px;font-size:1.05rem">DNS Verification Status: <?= htmlspecialchars($dns_report['domain']) ?></h3>
     <div style="font-size:0.88rem;line-height:1.8">
       <div style="display:flex;align-items:center;gap:8px">
         <span>MX Record (Incoming Mail):</span>
@@ -157,7 +157,7 @@ page_header('Custom Domains', $user);
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span>SPF Protection Record:</span>
-        <?= $dns_report['has_spf'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (SPF TXT record active)</span>' : '<span style="color:#fbbf24;font-weight:700">⚠️ Optional (Add TXT v=spf1)</span>' ?>
+        <?= $dns_report['has_spf'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (SPF TXT record active)</span>' : '<span style="color:#fbbf24;font-weight:700">Optional (Add TXT v=spf1)</span>' ?>
       </div>
     </div>
   </div>
@@ -166,7 +166,7 @@ page_header('Custom Domains', $user);
   <!-- Add Domain Tabs (Manual vs Registrar Auto-Sync) -->
   <div style="display:flex;gap:10px;margin-bottom:16px">
     <button type="button" class="tab-btn active" id="tab-btn-manual" onclick="switchDomainTab('manual')">➕ Add Domain Manually</button>
-    <button type="button" class="tab-btn" id="tab-btn-sync" onclick="switchDomainTab('sync')">⚡ Registrar Auto-Sync</button>
+    <button type="button" class="tab-btn" id="tab-btn-sync" onclick="switchDomainTab('sync')">Registrar Auto-Sync</button>
   </div>
 
   <!-- Tab 1: Manual Add Domain -->
@@ -186,7 +186,7 @@ page_header('Custom Domains', $user);
 
   <!-- Tab 2: Registrar Auto Sync -->
   <div id="pane-sync" class="tab-pane card" style="border-left:4px solid #8b5cf6">
-    <h3 style="margin:0 0 6px;font-size:1.05rem">⚡ Auto-Import from Registrar API</h3>
+    <h3 style="margin:0 0 6px;font-size:1.05rem">Auto-Import from Registrar API</h3>
     <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:14px">Automatically import and configure domain records from your registrar account.</p>
 
     <form method="POST">
@@ -213,14 +213,14 @@ page_header('Custom Domains', $user);
         <p style="font-size:0.76rem;color:#64748b;margin:-8px 0 12px" id="auth-help2"></p>
       </div>
 
-      <button type="submit" class="btn" style="background:#8b5cf6;width:100%">⚡ Sync All Domains</button>
+      <button type="submit" class="btn" style="background:#8b5cf6;width:100%">Sync All Domains</button>
     </form>
   </div>
 
   <!-- Required DNS Records Box with 1-Click Copy -->
   <div class="card" style="border-left:4px solid #f59e0b;margin-top:20px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-      <h3 style="margin:0;font-size:1.05rem;color:#fde68a">📋 Required DNS Records</h3>
+      <h3 style="margin:0;font-size:1.05rem;color:#fde68a">Required DNS Records</h3>
       <span style="font-size:0.76rem;color:#94a3b8">Add these records at your DNS Manager (Cloudflare/Namecheap/GoDaddy)</span>
     </div>
     <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:14px">Point these 3 records to route incoming emails to Teak Email server:</p>
@@ -230,7 +230,7 @@ page_header('Custom Domains', $user);
       <span style="font-weight:700;color:#60a5fa">MX</span>
       <span style="color:#cbd5e1;font-family:monospace">@</span>
       <span style="color:#f8fafc;font-family:monospace">mail.teak.email <span style="color:#94a3b8;font-size:0.75rem">(Priority 10)</span></span>
-      <button type="button" class="btn-copy" onclick="copyToClipboard('mail.teak.email', this)">📋 Copy</button>
+      <button type="button" class="btn-copy" onclick="copyToClipboard('mail.teak.email', this)">Copy</button>
     </div>
 
     <!-- SPF Record -->
@@ -238,7 +238,7 @@ page_header('Custom Domains', $user);
       <span style="font-weight:700;color:#60a5fa">TXT</span>
       <span style="color:#cbd5e1;font-family:monospace">@</span>
       <span style="color:#f8fafc;font-family:monospace">v=spf1 mx a ~all</span>
-      <button type="button" class="btn-copy" onclick="copyToClipboard('v=spf1 mx a ~all', this)">📋 Copy</button>
+      <button type="button" class="btn-copy" onclick="copyToClipboard('v=spf1 mx a ~all', this)">Copy</button>
     </div>
 
     <!-- CNAME Record -->
@@ -246,7 +246,7 @@ page_header('Custom Domains', $user);
       <span style="font-weight:700;color:#60a5fa">CNAME</span>
       <span style="color:#cbd5e1;font-family:monospace">mta-sts</span>
       <span style="color:#f8fafc;font-family:monospace">mta-sts.teak.email</span>
-      <button type="button" class="btn-copy" onclick="copyToClipboard('mta-sts.teak.email', this)">📋 Copy</button>
+      <button type="button" class="btn-copy" onclick="copyToClipboard('mta-sts.teak.email', this)">Copy</button>
     </div>
   </div>
 
@@ -271,7 +271,7 @@ page_header('Custom Domains', $user);
             <form method="POST" style="display:inline;margin:0">
               <?php csrf_field(); ?>
               <input type="hidden" name="check_dns_domain" value="<?= htmlspecialchars($d['domain']) ?>">
-              <button type="submit" class="btn-sm btn-ghost" title="Check live DNS records">🔍 Verify DNS</button>
+              <button type="submit" class="btn-sm btn-ghost" title="Check live DNS records">Verify DNS</button>
             </form>
             <a href="/inboxes.php?domain=<?= urlencode($d['domain']) ?>" class="btn-sm btn-success">+ Create Inbox</a>
           </div>

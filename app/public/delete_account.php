@@ -153,7 +153,7 @@ a{color:#60a5fa}
     <p style="margin-top:20px"><a href="/" class="btn btn-ghost">Return to Home</a></p>
 
 <?php elseif ($step === 'verify'): ?>
-    <h1>⚠️ Confirm Account Deletion</h1>
+    <h1>Confirm Account Deletion</h1>
 
     <?php if ($error): ?>
         <div class="alert alert-e"><?= htmlspecialchars($error) ?></div>

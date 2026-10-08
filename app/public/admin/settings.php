@@ -177,7 +177,7 @@ admin_header('PayPal & System Settings', $user, 'settings');
   <div class="alert alert-e" style="margin-bottom:24px"><?= htmlspecialchars($msg_error) ?></div>
 <?php endif; ?>
 
-<!-- 💳 PayPal Gateway Settings Box (Full Width 100% Matching Reference) -->
+<!-- PayPal Gateway Settings Box (Full Width 100% Matching Reference) -->
 <div class="full-settings-box">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:12px">
     <h2 style="font-size:1.35rem;font-weight:800;color:#f8fafc;margin:0;display:flex;align-items:center;gap:10px">
@@ -225,7 +225,7 @@ admin_header('PayPal & System Settings', $user, 'settings');
 	          <input type="password" name="paypal_secret" id="paypal_secret" value="<?= !empty($paypalSecret) ? '••••••••••••••••••••••••••••••••' : '' ?>" placeholder="<?= !empty($paypalSecret) ? '•••••••••••••••••••••••••••••••• (Encrypted & Active)' : 'Enter PayPal Secret Key' ?>" autocomplete="new-password" style="padding-right:16px">
 	        </div>
 	        <span style="font-size:0.75rem;color:#64748b;margin-top:4px;display:block">
-	          <?= !empty($paypalSecret) ? '🔒 Secret key is encrypted with AES-256-GCM. Leave masked to keep current key, or type new to change.' : 'Enter your secret key from PayPal Developer Portal.' ?>
+	          <?= !empty($paypalSecret) ? 'Secret key is encrypted with AES-256-GCM. Leave masked to keep current key, or type new to change.' : 'Enter your secret key from PayPal Developer Portal.' ?>
 	        </span>
 	      </div>
 
@@ -248,7 +248,7 @@ admin_header('PayPal & System Settings', $user, 'settings');
 	  </form>
 	</div>
 
-	<!-- 🏷️ Pricing & Plan Tiers Settings Box -->
+	<!-- Pricing & Plan Tiers Settings Box -->
 	<?php
 	require_once __DIR__ . '/../../src/redeem.php';
 	?>
@@ -302,15 +302,15 @@ admin_header('PayPal & System Settings', $user, 'settings');
 	    </div>
 
 	    <div style="display:flex;justify-content:flex-end">
-	      <button type="submit" class="btn" style="padding:10px 26px;font-size:0.9rem;background:#10b981;font-weight:700">💾 Save Pricing & Plans</button>
+	      <button type="submit" class="btn" style="padding:10px 26px;font-size:0.9rem;background:#10b981;font-weight:700">Save Pricing & Plans</button>
 	    </div>
 	  </form>
 	</div>
 
-	<!-- 🔑 Admin Security Box (Full Width / Separate Section) -->
+	<!-- Admin Security Box (Full Width / Separate Section) -->
 <div class="full-settings-box" style="border-top:4px solid #f59e0b">
   <div style="margin-bottom:18px">
-    <h3 style="font-size:1.2rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🔑 Change Admin Password</h3>
+    <h3 style="font-size:1.2rem;font-weight:800;color:#f8fafc;margin:0 0 4px">Change Admin Password</h3>
     <p style="font-size:0.86rem;color:#94a3b8;margin:0">Update credentials for currently logged in administrator (<strong><?= htmlspecialchars($user['email']) ?></strong>).</p>
   </div>
 
@@ -330,7 +330,7 @@ admin_header('PayPal & System Settings', $user, 'settings');
       </div>
     </div>
 
-    <button type="submit" class="btn btn-ghost" style="font-weight:700;padding:10px 20px">🔒 Update Password</button>
+    <button type="submit" class="btn btn-ghost" style="font-weight:700;padding:10px 20px">Update Password</button>
   </form>
 </div>
 

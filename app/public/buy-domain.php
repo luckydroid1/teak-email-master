@@ -62,7 +62,7 @@ page_header('Buy Domain', $user);
   <a href="/domains.php" class="back">← Back to Domains</a>
 
   <div style="text-align:center;margin-bottom:24px">
-    <h1 style="font-size:1.5rem;margin-bottom:6px">🛒 Buy a Domain</h1>
+    <h1 style="font-size:1.5rem;margin-bottom:6px">Buy a Domain</h1>
     <p class="sub" style="margin:0">Register a new domain directly from Teak Email. Auto-configured for email.</p>
   </div>
 
@@ -73,13 +73,13 @@ page_header('Buy Domain', $user);
   <?php if (!$configured): ?>
   <!-- Private Beta / Support State -->
   <div class="card" style="border-left:4px solid #3b82f6;text-align:center;padding:36px 20px">
-    <div style="font-size:2.4rem;margin-bottom:8px">🌐</div>
+    <div style="font-size:2.4rem;margin-bottom:8px"></div>
     <h2 style="margin-bottom:8px">Instant Domain Registration (Private Beta)</h2>
     <p style="color:#94a3b8;font-size:.9rem;max-width:500px;margin:0 auto 16px">
       Direct domain provisioning is currently rolling out to select enterprise accounts. You can instantly connect any existing domain from Cloudflare, Namecheap, GoDaddy, or Spaceship in the Domains tab.
     </p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-      <a href="/domains.php" class="btn" style="font-size:.88rem">⚡ Connect Existing Domain →</a>
+      <a href="/domains.php" class="btn" style="font-size:.88rem">Connect Existing Domain →</a>
       <a href="mailto:support@teak.email?subject=Direct%20Domain%20Registration%20Inquiry" class="btn btn-ghost" style="font-size:.88rem">Contact Support</a>
     </div>
   </div>
@@ -88,7 +88,7 @@ page_header('Buy Domain', $user);
   <?php if ($configured): ?>
   <!-- Domain Search -->
   <div class="card" style="border-left:4px solid #3b82f6">
-    <h3 style="margin:0 0 8px;font-size:1rem">🔍 Search Domain</h3>
+    <h3 style="margin:0 0 8px;font-size:1rem">Search Domain</h3>
     <form method="post" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap">
       <?php csrf_field(); ?>
       <input type="hidden" name="check_domain" value="1">
@@ -135,7 +135,7 @@ page_header('Buy Domain', $user);
         <input type="hidden" name="buy_domain" value="1">
         <input type="hidden" name="domain" value="<?= htmlspecialchars($r['domain']) ?>">
         <button type="submit" class="btn btn-success" onclick="return confirm('Buy <?= htmlspecialchars($r['domain']) ?>?')">
-          🛒 Buy <?= $r['price'] ? '$' . number_format($r['price'], 2) : '' ?>
+          Buy <?= $r['price'] ? '$' . number_format($r['price'], 2) : '' ?>
         </button>
       </form>
       <?php endif; ?>
@@ -146,7 +146,7 @@ page_header('Buy Domain', $user);
 
   <!-- Pricing Info -->
   <div class="card" style="border-left:4px solid #f59e0b">
-    <h3 style="margin:0 0 8px;font-size:1rem">💰 Pricing</h3>
+    <h3 style="margin:0 0 8px;font-size:1rem">Pricing</h3>
     <p style="font-size:.85rem;color:#94a3b8;margin-bottom:8px">Wholesale prices via ResellerClub. No markup.</p>
     <table style="width:100%;font-size:.85rem;border-collapse:collapse">
       <tr style="border-bottom:1px solid #1f2937">
@@ -178,7 +178,7 @@ page_header('Buy Domain', $user);
 
   <!-- Success -->
   <div class="card" style="border-color:#22c55e;text-align:center;padding:30px">
-    <div style="font-size:2rem;margin-bottom:8px">🎉</div>
+    <div style="font-size:2rem;margin-bottom:8px"></div>
     <h2 style="margin-bottom:8px">Domain Registered!</h2>
     <p style="color:#94a3b8">Your domain has been added to your Domains list with email configured.</p>
     <div style="display:flex;gap:8px;justify-content:center;margin-top:20px">

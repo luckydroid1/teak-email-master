@@ -101,12 +101,12 @@ page_header('Receipts & Expenses', $user);
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🧾 Company Expenses & Receipts</h1>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">Company Expenses & Receipts</h1>
       <p style="color:#94a3b8;font-size:0.88rem;margin:0">Automated invoice scanning and structured financial bookkeeping.</p>
     </div>
     <div style="display:flex;gap:8px">
       <?php if (!empty($selected_inbox) && count($receipt_items) > 0): ?>
-        <a href="/expenses.php?inbox=<?= urlencode($selected_inbox) ?>&currency=<?= urlencode($filter_currency) ?>&action=export_csv" class="btn btn-sm btn-success">📥 Export CSV</a>
+        <a href="/expenses.php?inbox=<?= urlencode($selected_inbox) ?>&currency=<?= urlencode($filter_currency) ?>&action=export_csv" class="btn btn-sm btn-success">Export CSV</a>
       <?php endif; ?>
       <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
     </div>
@@ -158,11 +158,11 @@ page_header('Receipts & Expenses', $user);
 
   <!-- Receipts List -->
   <div class="card">
-    <h2 style="font-size:1.15rem;color:#f8fafc;margin:0 0 16px">📋 Extracted Invoices (<?= count($receipt_items) ?>)</h2>
+    <h2 style="font-size:1.15rem;color:#f8fafc;margin:0 0 16px">Extracted Invoices (<?= count($receipt_items) ?>)</h2>
 
     <?php if (empty($receipt_items)): ?>
       <div style="text-align:center;padding:40px 16px;background:#0a0e1a;border-radius:10px;border:1px dashed #334155">
-        <div style="font-size:2.2rem;margin-bottom:8px">🧾</div>
+        <div style="font-size:2.2rem;margin-bottom:8px"></div>
         <h3 style="margin:0 0 6px;color:#f1f5f9">No Invoices Detected</h3>
         <p style="color:#94a3b8;font-size:0.85rem;max-width:400px;margin:0 auto">
           When this inbox receives Stripe receipts, PayPal statements, or merchant invoices, they will automatically parse here.

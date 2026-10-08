@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['generate_key'])) {
         $res = apikey_create($uid);
         $new_key = $res['key'];
-        $success = '🎉 New API key generated! Copy it now (it will not be shown again).';
+        $success = 'New API key generated! Copy it now (it will not be shown again).';
     }
 }
 $keys = apikey_list($uid);
@@ -36,8 +36,8 @@ if ($new_key):
 ?>
 <div class="card" style="border-color:#f59e0b;background:rgba(245,158,11,0.06)">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-    <h2 style="color:#fbbf24;margin:0">🔑 Your New API Key</h2>
-    <span style="font-size:.78rem;color:#fca5a5;font-weight:600">⚠️ Shown once — Copy immediately</span>
+    <h2 style="color:#fbbf24;margin:0">Your New API Key</h2>
+    <span style="font-size:.78rem;color:#fca5a5;font-weight:600">Shown once — Copy immediately</span>
   </div>
   
   <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -50,7 +50,7 @@ if ($new_key):
 
 <div class="grid2">
   <div class="card">
-    <h2>⚡ Generate API Key</h2>
+    <h2>Generate API Key</h2>
     <p class="sub">Create an authentication token to control inboxes, fetch OTPs, and connect MCP servers.</p>
     <form method="post" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Generating...';b.disabled=true;}">
       <?php csrf_field(); ?>
@@ -60,7 +60,7 @@ if ($new_key):
   </div>
 
   <div class="card">
-    <h2>📋 Active API Keys (<?= count($keys) ?>)</h2>
+    <h2>Active API Keys (<?= count($keys) ?>)</h2>
     <?php if (empty($keys)): ?>
       <p style="color:#94a3b8;font-size:.88rem">No active API keys. Click "+ Generate" to create one.</p>
     <?php else: ?>
@@ -83,7 +83,7 @@ if ($new_key):
 
 <!-- Code Snippets Section -->
 <div class="card" style="margin-top:20px">
-  <h2 style="margin-bottom:4px">💻 Ready-to-Use Code Snippets</h2>
+  <h2 style="margin-bottom:4px">Ready-to-Use Code Snippets</h2>
   <p class="sub" style="margin-bottom:16px">Use your API key to automate email workflows with your favorite tools.</p>
 
   <!-- Curl Example -->
@@ -135,7 +135,7 @@ print("Active inboxes:", inboxes)</div>
   <!-- Webhook Integration Card -->
   <div style="margin-top:20px;padding-top:16px;border-top:1px solid #1f2937">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <span style="font-size:.84rem;font-weight:700;color:#cbd5e1">🔗 Inbound Webhook JSON Spec (Real-Time Push)</span>
+      <span style="font-size:.84rem;font-weight:700;color:#cbd5e1">Inbound Webhook JSON Spec (Real-Time Push)</span>
       <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhook-code').innerText, this)">Copy Payload Spec</button>
     </div>
     <p style="font-size:.8rem;color:#94a3b8;margin:0 0 8px">When a new email is received, our webhook engine pushes this standardized event to your agent endpoint:</p>

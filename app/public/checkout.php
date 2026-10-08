@@ -44,7 +44,7 @@ page_header("Checkout Tier $tier", $user);
 
     <div class="card">
         <h2 style="margin-top:0;display:flex;align-items:center;gap:8px">
-            <span>💳 Subscribe / Upgrade Plan</span>
+            <span>Subscribe / Upgrade Plan</span>
         </h2>
         <p class="sub">Instant account activation and non-expiring credit allocation via PayPal.</p>
 
@@ -82,7 +82,7 @@ page_header("Checkout Tier $tier", $user);
         </form>
 
         <div style="text-align:center;font-size:0.75rem;color:#64748b;margin-top:14px">
-            🔒 Secure checkout processed directly via PayPal REST API.
+            Secure checkout processed directly via PayPal REST API.
         </div>
     </div>
 </div>

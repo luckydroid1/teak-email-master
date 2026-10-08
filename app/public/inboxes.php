@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($res['ok'])) {
                 $new_email = $res['email'];
                 $new_pw = $res['password'];
-                $success = '🎉 Inbox created successfully!';
+                $success = 'Inbox created successfully!';
             } else {
                 $error = $res['error'];
             }
@@ -70,7 +70,7 @@ alert($error, $success);
 if ($new_email):
 ?>
 <div class="card" style="border-color:#22c55e;background:rgba(34,197,94,0.05)">
-  <h2 style="color:#86efac;margin-bottom:6px">🎉 New Inbox Ready to Receive Mail</h2>
+  <h2 style="color:#86efac;margin-bottom:6px">New Inbox Ready to Receive Mail</h2>
   <p class="sub" style="margin-bottom:14px">Save your IMAP/SMTP credentials below if using an external mail client. You can also view emails right in this dashboard.</p>
   
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
@@ -98,7 +98,7 @@ if ($new_email):
 
 <?php if ($reset_email): ?>
 <div class="card" style="border-color:#f59e0b;background:rgba(245,158,11,0.05)">
-  <h2 style="color:#fbbf24;margin-bottom:6px">🔑 Password Reset for <?= htmlspecialchars($reset_email) ?></h2>
+  <h2 style="color:#fbbf24;margin-bottom:6px">Password Reset for <?= htmlspecialchars($reset_email) ?></h2>
   <p class="sub" style="margin-bottom:12px">Here is your new IMAP/SMTP password. Copy it now:</p>
   <div style="display:flex;gap:6px;max-width:400px">
     <input type="text" readonly value="<?= htmlspecialchars($reset_pw) ?>" style="margin-bottom:0;font-family:monospace;color:#fbbf24">
@@ -110,13 +110,13 @@ if ($new_email):
 <div class="grid2">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <h2 style="margin:0">✨ Create New Inbox</h2>
+      <h2 style="margin:0">Create New Inbox</h2>
       <span style="font-size:.78rem;color:#94a3b8">Slots: <strong style="color:#f8fafc"><?= count($inboxes) ?> / <?= $max_slots ?></strong></span>
     </div>
 
     <?php if (!$has_redeemed): ?>
       <div style="background:#1c1917;border:1px solid #78350f;padding:14px;border-radius:8px;margin-bottom:12px">
-        <p style="color:#fbbf24;font-size:.85rem;margin:0 0 8px">⚠️ <strong>AppSumo Code Required:</strong> Redeem your license code to activate your inbox slots.</p>
+        <p style="color:#fbbf24;font-size:.85rem;margin:0 0 8px"><strong>AppSumo Code Required:</strong> Redeem your license code to activate your inbox slots.</p>
         <a href="/redeem.php" class="btn btn-sm" style="background:#d97706">Redeem Code Now →</a>
       </div>
     <?php else: ?>
@@ -126,21 +126,21 @@ if ($new_email):
 
       <?php if ($balance < 60): ?>
       <div style="background:rgba(217,119,6,0.15);border:1px solid #d97706;padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:.82rem;color:#fde68a">
-        ⚡ <strong>Low Credit Balance:</strong> You have <?= number_format($balance) ?> credits remaining. <a href="/redeem.php" style="color:#60a5fa;text-decoration:underline">Redeem code or top-up →</a>
+        <strong>Low Credit Balance:</strong> You have <?= number_format($balance) ?> credits remaining. <a href="/redeem.php" style="color:#60a5fa;text-decoration:underline">Redeem code or top-up →</a>
       </div>
       <?php endif; ?>
       
       <label>Choose Domain</label>
       <select name="domain" required>
         <?php if (!empty($eligible['pool'])): ?>
-          <optgroup label="🌐 Shared Domain Pool (DKIM/SPF Configured)">
+          <optgroup label="Shared Domain Pool (DKIM/SPF Configured)">
             <?php foreach ($eligible['pool'] as $d): ?>
               <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
             <?php endforeach; ?>
           </optgroup>
         <?php endif; ?>
         <?php if (!empty($eligible['custom'])): ?>
-          <optgroup label="🔒 Your Verified Custom Domains">
+          <optgroup label="Your Verified Custom Domains">
             <?php foreach ($eligible['custom'] as $d): ?>
               <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
             <?php endforeach; ?>
@@ -152,25 +152,25 @@ if ($new_email):
       <input type="text" name="local_part" placeholder="e.g. support, orders.2026, bot-01" required pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]" title="Lowercase letters, numbers, dots, hyphens" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')" autofocus>
 
       <div style="background:#0a0e1a;padding:10px 12px;border-radius:8px;border:1px solid #1f2937;margin-bottom:14px;font-size:.78rem;color:#94a3b8">
-        ⚡ Balance: <strong style="color:#60a5fa"><?= number_format($balance) ?> credits</strong> · Monthly rent: 60 credits/inbox
+        Balance: <strong style="color:#60a5fa"><?= number_format($balance) ?> credits</strong> · Monthly rent: 60 credits/inbox
       </div>
 
-      <button type="submit" class="btn" style="width:100%">⚡ Create Instant Inbox</button>
+      <button type="submit" class="btn" style="width:100%">Create Instant Inbox</button>
     </form>
     <?php endif; ?>
   </div>
 
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-      <h2 style="margin:0">📋 Your Inboxes (<?= count($inboxes) ?>)</h2>
+      <h2 style="margin:0">Your Inboxes (<?= count($inboxes) ?>)</h2>
       <?php if (!empty($inboxes)): ?>
-        <input type="text" id="inbox-search" placeholder="🔍 Search inboxes..." oninput="filterInboxes()" style="margin-bottom:0;padding:6px 10px;font-size:.8rem;width:150px">
+        <input type="text" id="inbox-search" placeholder="Search inboxes..." oninput="filterInboxes()" style="margin-bottom:0;padding:6px 10px;font-size:.8rem;width:150px">
       <?php endif; ?>
     </div>
 
     <?php if (empty($inboxes)): ?>
       <div style="text-align:center;padding:30px 10px">
-        <div style="font-size:2rem;margin-bottom:6px">📭</div>
+        <div style="font-size:2rem;margin-bottom:6px"></div>
         <p style="color:#94a3b8;font-size:.88rem;margin:0">You haven't created any inboxes yet.</p>
         <p style="color:#64748b;font-size:.78rem;margin-top:4px">Use the form on the left to get your first email address.</p>
       </div>
@@ -192,7 +192,7 @@ if ($new_email):
             <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Reset mailbox password for <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?>?')">
               <?php csrf_field(); ?>
               <input type="hidden" name="reset_password_email" value="<?= htmlspecialchars($in['email_address']) ?>">
-              <button type="submit" class="btn-sm btn-ghost" style="padding:6px 10px" title="Reset Mailbox Password">🔑 Reset</button>
+              <button type="submit" class="btn-sm btn-ghost" style="padding:6px 10px" title="Reset Mailbox Password">Reset</button>
             </form>
 
             <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Permanently delete <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?> and all its emails?')">

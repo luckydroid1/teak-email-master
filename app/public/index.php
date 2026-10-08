@@ -20,7 +20,7 @@ if ($request_uri !== '/' && $request_uri !== '/index.php') {
     require_once __DIR__ . '/_layout.php';
     page_header('404 — Not Found');
     echo '<div class="card" style="text-align:center;max-width:400px;margin:80px auto">
-      <h2>🔍 Page Not Found</h2>
+      <h2>Page Not Found</h2>
       <p style="color:#94a3b8;margin-top:12px">The page you are looking for does not exist.</p>
       <p style="margin-top:20px"><a href="/" class="btn">Back to Home</a></p>
     </div>';
@@ -846,7 +846,7 @@ footer {
 
       <div class="terminal-live-bar">
         <span>● Active Mail Node: <strong style="color:#f8fafc">core-sgp1.teak.email</strong></span>
-        <span class="terminal-latency">⚡ Latency: 12ms (Operational)</span>
+        <span class="terminal-latency">Latency: 12ms (Operational)</span>
       </div>
     </div>
 
@@ -885,7 +885,9 @@ footer {
       <!-- Bento 1 -->
       <div class="bento-card">
         <div>
-          <div class="bento-icon" style="background:rgba(56, 189, 248, 0.12);color:#38bdf8">🌐</div>
+          <div class="bento-icon" style="background:rgba(56, 189, 248, 0.12);color:#38bdf8">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          </div>
           <div class="bento-num">01 / BUSINESS OPERATORS</div>
           <h3 class="bento-title">Unified Multi-Brand Inboxes</h3>
           <p class="bento-desc">Consolidate all client & venture email addresses into one central stream. Auto-sync domains from Spaceship, Cloudflare, or Namecheap without DNS headache.</p>
@@ -901,7 +903,9 @@ footer {
       <!-- Bento 2 -->
       <div class="bento-card" style="border-color:rgba(139, 92, 246, 0.35);background:linear-gradient(180deg, rgba(17, 18, 40, 0.9) 0%, rgba(12, 14, 28, 0.9) 100%)">
         <div>
-          <div class="bento-icon" style="background:rgba(139, 92, 246, 0.15);color:#a855f7">🤖</div>
+          <div class="bento-icon" style="background:rgba(139, 92, 246, 0.15);color:#a855f7">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>
+          </div>
           <div class="bento-num" style="color:#a855f7">02 / AUTONOMOUS AI AGENTS</div>
           <h3 class="bento-title">Native MCP Server & OTP Tool</h3>
           <p class="bento-desc">Equip Claude Desktop, Cursor, and LLM automation loops with instant email reading. Extract 4-8 digit verification codes with sub-50ms deterministic speed.</p>
@@ -917,7 +921,9 @@ footer {
       <!-- Bento 3 -->
       <div class="bento-card">
         <div>
-          <div class="bento-icon" style="background:rgba(16, 185, 129, 0.12);color:#10b981">⚡</div>
+          <div class="bento-icon" style="background:rgba(16, 185, 129, 0.12);color:#10b981">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          </div>
           <div class="bento-num" style="color:#10b981">03 / SOFTWARE DEVELOPERS</div>
           <h3 class="bento-title">Private Testing Sandbox</h3>
           <p class="bento-desc">A private Mailinator alternative for QA engineers. Test transactional email signups, password resets, and HTML templates without spam leaks.</p>

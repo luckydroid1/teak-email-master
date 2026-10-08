@@ -75,26 +75,26 @@ function admin_header(string $title, array $user, string $activeTab = 'overview'
     }
     </style>
 
-    <div class="container">
-        <div class="admin-header-box">
-            <div class="admin-header-title">
-                <h1>
-                    <span>👑 Admin Control Center</span>
-                    <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:#f59e0b;color:#000;font-weight:700;letter-spacing:0.5px">MASTER</span>
-                </h1>
-                <p>Manage system configurations, PayPal payment gateways, registered users, and mailbox infrastructure.</p>
-            </div>
-            <div>
-                <a href="/dashboard.php" class="btn btn-sm btn-ghost admin-back-btn">← Back to User Area</a>
-            </div>
-        </div>
+	    <div class="container">
+	        <div class="admin-header-box">
+	            <div class="admin-header-title">
+	                <h1>
+	                    <span>Admin Control Center</span>
+	                    <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:#f59e0b;color:#000;font-weight:700;letter-spacing:0.5px">MASTER</span>
+	                </h1>
+	                <p>Manage system configurations, PayPal payment gateways, registered users, and mailbox infrastructure.</p>
+	            </div>
+	            <div>
+	                <a href="/dashboard.php" class="btn btn-sm btn-ghost admin-back-btn">← Back to User Area</a>
+	            </div>
+	        </div>
 
-        <div class="admin-tabs-nav">
-            <a href="/admin/index.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'overview' ? '' : 'btn-ghost' ?>">📊 Overview & Metrics</a>
-            <a href="/admin/settings.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'settings' ? '' : 'btn-ghost' ?>">💳 PayPal & Settings</a>
-            <a href="/admin/users.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'users' ? '' : 'btn-ghost' ?>">👥 Users & Roles</a>
-            <a href="/admin/transactions.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'transactions' ? '' : 'btn-ghost' ?>">💰 Transactions Log</a>
-        </div>
+	        <div class="admin-tabs-nav">
+	            <a href="/admin/index.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'overview' ? '' : 'btn-ghost' ?>">Overview & Metrics</a>
+	            <a href="/admin/settings.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'settings' ? '' : 'btn-ghost' ?>">PayPal & Settings</a>
+	            <a href="/admin/users.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'users' ? '' : 'btn-ghost' ?>">Users & Roles</a>
+	            <a href="/admin/transactions.php" class="admin-tab-item btn btn-sm <?= $activeTab === 'transactions' ? '' : 'btn-ghost' ?>">Transactions Log</a>
+	        </div>
     <?php
 }
 

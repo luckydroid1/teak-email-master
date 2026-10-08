@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Inbox not found or access denied.';
         } elseif (isset($_POST['start_warmup'])) {
             $res = warmup_start($email);
-            $res['ok'] ? $success = "🔥 Warmup cycle started for <strong>$email</strong>" : $error = $res['error'];
+            $res['ok'] ? $success = "Warmup cycle started for <strong>$email</strong>" : $error = $res['error'];
         } elseif (isset($_POST['stop_warmup'])) {
             warmup_stop($email);
             $success = "⏸️ Warmup cycle paused for <strong>$email</strong>";
@@ -41,7 +41,7 @@ page_header('Email Warmup', $user);
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🔥 Email & Domain Warmup</h1>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">Email & Domain Warmup</h1>
       <p style="color:#94a3b8;font-size:0.88rem;margin:0">Simulate human engagement to build sender reputation and maximize inbox placement.</p>
     </div>
     <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Back to Dashboard</a>
@@ -57,7 +57,7 @@ page_header('Email Warmup', $user);
   <!-- Guidance Cards -->
   <div class="grid2" style="margin-bottom:20px">
     <div class="card" style="border-left:4px solid #f59e0b;margin-bottom:0">
-      <h3 style="margin:0 0 6px;font-size:1.05rem;color:#fde68a">🔥 New Domains (Requires Warmup)</h3>
+      <h3 style="margin:0 0 6px;font-size:1.05rem;color:#fde68a">New Domains (Requires Warmup)</h3>
       <div style="font-size:0.84rem;color:#cbd5e1;line-height:1.7">
         <div>✓ Automatic peer-to-peer email exchanges</div>
         <div>✓ Simulated opens & thread engagement</div>
@@ -66,7 +66,7 @@ page_header('Email Warmup', $user);
     </div>
 
     <div class="card" style="border-left:4px solid #10b981;margin-bottom:0">
-      <h3 style="margin:0 0 6px;font-size:1.05rem;color:#86efac">⚡ Aged Domains (Skip Warmup)</h3>
+      <h3 style="margin:0 0 6px;font-size:1.05rem;color:#86efac">Aged Domains (Skip Warmup)</h3>
       <div style="font-size:0.84rem;color:#cbd5e1;line-height:1.7">
         <p style="margin:0">Aged domains with established historical DNS records do not require warmup and are ready for peak volume immediately.</p>
         <a href="/domains.php" style="color:#34d399;font-weight:600;font-size:0.8rem;display:inline-block;margin-top:6px">Manage Custom Domains →</a>
@@ -92,7 +92,7 @@ page_header('Email Warmup', $user);
             <div style="font-weight:700;font-size:0.95rem;color:#f8fafc"><?= htmlspecialchars($in['email_address']) ?></div>
             <div style="font-size:0.8rem;color:#94a3b8;margin-top:4px">
               <?php if ($status['enabled']): ?>
-                <span style="color:#22c55e;font-weight:700">🔥 Active Warming</span> ·
+                <span style="color:#22c55e;font-weight:700">Active Warming</span> ·
                 Sent: <?= $status['emails_sent'] ?> ·
                 Received: <?= $status['emails_received'] ?> ·
                 Score: <strong style="color:#f8fafc"><?= $status['score'] ?>/100</strong>

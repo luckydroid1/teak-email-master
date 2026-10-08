@@ -127,8 +127,8 @@ page_header('Getting Started', $user);
   <div style="margin-top:24px;padding:16px;background:#111827;border-radius:12px;border:1px solid #1f2937">
     <p style="font-size:.85rem;color:#94a3b8;margin-bottom:10px;font-weight:600">Explore Key Features</p>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <a href="/api_keys.php" class="btn btn-sm btn-ghost">🔑 API Keys & Code</a>
-      <a href="/mcp_setup.php" class="btn btn-sm btn-ghost">🤖 MCP Agent Guide</a>
+      <a href="/api_keys.php" class="btn btn-sm btn-ghost">API Keys & Code</a>
+      <a href="/mcp_setup.php" class="btn btn-sm btn-ghost">MCP Agent Guide</a>
       <a href="/redeem.php" class="btn btn-sm btn-ghost">🎁 Redeem AppSumo Code</a>
     </div>
   </div>

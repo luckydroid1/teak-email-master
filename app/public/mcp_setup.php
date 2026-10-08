@@ -44,11 +44,11 @@ page_header('Connect AI Agents & MCP', $user);
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">🤖 Connect AI Agents (MCP Server)</h1>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">Connect AI Agents (MCP Server)</h1>
       <p style="color:#94a3b8;font-size:0.88rem;margin:0">Give Claude Desktop, Cursor, or your autonomous agents tools to manage inboxes and grab OTP codes.</p>
     </div>
     <div style="display:flex;gap:8px">
-      <a href="/api_keys.php" class="btn btn-sm btn-ghost">🔑 Manage API Keys</a>
+      <a href="/api_keys.php" class="btn btn-sm btn-ghost">Manage API Keys</a>
       <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
     </div>
   </div>
@@ -57,7 +57,7 @@ page_header('Connect AI Agents & MCP', $user);
   <div class="card" style="border-left:4px solid #f59e0b;background:rgba(245,158,11,0.08);padding:24px;margin-bottom:24px">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div>
-        <h3 style="margin:0 0 4px;font-size:1.05rem;color:#fde68a">🔑 API Key Required for MCP</h3>
+        <h3 style="margin:0 0 4px;font-size:1.05rem;color:#fde68a">API Key Required for MCP</h3>
         <p style="margin:0;font-size:0.85rem;color:#cbd5e1">Generate your secret API key to populate all configuration blocks automatically.</p>
       </div>
       <a href="/api_keys.php" class="btn btn-sm btn-warning">Generate Key Now →</a>
@@ -71,13 +71,13 @@ page_header('Connect AI Agents & MCP', $user);
       <span>🟠</span> Claude Desktop
     </button>
     <button type="button" class="client-tab" id="tab-cursor" onclick="switchClientTab('cursor')">
-      <span>⚡</span> Cursor AI
+      <span></span> Cursor AI
     </button>
     <button type="button" class="client-tab" id="tab-windsurf" onclick="switchClientTab('windsurf')">
       <span>🌊</span> Windsurf / Others
     </button>
     <button type="button" class="client-tab" id="tab-curl" onclick="switchClientTab('curl')">
-      <span>💻</span> REST API (cURL / Python)
+      <span></span> REST API (cURL / Python)
     </button>
   </div>
 
@@ -85,7 +85,7 @@ page_header('Connect AI Agents & MCP', $user);
   <div id="pane-claude" class="client-pane active card" style="border-left:4px solid #f59e0b">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h3 style="margin:0;font-size:1.1rem;color:#fde68a">Claude Desktop MCP Configuration</h3>
-      <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('claude-cfg-json').innerText, this)">📋 Copy Config JSON</button>
+      <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('claude-cfg-json').innerText, this)">Copy Config JSON</button>
     </div>
     <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:12px">
       Add this to your <span style="font-family:monospace;color:#60a5fa">claude_desktop_config.json</span>:
@@ -117,7 +117,7 @@ page_header('Connect AI Agents & MCP', $user);
   <div id="pane-cursor" class="client-pane card" style="border-left:4px solid #10b981">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h3 style="margin:0;font-size:1.1rem;color:#86efac">Cursor MCP Server Setup</h3>
-      <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('cursor-cfg-json').innerText, this)">📋 Copy Config JSON</button>
+      <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('cursor-cfg-json').innerText, this)">Copy Config JSON</button>
     </div>
     <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:12px">
       Open Cursor <strong>Settings ➔ MCP ➔ Add New MCP Server</strong>:
@@ -141,7 +141,7 @@ page_header('Connect AI Agents & MCP', $user);
   <div id="pane-windsurf" class="client-pane card" style="border-left:4px solid #8b5cf6">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h3 style="margin:0;font-size:1.1rem;color:#c4b5fd">Generic MCP Client</h3>
-      <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('generic-cfg-json').innerText, this)">📋 Copy Config JSON</button>
+      <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('generic-cfg-json').innerText, this)">Copy Config JSON</button>
     </div>
     <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:12px">
       Standard Model Context Protocol package for any compatible IDE or terminal agent:
@@ -168,7 +168,7 @@ page_header('Connect AI Agents & MCP', $user);
     <div style="margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-size:0.85rem;font-weight:700;color:#e2e8f0">1. List Active Inboxes (cURL)</span>
-        <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('code-curl-list').innerText, this)">📋 Copy</button>
+        <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('code-curl-list').innerText, this)">Copy</button>
       </div>
       <div class="code" id="code-curl-list">curl -s -H "Authorization: Bearer YOUR_API_KEY" \
   <?= htmlspecialchars($app_url) ?>/api/inboxes</div>
@@ -177,7 +177,7 @@ page_header('Connect AI Agents & MCP', $user);
     <div style="margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-size:0.85rem;font-weight:700;color:#e2e8f0">2. Create New Inbox (cURL)</span>
-        <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('code-curl-create').innerText, this)">📋 Copy</button>
+        <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('code-curl-create').innerText, this)">Copy</button>
       </div>
       <div class="code" id="code-curl-create">curl -s -X POST \
   -H "Authorization: Bearer YOUR_API_KEY" \

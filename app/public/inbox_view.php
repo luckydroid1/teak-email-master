@@ -187,18 +187,18 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
   <div style="display:flex;align-items:center;gap:10px">
     <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
-    <a href="/unified.php" class="btn btn-sm btn-ghost">📬 Unified Stream</a>
+    <a href="/unified.php" class="btn btn-sm btn-ghost">Unified Stream</a>
     <a href="/inboxes.php" class="btn btn-sm btn-ghost">All Inboxes</a>
   </div>
 
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-    <form method="post" style="display:inline;margin:0" onsubmit="const b=this.querySelector('button');b.textContent='⚡ Sending...';b.disabled=true;">
+    <form method="post" style="display:inline;margin:0" onsubmit="const b=this.querySelector('button');b.textContent='Sending...';b.disabled=true;">
       <?php csrf_field(); ?>
       <input type="hidden" name="send_test_otp" value="1">
-      <button type="submit" class="btn btn-sm btn-warning" title="Simulate an instant incoming verification email">⚡ Send Test OTP</button>
+      <button type="submit" class="btn btn-sm btn-warning" title="Simulate an instant incoming verification email">Send Test OTP</button>
     </form>
-    <a href="?email=<?= urlencode($email) ?>&export=json" class="btn-copy" style="text-decoration:none">📥 Export JSON</a>
-    <button class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($email, ENT_QUOTES) ?>', this)">📋 Copy Address</button>
+    <a href="?email=<?= urlencode($email) ?>&export=json" class="btn-copy" style="text-decoration:none">Export JSON</a>
+    <button class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($email, ENT_QUOTES) ?>', this)">Copy Address</button>
     <button onclick="refreshInbox()" id="sync-btn" class="btn btn-sm" style="background:#8b5cf6">🔄 Sync (<span id="sync-timer">5s</span>)</button>
   </div>
 </div>
@@ -208,7 +208,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
     <div>
       <div style="font-size:1.25rem;font-weight:800;color:#f8fafc;display:flex;align-items:center;gap:10px">
-        <span>📬 <?= htmlspecialchars($email) ?></span>
+        <span><?= htmlspecialchars($email) ?></span>
         <span class="pulse-dot" title="Listening live for incoming mail"></span>
       </div>
       <div style="font-size:0.82rem;color:#94a3b8;margin-top:4px">
@@ -218,7 +218,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 
     <?php if ($read_raw === null && !empty($emails)): ?>
       <div>
-        <input type="text" id="email-filter" placeholder="🔍 Search messages..." oninput="filterMessages()" style="margin-bottom:0;padding:8px 14px;font-size:0.85rem;width:200px">
+        <input type="text" id="email-filter" placeholder="Search messages..." oninput="filterMessages()" style="margin-bottom:0;padding:8px 14px;font-size:0.85rem;width:200px">
       </div>
     <?php endif; ?>
   </div>
@@ -237,7 +237,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
         </a>
       <?php endif; ?>
 
-      <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&export=eml" class="btn-copy" style="text-decoration:none">📥 Download .EML</a>
+      <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&export=eml" class="btn-copy" style="text-decoration:none">Download .EML</a>
       <?php
       $rec_info = extract_receipt($raw);
       $reply_to = $sender_display;
@@ -246,9 +246,9 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
       }
       ?>
       <?php if ($rec_info['is_receipt']): ?>
-        <span class="btn-sm btn-warning" style="cursor:default">🧾 <?= htmlspecialchars($rec_info['currency'] ?? 'USD') ?> <?= number_format((float)($rec_info['amount'] ?? 0), 2) ?></span>
+        <span class="btn-sm btn-warning" style="cursor:default"><?= htmlspecialchars($rec_info['currency'] ?? 'USD') ?> <?= number_format((float)($rec_info['amount'] ?? 0), 2) ?></span>
       <?php endif; ?>
-      <a href="/send.php?from=<?= urlencode($email) ?>&reply_to=<?= urlencode($reply_to) ?>&reply_subject=<?= urlencode($subject_line) ?>" class="btn btn-sm btn-success">✉️ Reply</a>
+      <a href="/send.php?from=<?= urlencode($email) ?>&reply_to=<?= urlencode($reply_to) ?>&reply_subject=<?= urlencode($subject_line) ?>" class="btn btn-sm btn-success">Reply</a>
     </div>
   </div>
 
@@ -291,7 +291,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 </div>
 
 <?php elseif (!empty($emails)): ?>
-<!-- 📋 Message List View -->
+<!-- Message List View -->
 <div style="margin-bottom:16px" id="email-list-container">
   <?php $i = $total_emails - (($page - 1) * $per_page); foreach ($display_emails as $m): ?>
     <a href="?email=<?= urlencode($email) ?>&msg=<?= (int)$m['uid'] ?>" class="mail-item email-item-row" data-from="<?= strtolower(htmlspecialchars($m['from'] ?? '')) ?>" data-subject="<?= strtolower(htmlspecialchars($m['subject'] ?? '')) ?>">
@@ -318,9 +318,9 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 <?php endif; ?>
 
 <?php else: ?>
-<!-- 📭 Empty State with Realtime Listening Animation -->
+<!-- Empty State with Realtime Listening Animation -->
 <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-  <div style="font-size:2.6rem;margin-bottom:10px">📭</div>
+  <div style="font-size:2.6rem;margin-bottom:10px"></div>
   <h3 style="color:#f8fafc;margin-bottom:6px;font-size:1.15rem">Waiting for Incoming Emails...</h3>
   <p style="color:#94a3b8;font-size:0.88rem;max-width:460px;margin:0 auto 18px">
     Send any verification code or email to <strong style="color:#60a5fa"><?= htmlspecialchars($email) ?></strong>.<br>
@@ -330,7 +330,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     <form method="post" style="display:inline;margin:0">
       <?php csrf_field(); ?>
       <input type="hidden" name="send_test_otp" value="1">
-      <button type="submit" class="btn btn-warning">⚡ Send Instant Test OTP</button>
+      <button type="submit" class="btn btn-warning">Send Instant Test OTP</button>
     </form>
     <button onclick="refreshInbox()" class="btn btn-ghost">🔄 Sync Manually</button>
   </div>

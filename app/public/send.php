@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send'])) {
     } else {
         $result = send_email($from, $to, $subject, $body);
         if (isset($result['ok'])) {
-            $success = '🚀 Email dispatched successfully to <strong>' . htmlspecialchars($to) . '</strong>!';
+            $success = 'Email dispatched successfully to <strong>' . htmlspecialchars($to) . '</strong>!';
             $to = ''; $subject = ''; $body = '';
         } else {
             $error = $result['error'] ?? 'Failed to send email.';
@@ -57,11 +57,11 @@ page_header('Compose Email', $user);
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">✉️ Compose & Send Email</h1>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">Compose & Send Email</h1>
       <p style="color:#94a3b8;font-size:0.88rem;margin:0">Send an outgoing message from your verified domain address.</p>
     </div>
     <div style="display:flex;gap:8px">
-      <a href="/sent.php" class="btn btn-sm btn-ghost">📬 Sent History</a>
+      <a href="/sent.php" class="btn btn-sm btn-ghost">Sent History</a>
       <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
     </div>
   </div>
@@ -75,7 +75,7 @@ page_header('Compose Email', $user);
 
   <?php if (empty($inboxes)): ?>
     <div class="card" style="text-align:center;padding:40px 20px;background:#0a0e1a;border:1px dashed #334155">
-      <div style="font-size:2.4rem;margin-bottom:8px">📭</div>
+      <div style="font-size:2.4rem;margin-bottom:8px"></div>
       <h3 style="color:#f8fafc;margin-bottom:6px">No Active Inboxes Found</h3>
       <p style="color:#94a3b8;font-size:0.88rem;margin-bottom:16px">You need at least one verified inbox to send messages.</p>
       <a href="/dashboard.php" class="btn">Create an Inbox First →</a>
@@ -112,11 +112,11 @@ page_header('Compose Email', $user);
           <textarea name="body" required rows="9" placeholder="Write your message here..." style="margin:0;background:#060a12;border-color:#334155;resize:vertical;font-family:inherit"><?= htmlspecialchars($body) ?></textarea>
         </div>
 
-        <button type="submit" class="btn" style="width:100%;background:#2563eb;font-weight:700">🚀 Dispatch Email</button>
+        <button type="submit" class="btn" style="width:100%;background:#2563eb;font-weight:700">Dispatch Email</button>
       </form>
 
       <p style="font-size:0.75rem;color:#64748b;margin:14px 0 0;text-align:center">
-        🛡️ Strict single-recipient deliverability safeguards active. Automated SPF/DKIM signature applied.
+        Strict single-recipient deliverability safeguards active. Automated SPF/DKIM signature applied.
       </p>
     </div>
   <?php endif; ?>

@@ -25,47 +25,49 @@ function page_header(string $title, array $user = null): void {
 		        $isBuyDomain = ($currentPage === 'buy-domain.php');
 		        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
 
-		        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
-		        $adminLink = !empty($user['is_admin'])
-		            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>'
-		            : '';
+			        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
+			        $adminLink = !empty($user['is_admin'])
+			            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">Admin</a>'
+			            : '';
 
-			        $nav = '<nav class="topnav">
-			            <div class="nav-inner">
-			                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
-			                <div class="nav-links-wrapper" id="nav-links-wrapper">
-			                    <button type="button" class="nav-arrow-btn nav-arrow-left" id="nav-arrow-left" onclick="scrollNav(-1)" aria-label="Slide left">‹</button>
-			                    <div class="nav-links" id="main-nav-links">
-			                        <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
-			                        <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">📬 Unified Inbox</a>
-			                        <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
-			                        <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">🧾 Expenses</a>
-			                        <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
-			                        <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
-			                        <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
-			                        ' . $adminLink . '
-			                        <div class="nav-mobile-user">
-			                            <div class="nav-mobile-info">
-			                                <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
-			                                <span class="nav-tier-badge" title="Lifetime Tier">Tier ' . $tier . '</span>
-			                            </div>
-			                            <div class="nav-mobile-account">
-			                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">👤 ' . htmlspecialchars($user['email']) . '</span>
-			                                <a href="/logout.php" class="nav-logout">Logout</a>
-			                            </div>
-			                        </div>
-			                    </div>
-			                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
-			                </div>
-			                <div class="nav-user">
-			                    <span class="nav-credit-badge" title="Remaining Credits">⚡ ' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
-			                    <span class="nav-tier-badge" title="Lifetime Tier">T' . $tier . '</span>
-			                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-			                    <a href="/logout.php" class="nav-logout">Logout</a>
-			                </div>
-			                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
-			            </div>
-			        </nav>';
+				        $nav = '<nav class="topnav">
+				            <div class="nav-inner">
+				                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
+				                <div class="nav-links-wrapper" id="nav-links-wrapper">
+				                    <button type="button" class="nav-arrow-btn nav-arrow-left" id="nav-arrow-left" onclick="scrollNav(-1)" aria-label="Slide left">‹</button>
+				                    <div class="nav-links" id="main-nav-links">
+				                        <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
+				                        <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">Unified Inbox</a>
+				                        <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
+				                        <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">Expenses</a>
+				                        <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
+				                        <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
+				                        <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
+				                        ' . $adminLink . '
+				                        <div class="nav-mobile-user">
+				                            <div class="nav-mobile-info">
+				                                <span class="nav-credit-badge" title="Remaining Credits">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
+				                                <span class="nav-tier-badge" title="Lifetime Tier">Tier ' . $tier . '</span>
+				                            </div>
+				                            <div class="nav-mobile-account">
+				                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+				                                <a href="/logout.php" class="nav-logout">Logout</a>
+				                            </div>
+				                        </div>
+				                    </div>
+				                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
+				                </div>
+				                <div class="nav-user">
+				                    <span class="nav-credit-badge" title="Remaining Credits">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></span>
+				                    <span class="nav-tier-badge" title="Lifetime Tier">T' . $tier . '</span>
+				                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+				                    <a href="/logout.php" class="nav-logout">Logout</a>
+				                </div>
+				                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">
+				                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+				                </button>
+				            </div>
+				        </nav>';
     }
 	    echo '<!DOCTYPE html><html lang="en"><head>
 		<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">

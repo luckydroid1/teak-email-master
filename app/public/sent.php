@@ -29,8 +29,8 @@ page_header('Sent Emails', $user);
 ?>
 
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-  <h1 style="margin:0">📤 Sent Emails History</h1>
-  <a href="/send.php" class="btn btn-success" style="font-size:.85rem">✉️ Compose New</a>
+  <h1 style="margin:0">Sent Emails History</h1>
+  <a href="/send.php" class="btn btn-success" style="font-size:.85rem">Compose New</a>
 </div>
 
 <?php if ($view_email): ?>
@@ -38,7 +38,7 @@ page_header('Sent Emails', $user);
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid #1f2937;padding-bottom:12px;flex-wrap:wrap;gap:8px">
     <a href="/sent.php" class="back" style="margin-bottom:0">← Back to sent history</a>
-    <a href="/send.php?from=<?= urlencode($view_email['from_email']) ?>&to=<?= urlencode($view_email['to_email']) ?>&subject=<?= urlencode('Follow up: ' . $view_email['subject']) ?>" class="btn btn-sm btn-ghost">✉️ Send Follow-up</a>
+    <a href="/send.php?from=<?= urlencode($view_email['from_email']) ?>&to=<?= urlencode($view_email['to_email']) ?>&subject=<?= urlencode('Follow up: ' . $view_email['subject']) ?>" class="btn btn-sm btn-ghost">Send Follow-up</a>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:.85rem">
@@ -68,7 +68,7 @@ page_header('Sent Emails', $user);
 
 <?php elseif (empty($sent)): ?>
 <div class="card" style="text-align:center;padding:48px 20px">
-  <div style="font-size:2.4rem;margin-bottom:8px">📤</div>
+  <div style="font-size:2.4rem;margin-bottom:8px"></div>
   <h3>No Sent Emails Yet</h3>
   <p class="sub" style="max-width:400px;margin:0 auto 16px">Outbound emails sent from any of your active inboxes will be logged and displayed here.</p>
   <a href="/send.php" class="btn">Send First Email →</a>

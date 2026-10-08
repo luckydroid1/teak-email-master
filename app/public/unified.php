@@ -215,7 +215,7 @@ page_header('Unified Inbox', $user);
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
       <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px;display:flex;align-items:center;gap:10px">
-        <span>📬 Unified Inbox Stream</span>
+        <span>Unified Inbox Stream</span>
         <span style="font-size:0.75rem;padding:2px 8px;border-radius:12px;background:rgba(34,197,94,0.2);color:#86efac;font-weight:700">● LIVE</span>
       </h1>
       <p style="color:#94a3b8;font-size:0.88rem;margin:0">Real-time aggregated stream from all <?= count($inboxes) ?> connected inboxes.</p>
@@ -230,7 +230,7 @@ page_header('Unified Inbox', $user);
   <div id="global-otp-banner" style="background:linear-gradient(135deg,rgba(16,185,129,0.12) 0%,rgba(6,78,59,0.25) 100%);border:1px solid rgba(16,185,129,0.4);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:<?= $latest_global_otp ? 'flex' : 'none' ?>;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
     <div>
       <div style="color:#86efac;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px">
-        <span>🔐 Latest Incoming OTP Code</span>
+        <span>Latest Incoming OTP Code</span>
         <span style="font-size:0.72rem;color:#94a3b8;font-weight:normal" id="otp-inbox-source"><?= $latest_global_otp_inbox ? 'Received by ' . htmlspecialchars($latest_global_otp_inbox) : '' ?></span>
       </div>
       <div style="font-size:0.8rem;color:#cbd5e1;margin-top:2px">Click the code below to copy instantly to your clipboard.</div>
@@ -239,7 +239,7 @@ page_header('Unified Inbox', $user);
       <div id="global-otp-val" style="font-family:monospace;font-size:1.8rem;font-weight:800;letter-spacing:0.15em;color:#a7f3d0;background:#064e3b;padding:4px 14px;border-radius:8px;border:1px solid #10b981;cursor:pointer" onclick="copyUnifiedOtp(this.innerText)">
         <?= htmlspecialchars($latest_global_otp ?? '') ?>
       </div>
-      <button type="button" class="btn btn-sm btn-success" onclick="copyUnifiedOtp(document.getElementById('global-otp-val').innerText)">📋 Copy</button>
+      <button type="button" class="btn btn-sm btn-success" onclick="copyUnifiedOtp(document.getElementById('global-otp-val').innerText)">Copy</button>
     </div>
   </div>
 
@@ -248,18 +248,18 @@ page_header('Unified Inbox', $user);
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div class="triage-wrapper" style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch">
         <button type="button" class="triage-tab active" id="tab-all" onclick="filterTriage('all')">
-          <span>📨 All Messages</span> (<span id="count-all"><?= count($stream) ?></span>)
+          <span>All Messages</span> (<span id="count-all"><?= count($stream) ?></span>)
         </button>
         <button type="button" class="triage-tab" id="tab-otp" onclick="filterTriage('otp')">
-          <span>🔐 Auth & OTPs</span>
+          <span>Auth & OTPs</span>
         </button>
         <button type="button" class="triage-tab" id="tab-receipts" onclick="filterTriage('receipts')">
-          <span>🧾 Invoices</span>
+          <span>Invoices</span>
         </button>
       </div>
 
       <div style="flex:1;min-width:200px">
-        <input type="text" id="stream-search" placeholder="🔍 Search sender, subject, or inbox..." oninput="searchStream()" style="margin:0;padding:6px 14px;font-size:0.85rem;width:100%;background:#060a12;border-color:#334155">
+        <input type="text" id="stream-search" placeholder="Search sender, subject, or inbox..." oninput="searchStream()" style="margin:0;padding:6px 14px;font-size:0.85rem;width:100%;background:#060a12;border-color:#334155">
       </div>
     </div>
   </div>
@@ -268,7 +268,7 @@ page_header('Unified Inbox', $user);
   <div id="stream-container">
     <?php if (empty($stream)): ?>
       <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-        <div style="font-size:2.6rem;margin-bottom:8px">📭</div>
+        <div style="font-size:2.6rem;margin-bottom:8px"></div>
         <h3 style="color:#f8fafc;margin-bottom:6px">Unified Stream is Empty</h3>
         <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
           Emails received across any of your <?= count($inboxes) ?> mailboxes will appear here automatically.
@@ -298,11 +298,11 @@ page_header('Unified Inbox', $user);
 
           <?php if ($m['is_otp'] && !empty($m['otp_code'])): ?>
             <span class="otp-pill" onclick="event.preventDefault();copyUnifiedOtp('<?= htmlspecialchars($m['otp_code'], ENT_QUOTES) ?>')">
-              🔐 <?= htmlspecialchars($m['otp_code']) ?>
+              <?= htmlspecialchars($m['otp_code']) ?>
             </span>
           <?php elseif ($m['is_receipt']): ?>
             <span style="font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.15);color:#fde68a;font-weight:700;white-space:nowrap">
-              🧾 <?= htmlspecialchars($m['receipt_curr']) ?> <?= number_format((float)($m['receipt_amt'] ?? 0), 2) ?>
+              <?= htmlspecialchars($m['receipt_curr']) ?> <?= number_format((float)($m['receipt_amt'] ?? 0), 2) ?>
             </span>
           <?php endif; ?>
         </a>

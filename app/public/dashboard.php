@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_create_inbox'])
         $res = inbox_create($uid, $dom, $prefix, $tier);
         if (isset($res['ok']) && $res['ok']) {
             $new_quick_email = $res['email'];
-            $quick_success = '🎉 Inbox <strong>' . htmlspecialchars($res['email']) . '</strong> created successfully!';
+            $quick_success = 'Inbox <strong>' . htmlspecialchars($res['email']) . '</strong> created successfully!';
             $inboxes = inbox_list($uid);
             $used_slots = count($inboxes);
             $balance = credit_balance($uid);
@@ -173,13 +173,13 @@ page_header('Dashboard', $user);
 
 <div class="dash-header">
   <div class="dash-title">
-    <h1>Welcome back, <?= htmlspecialchars(explode('@', $user['email'])[0]) ?> 👋</h1>
+    <h1>Welcome back, <?= htmlspecialchars(explode('@', $user['email'])[0]) ?></h1>
     <p>Manage your active inboxes, OTP extractions, and AI MCP automations.</p>
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <a href="/unified.php" class="btn" style="background:#8b5cf6;font-size:0.85rem">📬 Unified Inbox Stream</a>
-    <a href="/inbox_view.php?email=<?= !empty($inboxes) ? urlencode($inboxes[0]['email_address']) : '' ?>" class="btn" style="background:#10b981;font-size:0.85rem">⚡ Live OTP Viewer</a>
-    <a href="/send.php" class="btn btn-ghost" style="font-size:0.85rem">✉️ Send Email</a>
+    <a href="/unified.php" class="btn" style="background:#8b5cf6;font-size:0.85rem">Unified Inbox Stream</a>
+    <a href="/inbox_view.php?email=<?= !empty($inboxes) ? urlencode($inboxes[0]['email_address']) : '' ?>" class="btn" style="background:#10b981;font-size:0.85rem">Live OTP Viewer</a>
+    <a href="/send.php" class="btn btn-ghost" style="font-size:0.85rem">Send Email</a>
   </div>
 </div>
 
@@ -193,47 +193,55 @@ page_header('Dashboard', $user);
 <!-- 4 Key Stat Cards -->
 <div class="stat-grid">
   <div class="stat-card">
-    <div class="stat-icon">⚡</div>
+    <div class="stat-icon" style="color:#60a5fa">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+    </div>
     <div class="stat-val" style="color:#60a5fa"><?= number_format($balance) ?></div>
     <div class="stat-lbl">Credits Available</div>
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon">📥</div>
+    <div class="stat-icon" style="color:#a78bfa">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+    </div>
     <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $max_slots ?></span></div>
     <div class="stat-lbl">Inbox Slots Used</div>
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon">👑</div>
+    <div class="stat-icon" style="color:#fbbf24">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+    </div>
     <div class="stat-val" style="color:#fbbf24">Tier <?= $tier ?></div>
     <div class="stat-lbl">Account Tier</div>
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon">🕒</div>
+    <div class="stat-icon" style="color:#34d399">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+    </div>
     <div class="stat-val" style="color:#34d399"><?= (int)($tier_info['retention_days'] ?? 30) ?>d</div>
     <div class="stat-lbl">Email Retention</div>
   </div>
 </div>
 
-<!-- ⚡ 1-Click Quick Inbox Creator -->
+<!-- 1-Click Quick Inbox Creator -->
 <div class="quick-box">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <div>
       <h3 style="margin:0;font-size:1.05rem;color:#c4b5fd;display:flex;align-items:center;gap:8px">
-        <span>⚡ Quick Create Inbox</span>
+        <span>Quick Create Inbox</span>
         <span style="font-size:0.75rem;padding:2px 8px;border-radius:12px;background:rgba(139,92,246,0.25);color:#ddd6fe;font-weight:600">Instant Activation</span>
       </h3>
       <p style="margin:4px 0 0;font-size:0.82rem;color:#cbd5e1">Generate a clean, disposable or permanent email address ready to receive OTPs in seconds.</p>
     </div>
-    <button type="button" onclick="randomizePrefix()" class="btn btn-sm btn-ghost" style="color:#ddd6fe;border-color:rgba(139,92,246,0.4)">🎲 Randomize Name</button>
+    <button type="button" onclick="randomizePrefix()" class="btn btn-sm btn-ghost" style="color:#ddd6fe;border-color:rgba(139,92,246,0.4)">Randomize Name</button>
   </div>
 
   <form method="POST" action="/dashboard.php" style="margin:0">
     <?php csrf_field(); ?>
     <input type="hidden" name="quick_create_inbox" value="1">
-    
+
     <div class="quick-form-grid">
       <div>
         <input type="text" id="quick_local_part" name="local_part" placeholder="e.g. auth-bot-01 (or blank for random)" pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]?" style="margin:0;background:#060a12;border-color:#334155;width:100%" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')">
@@ -241,14 +249,14 @@ page_header('Dashboard', $user);
       <div>
         <select name="domain" style="margin:0;background:#060a12;border-color:#334155;width:100%" required>
           <?php if (!empty($eligible['pool'])): ?>
-            <optgroup label="🌐 Shared Domain Pool">
+            <optgroup label="Shared Domain Pool">
               <?php foreach ($eligible['pool'] as $d): ?>
                 <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
               <?php endforeach; ?>
             </optgroup>
           <?php endif; ?>
           <?php if (!empty($eligible['custom'])): ?>
-            <optgroup label="🔒 Your Custom Domains">
+            <optgroup label="Your Custom Domains">
               <?php foreach ($eligible['custom'] as $d): ?>
                 <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
               <?php endforeach; ?>
@@ -257,7 +265,7 @@ page_header('Dashboard', $user);
         </select>
       </div>
       <div>
-        <button type="submit" class="btn" style="background:#8b5cf6;white-space:nowrap;width:100%">⚡ Create Inbox</button>
+        <button type="submit" class="btn" style="background:#8b5cf6;white-space:nowrap;width:100%">Create Inbox</button>
       </div>
     </div>
   </form>
@@ -267,7 +275,7 @@ page_header('Dashboard', $user);
 <div class="inbox-table-card">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
     <div>
-      <h2 style="margin:0;font-size:1.15rem;color:#f8fafc">📥 Active Inboxes (<?= count($inboxes) ?>)</h2>
+      <h2 style="margin:0;font-size:1.15rem;color:#f8fafc">Active Inboxes (<?= count($inboxes) ?>)</h2>
       <p style="margin:2px 0 0;font-size:0.8rem;color:#94a3b8">Click "View Messages" to monitor incoming emails and real-time OTP codes.</p>
     </div>
     <div style="display:flex;gap:8px">
@@ -277,7 +285,6 @@ page_header('Dashboard', $user);
 
   <?php if (empty($inboxes)): ?>
     <div style="text-align:center;padding:40px 16px;background:#0a0e1a;border-radius:10px;border:1px dashed #334155">
-      <div style="font-size:2.2rem;margin-bottom:8px">📭</div>
       <h3 style="margin:0 0 6px;color:#f1f5f9">No Inboxes Active</h3>
       <p style="color:#94a3b8;font-size:0.85rem;max-width:400px;margin:0 auto 14px">Use the Quick Creator above to generate your first mailbox.</p>
     </div>
@@ -287,7 +294,7 @@ page_header('Dashboard', $user);
         <div style="flex:1;min-width:200px">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span style="font-family:monospace;font-size:0.95rem;font-weight:700;color:#f8fafc"><?= htmlspecialchars($in['email_address']) ?></span>
-            <button type="button" class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?>', this)">📋 Copy</button>
+            <button type="button" class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?>', this)">Copy</button>
           </div>
           <div style="font-size:0.76rem;color:#64748b;margin-top:4px">
             <?= (int)$in['retention_days'] ?>d Retention · Ready for OTP extraction
@@ -295,9 +302,9 @@ page_header('Dashboard', $user);
         </div>
 
         <div class="inbox-actions" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-          <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-success" style="padding:6px 14px;font-weight:600">⚡ View Messages</a>
-          <a href="/expenses.php?inbox=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" title="Extract Receipts & Invoices" style="border-color:#334155">🧾 Receipts</a>
-          <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" style="border-color:#334155">✉️ Send</a>
+          <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-success" style="padding:6px 14px;font-weight:600">View Messages</a>
+          <a href="/expenses.php?inbox=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" title="Extract Receipts & Invoices" style="border-color:#334155">Receipts</a>
+          <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" style="border-color:#334155">Send</a>
         </div>
       </div>
     <?php endforeach; ?>
@@ -307,13 +314,13 @@ page_header('Dashboard', $user);
 <!-- Quick Integrations Banner -->
 <div class="grid2">
   <div class="card" style="border-left:4px solid #8b5cf6">
-    <div style="font-size:1.3rem;margin-bottom:6px">🤖 AI Agent & MCP Integration</div>
+    <div style="font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#f8fafc">AI Agent &amp; MCP Integration</div>
     <p class="sub">Equip Claude Desktop, Cursor, or your autonomous LLM with email retrieval and OTP extraction tools.</p>
     <a href="/mcp_setup.php" class="btn btn-sm" style="background:#1e293b;border:1px solid #334155;color:#f8fafc">Setup MCP Server →</a>
   </div>
 
   <div class="card" style="border-left:4px solid #3b82f6">
-    <div style="font-size:1.3rem;margin-bottom:6px">🌐 Custom Brand Domains</div>
+    <div style="font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#f8fafc">Custom Brand Domains</div>
     <p class="sub">Attach your personal domain names to receive incoming business emails with full SPF/DKIM verification.</p>
     <a href="/domains.php" class="btn btn-sm" style="background:#1e293b;border:1px solid #334155;color:#f8fafc">Manage Domains →</a>
   </div>

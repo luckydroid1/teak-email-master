@@ -93,7 +93,7 @@ admin_header('Users & Roles', $user, 'users');
                         <td style="padding:10px 8px;font-weight:600"><?= htmlspecialchars($u['email']) ?></td>
                         <td style="padding:10px 8px">
                             <?php if (!empty($u['is_admin'])): ?>
-                                <span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:700">👑 Admin</span>
+                                <span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:700">Admin</span>
                             <?php else: ?>
                                 <span style="color:#94a3b8;font-size:0.8rem">User</span>
                             <?php endif; ?>
