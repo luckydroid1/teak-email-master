@@ -82,36 +82,36 @@ function page_header(string $title, array $user = null): void {
 	a{color:#60a5fa}
 	img{content-visibility:auto}
 
-		/* Navigation */
-		.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
-		.nav-inner{max-width:1050px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:12px}
-		.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
-		.nav-brand img{height:22px;width:auto;display:block}
-	.nav-links{display:flex;gap:3px;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
-	.nav-links::-webkit-scrollbar{display:none}
-	.nav-link{padding:6px 11px;border-radius:7px;font-size:.82rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s}
-.nav-link:hover{background:#1f2937;color:#f9fafb}
-.nav-link.active{background:#2563eb;color:#fff}
-.nav-user{display:flex;align-items:center;gap:8px;white-space:nowrap}
-.nav-mobile-user{display:none}
-.nav-credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:12px}
-.nav-tier-badge{background:#1e293b;border:1px solid #334155;color:#fbbf24;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:10px}
-.nav-email{font-size:.78rem;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis}
-.nav-logout{font-size:.78rem;color:#9ca3af;text-decoration:none;padding:4px 8px;border-radius:6px;border:1px solid #374151}
-.nav-logout:hover{background:#1f2937;color:#f9fafb;border-color:#4b5563}
-.nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px}
+			/* Navigation */
+			.topnav{background:#111827;border-bottom:1px solid #1f2937;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+			.nav-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;padding:0 16px;height:56px;gap:8px}
+			.nav-brand{font-weight:800;font-size:1.1rem;color:#f9fafb;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0;margin-right:4px}
+			.nav-brand img{height:22px;width:auto;display:block}
+		.nav-links{display:flex;gap:2px;flex:1;min-width:0;align-items:center;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding:0 4px;-webkit-overflow-scrolling:touch}
+		.nav-links::-webkit-scrollbar{display:none}
+		.nav-link{padding:5px 9px;border-radius:6px;font-size:.81rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s;flex-shrink:0}
+	.nav-link:hover{background:#1f2937;color:#f9fafb}
+	.nav-link.active{background:#2563eb;color:#fff}
+	.nav-user{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;margin-left:auto}
+	.nav-mobile-user{display:none}
+	.nav-credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:12px;flex-shrink:0}
+	.nav-tier-badge{background:#1e293b;border:1px solid #334155;color:#fbbf24;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0}
+	.nav-email{font-size:.78rem;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+	.nav-logout{font-size:.78rem;color:#9ca3af;text-decoration:none;padding:4px 8px;border-radius:6px;border:1px solid #374151;flex-shrink:0}
+	.nav-logout:hover{background:#1f2937;color:#f9fafb;border-color:#4b5563}
+	.nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px;flex-shrink:0}
 
-@media(max-width:880px){
-    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5)}
-    .nav-links.open{display:flex}
-    .nav-link{padding:10px 14px;font-size:.9rem}
-    .nav-user{display:none}
-    .nav-toggle{display:block;margin-left:auto}
-    .nav-mobile-user{display:flex;flex-direction:column;gap:10px;padding-top:12px;margin-top:8px;border-top:1px solid #1f2937}
-    .nav-mobile-info{display:flex;gap:8px;align-items:center}
-    .nav-mobile-account{display:flex;justify-content:space-between;align-items:center;gap:8px}
-    .nav-email-mobile{font-size:.82rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-}
+	@media(max-width:980px){
+	    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);overflow-x:visible}
+	    .nav-links.open{display:flex}
+	    .nav-link{padding:10px 14px;font-size:.9rem;width:100%}
+	    .nav-user{display:none}
+	    .nav-toggle{display:block;margin-left:auto}
+	    .nav-mobile-user{display:flex;flex-direction:column;gap:10px;padding-top:12px;margin-top:8px;border-top:1px solid #1f2937}
+	    .nav-mobile-info{display:flex;gap:8px;align-items:center}
+	    .nav-mobile-account{display:flex;justify-content:space-between;align-items:center;gap:8px}
+	    .nav-email-mobile{font-size:.82rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+	}
 
 /* Layout */
 .container{max-width:960px;margin:0 auto;padding:24px 16px;overflow-x:hidden}
@@ -247,13 +247,26 @@ function showToast(msg) {
     t.className = "toast";
     t.textContent = msg;
     container.appendChild(t);
-    setTimeout(() => {
-        t.style.transition = "opacity 0.3s";
-        t.style.opacity = "0";
-        setTimeout(() => t.remove(), 300);
-    }, 2500);
-}
-</script>
+	    setTimeout(() => {
+	        t.style.transition = "opacity 0.3s";
+	        t.style.opacity = "0";
+	        setTimeout(() => t.remove(), 300);
+	    }, 2500);
+	}
+
+	// Enable horizontal mouse wheel scrolling and click-drag on horizontal navbars & tab bars
+	document.addEventListener('DOMContentLoaded', () => {
+	    const scrollables = document.querySelectorAll('.nav-links, .admin-tabs-nav, .terminal-tabs, .price-scroll');
+	    scrollables.forEach(el => {
+	        el.addEventListener('wheel', (e) => {
+	            if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
+	                e.preventDefault();
+	                el.scrollLeft += e.deltaY;
+	            }
+	        }, { passive: false });
+	    });
+	});
+	</script>
 </head><body>';
     if ($nav !== '') echo $nav;
     echo '<div class="container">';
