@@ -205,6 +205,13 @@ page_header('Plans & Upgrades', $user);
 }
 </style>
 
+<div style="max-width:1200px;margin:0 auto 16px">
+  <a href="/dashboard.php" style="color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;padding:6px 12px;border-radius:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    <span>← Back to Dashboard / My Account</span>
+  </a>
+</div>
+
 <div class="pricing-page-header">
   <h1>Choose Your Plan & Upgrade Credits</h1>
   <p>Non-expiring API credits, instant sub-50ms OTP extraction, and multi-brand mailbox scaling.</p>
