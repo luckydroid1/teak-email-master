@@ -25,50 +25,50 @@ try {
 
 $tiers = [
     1 => [
-        'name' => 'Starter Runtime',
+        'name' => 'Tier 1 Plan',
         'price' => $db_settings['price_tier_1'] ?? 1.00,
-        'slots' => 5,
-        'credits' => '1,000',
-        'retention' => '30 Days',
+        'slots' => 3,
+        'credits' => '3,000',
+        'retention' => '7 Days',
         'domains' => '1 Custom Domain',
-        'features' => ['5 Isolated Inboxes', 'Sub-50ms OTP Parser', 'Native MCP Integration', '1,000 API/Email Credits', 'Community Discord Support']
+        'features' => ['3 Active Inbox Slots', '3,000 Credits Included', '1 Custom Domain Slot', '7-Day Email Retention', 'Sub-50ms OTP Parser', 'REST API + MCP Access']
     ],
     2 => [
-        'name' => 'Agent Pro',
-        'price' => $db_settings['price_tier_2'] ?? 5.00,
-        'slots' => 15,
-        'credits' => '5,000',
-        'retention' => '60 Days',
+        'name' => 'Tier 2 Plan',
+        'price' => $db_settings['price_tier_2'] ?? 7.00,
+        'slots' => 25,
+        'credits' => '25,000',
+        'retention' => '14 Days',
         'domains' => '3 Custom Domains',
         'popular' => true,
-        'features' => ['15 Active Inboxes', 'Unlimited OTP Extractions', 'Claude/Cursor MCP Native Tool', '5,000 Non-Expiring Credits', '3 Custom Sending Domains', 'Automated Expense OCR']
+        'features' => ['25 Active Inbox Slots', '25,000 Credits Included', '3 Custom Domain Slots', '14-Day Email Retention', 'Claude & Cursor MCP Native Tool', 'Automated Expense OCR']
     ],
     3 => [
-        'name' => 'Business Agency',
-        'price' => $db_settings['price_tier_3'] ?? 10.00,
-        'slots' => 30,
-        'credits' => '15,000',
-        'retention' => '90 Days',
+        'name' => 'Tier 3 Plan',
+        'price' => $db_settings['price_tier_3'] ?? 17.00,
+        'slots' => 70,
+        'credits' => '70,000',
+        'retention' => '30 Days',
         'domains' => '5 Custom Domains',
-        'features' => ['30 Multi-Brand Inboxes', '15,000 High-Speed Credits', 'Priority Outbound Queue', '5 Custom Domains + DKIM', 'Webhooks & Unified Stream', 'Dedicated SLA Support']
+        'features' => ['70 Active Inbox Slots', '70,000 Credits Included', '5 Custom Domain Slots', '30-Day Email Retention', 'Priority Outbound Queue', 'Webhooks & Unified Stream']
     ],
     4 => [
-        'name' => 'Enterprise Cluster',
-        'price' => $db_settings['price_tier_4'] ?? 25.00,
-        'slots' => 100,
-        'credits' => '50,000',
-        'retention' => '180 Days',
-        'domains' => '15 Custom Domains',
-        'features' => ['100 Isolated Mailboxes', '50,000 API Credits', 'High-Volume Agent Swarms', '15 Custom Domains', '180-Day Data Retention', 'Direct Engineering Hotline']
+        'name' => 'Tier 4 Plan',
+        'price' => $db_settings['price_tier_4'] ?? 27.00,
+        'slots' => 125,
+        'credits' => '125,000',
+        'retention' => '45 Days',
+        'domains' => '10 Custom Domains',
+        'features' => ['125 Active Mailboxes', '125,000 API Credits', '10 Custom Domain Slots', '45-Day Email Retention', 'High-Volume Agent Swarms', 'Direct Engineering Support']
     ],
     5 => [
-        'name' => 'Unlimited Scale',
-        'price' => $db_settings['price_tier_5'] ?? 50.00,
-        'slots' => 250,
-        'credits' => '150,000',
-        'retention' => '365 Days',
-        'domains' => 'Unlimited Domains',
-        'features' => ['250 Scalable Inboxes', '150,000 API Credits', 'Custom IP Pool Allocation', 'Unlimited Domains', '1-Year Full Retention', 'White-Glove Architecture Review']
+        'name' => 'Tier 5 Plan',
+        'price' => $db_settings['price_tier_5'] ?? 37.00,
+        'slots' => 190,
+        'credits' => '190,000',
+        'retention' => '60 Days',
+        'domains' => '20 Custom Domains',
+        'features' => ['190 Scalable Inboxes', '190,000 API Credits', '20 Custom Domain Slots', '60-Day Full Retention', 'Custom IP Pool Allocation', 'Full White-Glove Support']
     ]
 ];
 
