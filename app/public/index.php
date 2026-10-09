@@ -704,7 +704,7 @@ footer {
 	  .nav-actions .btn { padding: 6px 11px; font-size: 0.78rem; white-space: nowrap; }
 	  .hero { padding: 36px 0 28px; }
 	  .hero-tag { font-size: 0.68rem; padding: 4px 10px; gap: 5px; flex-wrap: wrap; justify-content: center; border-radius: 12px; }
-	  .hero-title { font-size: 1.72rem; line-height: 1.24; letter-spacing: -0.025em; }
+		  .hero-title { font-size: 1.55rem; line-height: 1.25; letter-spacing: -0.025em; }
 	  .hero-desc { font-size: 0.88rem; line-height: 1.55; }
 	  .metrics-strip { grid-template-columns: 1fr 1fr; gap: 10px; }
 	  .metric-col { padding: 8px; }
@@ -768,9 +768,9 @@ footer {
     </div>
 
     <h1 class="hero-title">
-      The Clean Email Runtime for<br class="d-desk">
-      <span class="gradient-text">Autonomous AI Agents</span>,<br class="d-desk">
-      <span class="nowrap">Multi-Brand Ops</span> &amp; Developers.
+      The Clean Email Runtime<br>
+      for <span class="gradient-text" style="display:inline-block">Autonomous AI Agents</span>,<br class="d-desk">
+      <span style="display:inline-block">Multi-Brand Ops &amp; Developers.</span>
     </h1>
 
     <p class="hero-desc">
