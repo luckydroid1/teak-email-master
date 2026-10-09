@@ -18,19 +18,14 @@ if ($tier < 1 || $tier > 5) {
 $info = tier_info($tier) ?? tier_info(1);
 $error = null;
 
-// Handle POST payment initiation
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!csrf_validate()) {
-        $error = 'Security session expired. Please refresh the page and try again.';
+// Process PayPal checkout initiation (via POST or explicit pay action)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' || (isset($_GET['action']) && $_GET['action'] === 'pay')) {
+    $res = paypal_create_order((int)$user['id'], $tier);
+    if (!empty($res['approval_url'])) {
+        header('Location: ' . $res['approval_url'], true, 302);
+        exit;
     } else {
-        $res = paypal_create_order((int)$user['id'], $tier);
-        if (!empty($res['approval_url'])) {
-            header('Location: ' . $res['approval_url']);
-            echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($res['approval_url']) . '"><script>window.location.href = ' . json_encode($res['approval_url']) . ';</script></head><body style="background:#0a0e1a;color:#fff;font-family:sans-serif;text-align:center;padding-top:100px"><h2>Redirecting to PayPal...</h2><p><a href="' . htmlspecialchars($res['approval_url']) . '" style="color:#38bdf8">Click here if not redirected automatically</a></p></body></html>';
-            exit;
-        } else {
-            $error = $res['error'] ?? 'Could not connect to PayPal. Please check PayPal credentials in Admin Settings.';
-        }
+        $error = $res['error'] ?? 'Could not connect to PayPal. Please check PayPal credentials in Admin Settings.';
     }
 }
 
@@ -57,7 +52,7 @@ page_header("Checkout Tier $tier", $user);
         <div style="background:#0a0e1a;border:1px solid #1f2937;border-radius:12px;padding:20px;margin-bottom:24px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
                 <div>
-                    <div style="font-weight:700;font-size:1.15rem;color:#f8fafc">Tier <?= $tier ?> Plan</div>
+                    <div style="font-weight:700;font-size:1.15rem;color:#f8fafc"><?= htmlspecialchars($info['name'] ?? "Tier $tier") ?></div>
                     <div style="font-size:0.8rem;color:#94a3b8">Billed securely via PayPal</div>
                 </div>
                 <div style="font-size:1.8rem;font-weight:800;color:#38bdf8">
@@ -65,24 +60,20 @@ page_header("Checkout Tier $tier", $user);
                 </div>
             </div>
             <ul style="list-style:none;padding:0;margin:0;font-size:0.85rem;color:#cbd5e1;line-height:1.9;border-top:1px solid #1f2937;padding-top:14px">
-                <li>✓ <strong><?= number_format((int)$info['credits']) ?></strong> credits included</li>
+                <li>✓ <strong><?= number_format((int)$info['credits']) ?></strong> API/Email credits included</li>
                 <li>✓ <strong><?= $info['inbox_slots'] ?></strong> active inbox slots</li>
                 <li>✓ <strong><?= $info['domains'] ?></strong> custom domain sync slots</li>
                 <li>✓ <?= $info['retention'] ?>-day email retention</li>
-                <li>✓ REST API + MCP Server access</li>
+                <li>✓ REST API + Native MCP Server access</li>
             </ul>
         </div>
 
-        <form method="POST" action="/checkout.php?tier=<?= $tier ?>" id="checkout-form">
-            <?php csrf_field(); ?>
-            <input type="hidden" name="tier" value="<?= $tier ?>">
-            <button type="submit" id="pay-btn" class="btn" style="width:100%;padding:14px;font-size:1rem;font-weight:700;background:linear-gradient(135deg, #0070ba 0%, #003087 100%);color:#fff;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 14px rgba(0,112,186,0.4)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.283-.58 3.69-2.82 5.56-6.66 5.56H9.722l-1.42 8.986a.641.641 0 0 1-.633.542l-.593.156z"/>
-                </svg>
-                <span id="pay-text">Pay with PayPal ($<?= number_format((float)($info['price'] ?? 1), 2) ?>) →</span>
-            </button>
-        </form>
+        <a href="/checkout.php?action=pay&tier=<?= $tier ?>" class="btn" style="width:100%;box-sizing:border-box;padding:14px;font-size:1rem;font-weight:700;background:linear-gradient(135deg, #0070ba 0%, #003087 100%);color:#fff;border-radius:10px;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 14px rgba(0,112,186,0.4)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.283-.58 3.69-2.82 5.56-6.66 5.56H9.722l-1.42 8.986a.641.641 0 0 1-.633.542l-.593.156z"/>
+            </svg>
+            <span>Pay with PayPal ($<?= number_format((float)($info['price'] ?? 1), 2) ?>) →</span>
+        </a>
 
         <div style="text-align:center;font-size:0.78rem;color:#64748b;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
@@ -90,21 +81,6 @@ page_header("Checkout Tier $tier", $user);
         </div>
     </div>
 </div>
-
-<script>
-const form = document.getElementById('checkout-form');
-const btn = document.getElementById('pay-btn');
-const text = document.getElementById('pay-text');
-
-if (form && btn) {
-    form.addEventListener('submit', function() {
-        btn.style.opacity = '0.75';
-        btn.style.pointerEvents = 'none';
-        btn.style.cursor = 'wait';
-        if (text) text.textContent = 'Redirecting to PayPal...';
-    });
-}
-</script>
 
 <?php
 page_footer();

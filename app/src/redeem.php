@@ -9,13 +9,13 @@ require_once __DIR__ . '/credits.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/settings.php';
 
-/** Tier table: [credits, inbox_slots, domains, api_full, retention_days, price_usd] */
+/** Tier table: [name, credits, inbox_slots, domains, api_full, retention_days, price_usd] */
 const TIER_TABLE = [
-    1 => ['price' => 1,  'credits' => 3000,   'inbox_slots' => 3,   'domains' => 1,  'api' => 'basic',  'retention' => 7],
-    2 => ['price' => 7,  'credits' => 25000,  'inbox_slots' => 25,  'domains' => 3,  'api' => 'full',   'retention' => 14],
-    3 => ['price' => 17, 'credits' => 70000,  'inbox_slots' => 70,  'domains' => 5,  'api' => 'full',   'retention' => 30],
-    4 => ['price' => 27, 'credits' => 125000, 'inbox_slots' => 125, 'domains' => 10, 'api' => 'full',   'retention' => 45],
-    5 => ['price' => 37, 'credits' => 190000, 'inbox_slots' => 190, 'domains' => 20, 'api' => 'full',   'retention' => 60],
+    1 => ['name' => 'Starter Runtime',   'price' => 1,  'credits' => 1000,   'inbox_slots' => 5,   'domains' => 1,  'api' => 'basic',  'retention' => 30],
+    2 => ['name' => 'Agent Pro',          'price' => 5,  'credits' => 5000,   'inbox_slots' => 15,  'domains' => 3,  'api' => 'full',   'retention' => 60],
+    3 => ['name' => 'Business Agency',    'price' => 10, 'credits' => 15000,  'inbox_slots' => 30,  'domains' => 5,  'api' => 'full',   'retention' => 90],
+    4 => ['name' => 'Enterprise Cluster', 'price' => 25, 'credits' => 50000,  'inbox_slots' => 100, 'domains' => 15, 'api' => 'full',   'retention' => 180],
+    5 => ['name' => 'Unlimited Scale',    'price' => 50, 'credits' => 150000, 'inbox_slots' => 250, 'domains' => 50, 'api' => 'full',   'retention' => 365],
 ];
 
 function tier_info(int $tier): ?array {
