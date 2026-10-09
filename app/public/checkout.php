@@ -98,10 +98,10 @@ const text = document.getElementById('pay-text');
 
 if (form && btn) {
     form.addEventListener('submit', function() {
-        btn.disabled = true;
         btn.style.opacity = '0.75';
+        btn.style.pointerEvents = 'none';
         btn.style.cursor = 'wait';
-        if (text) text.textContent = 'Connecting to PayPal...';
+        if (text) text.textContent = 'Redirecting to PayPal...';
     });
 }
 </script>
