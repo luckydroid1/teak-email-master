@@ -183,55 +183,68 @@ page_header('Dashboard', $user);
   </div>
 </div>
 
-<?php if ($quick_error): ?>
-  <div class="alert alert-e" style="margin-bottom:20px"><?= htmlspecialchars($quick_error) ?></div>
-<?php endif; ?>
-<?php if ($quick_success): ?>
-  <div class="alert alert-s" style="margin-bottom:20px"><?= $quick_success ?></div>
-<?php endif; ?>
+	<?php if ($quick_error): ?>
+	  <div class="alert alert-e" style="margin-bottom:20px"><?= htmlspecialchars($quick_error) ?></div>
+	<?php endif; ?>
+	<?php if ($quick_success): ?>
+	  <div class="alert alert-s" style="margin-bottom:20px"><?= $quick_success ?></div>
+	<?php endif; ?>
 
-<!-- 4 Key Stat Cards -->
-<div class="stat-grid">
-  <div class="stat-card">
-    <div class="stat-icon" style="color:#60a5fa">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-    </div>
-    <div class="stat-val" style="color:#60a5fa"><?= number_format($balance) ?></div>
-    <div class="stat-lbl">Credits Available</div>
-    <div style="font-size:0.68rem;color:#64748b;margin-top:2px">1 credit = 1 email / OTP parsed</div>
-  </div>
+	<?php if (!$has_redeemed && (int)$user['is_admin'] !== 1 && $balance === 0): ?>
+	  <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12) 0%,rgba(147,51,234,0.12) 100%);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+	    <div>
+	      <div style="font-weight:700;color:#f8fafc;font-size:0.95rem;margin-bottom:2px">🚀 Ready to start creating inboxes & extracting OTPs?</div>
+	      <div style="font-size:0.82rem;color:#cbd5e1">Choose a plan starting at $1/mo or redeem a license key to unlock inboxes and non-expiring credits.</div>
+	    </div>
+	    <div style="display:flex;gap:8px;flex-wrap:wrap">
+	      <a href="/pricing.php" class="btn btn-primary" style="font-size:0.82rem;padding:8px 16px">View Pricing & Plans →</a>
+	      <a href="/redeem.php" class="btn btn-ghost" style="font-size:0.82rem;padding:8px 14px">Redeem Key</a>
+	    </div>
+	  </div>
+	<?php endif; ?>
 
-  <div class="stat-card">
-    <div class="stat-icon" style="color:#a78bfa">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
-    </div>
-    <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $max_slots ?></span></div>
-    <div class="stat-lbl">Inbox Slots Used</div>
-    <?php if ($used_slots >= $max_slots): ?>
-      <a href="/checkout.php?tier=<?= min(5, $tier + 1) ?>" style="font-size:0.7rem;color:#f59e0b;font-weight:700;text-decoration:none;display:inline-block;margin-top:2px">Slots Full · Upgrade Plan →</a>
-    <?php else: ?>
-      <div style="font-size:0.68rem;color:#64748b;margin-top:2px"><?= $max_slots - $used_slots ?> slots remaining</div>
-    <?php endif; ?>
-  </div>
+	<!-- 4 Key Stat Cards -->
+	<div class="stat-grid">
+	  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='/pricing.php'">
+	    <div class="stat-icon" style="color:#60a5fa">
+	      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+	    </div>
+	    <div class="stat-val" style="color:#60a5fa"><?= number_format($balance) ?></div>
+	    <div class="stat-lbl">Credits Available</div>
+	    <a href="/pricing.php" style="font-size:0.72rem;color:#38bdf8;margin-top:4px;display:inline-block;text-decoration:none;font-weight:600">+ Top Up / Buy Credits →</a>
+	  </div>
 
-  <div class="stat-card">
-    <div class="stat-icon" style="color:#fbbf24">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-    </div>
-    <div class="stat-val" style="color:#fbbf24">Tier <?= $tier ?></div>
-    <div class="stat-lbl">Account Tier</div>
-    <a href="/checkout.php?tier=<?= min(5, $tier + 1) ?>" style="font-size:0.68rem;color:#38bdf8;margin-top:2px;display:inline-block;text-decoration:none">Change Plan →</a>
-  </div>
+	  <div class="stat-card">
+	    <div class="stat-icon" style="color:#a78bfa">
+	      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+	    </div>
+	    <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $max_slots ?></span></div>
+	    <div class="stat-lbl">Inbox Slots Used</div>
+	    <?php if ($used_slots >= $max_slots): ?>
+	      <a href="/pricing.php" style="font-size:0.7rem;color:#f59e0b;font-weight:700;text-decoration:none;display:inline-block;margin-top:2px">Slots Full · Upgrade Plan →</a>
+	    <?php else: ?>
+	      <div style="font-size:0.68rem;color:#64748b;margin-top:2px"><?= $max_slots - $used_slots ?> slots remaining</div>
+	    <?php endif; ?>
+	  </div>
 
-  <div class="stat-card">
-    <div class="stat-icon" style="color:#34d399">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-    </div>
-    <div class="stat-val" style="color:#34d399"><?= (int)($tier_info['retention_days'] ?? 30) ?>d</div>
-    <div class="stat-lbl">Email Retention</div>
-    <div style="font-size:0.68rem;color:#64748b;margin-top:2px">Auto-purged after expiry</div>
-  </div>
-</div>
+	  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='/pricing.php'">
+	    <div class="stat-icon" style="color:#fbbf24">
+	      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+	    </div>
+	    <div class="stat-val" style="color:#fbbf24">Tier <?= $tier ?></div>
+	    <div class="stat-lbl">Account Tier</div>
+	    <a href="/pricing.php" style="font-size:0.68rem;color:#38bdf8;margin-top:2px;display:inline-block;text-decoration:none">Change Plan →</a>
+	  </div>
+
+	  <div class="stat-card">
+	    <div class="stat-icon" style="color:#34d399">
+	      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+	    </div>
+	    <div class="stat-val" style="color:#34d399"><?= (int)($tier_info['retention_days'] ?? 30) ?>d</div>
+	    <div class="stat-lbl">Email Retention</div>
+	    <div style="font-size:0.68rem;color:#64748b;margin-top:2px">Auto-purged after expiry</div>
+	  </div>
+	</div>
 
 <!-- 1-Click Quick Inbox Creator -->
 <div class="quick-box">
