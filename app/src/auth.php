@@ -214,6 +214,39 @@ function smtp_send(string $host, int $port, string $from, string $to, string $da
     return true;
 }
 
+/** Resend verification email. Rate limited. */
+function resend_verification_email(string $email): array {
+    $email = strtolower(trim($email));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return ['error' => 'Invalid email address'];
+    }
+    $ip = client_ip();
+    if (!rate_limit_check('resend_verify:' . $ip, 4)) {
+        return ['error' => 'Too many requests. Please wait a few minutes before trying again.'];
+    }
+    $st = db()->prepare("SELECT id, status, verify_token FROM ia_users WHERE email = ?");
+    $st->execute([$email]);
+    $u = $st->fetch();
+    if (!$u) {
+        // Return ok to prevent user enumeration
+        return ['ok' => true];
+    }
+    if ($u['status'] === 'active') {
+        return ['error' => 'Account is already verified. You can log in.'];
+    }
+    if ($u['status'] !== 'pending') {
+        return ['error' => 'Account cannot be verified. Please contact support.'];
+    }
+    $token = $u['verify_token'];
+    if (empty($token)) {
+        $token = bin2hex(random_bytes(24));
+        db()->prepare("UPDATE ia_users SET verify_token = ? WHERE id = ?")->execute([$token, $u['id']]);
+    }
+    send_verify_email($email, $token);
+    audit((int)$u['id'], 'resend_verify', 'web');
+    return ['ok' => true];
+}
+
 /** Verify token from email link. */
 function verify_email_token(string $token): bool {
     $st = db()->prepare('SELECT id FROM ia_users WHERE verify_token = ? AND status = \'pending\'');
