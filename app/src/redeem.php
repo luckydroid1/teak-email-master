@@ -9,13 +9,13 @@ require_once __DIR__ . '/credits.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/settings.php';
 
-/** Tier table: [name, credits, inbox_slots, domains, api_full, retention_days, price_usd] */
+/** Tier table: [credits, inbox_slots, domains, api_full, retention_days, price_usd] */
 const TIER_TABLE = [
-    1 => ['name' => 'Starter Runtime',   'price' => 1,  'credits' => 1000,   'inbox_slots' => 5,   'domains' => 1,  'api' => 'basic',  'retention' => 30],
-    2 => ['name' => 'Agent Pro',          'price' => 5,  'credits' => 5000,   'inbox_slots' => 15,  'domains' => 3,  'api' => 'full',   'retention' => 60],
-    3 => ['name' => 'Business Agency',    'price' => 10, 'credits' => 15000,  'inbox_slots' => 30,  'domains' => 5,  'api' => 'full',   'retention' => 90],
-    4 => ['name' => 'Enterprise Cluster', 'price' => 25, 'credits' => 50000,  'inbox_slots' => 100, 'domains' => 15, 'api' => 'full',   'retention' => 180],
-    5 => ['name' => 'Unlimited Scale',    'price' => 50, 'credits' => 150000, 'inbox_slots' => 250, 'domains' => 50, 'api' => 'full',   'retention' => 365],
+    1 => ['name' => 'Tier 1 Plan', 'price' => 1,  'credits' => 3000,   'inbox_slots' => 3,   'domains' => 1,  'api' => 'basic',  'retention' => 7],
+    2 => ['name' => 'Tier 2 Plan', 'price' => 7,  'credits' => 25000,  'inbox_slots' => 25,  'domains' => 3,  'api' => 'full',   'retention' => 14],
+    3 => ['name' => 'Tier 3 Plan', 'price' => 17, 'credits' => 70000,  'inbox_slots' => 70,  'domains' => 5,  'api' => 'full',   'retention' => 30],
+    4 => ['name' => 'Tier 4 Plan', 'price' => 27, 'credits' => 125000, 'inbox_slots' => 125, 'domains' => 10, 'api' => 'full',   'retention' => 45],
+    5 => ['name' => 'Tier 5 Plan', 'price' => 37, 'credits' => 190000, 'inbox_slots' => 190, 'domains' => 20, 'api' => 'full',   'retention' => 60],
 ];
 
 function tier_info(int $tier): ?array {
@@ -62,13 +62,30 @@ function redeem_code(int $uid, string $code): array {
     return ['ok' => true, 'tier' => $tier, 'credits' => $credits, 'balance' => $res['balance']];
 }
 
-/** Tier user dari kode yang pernah di-redeem. */
+/** Tier user dari kode voucher, pembayaran PayPal, atau trust_tier. */
 function user_tier(int $uid): int {
-    $st = db()->prepare(
-        'SELECT tier FROM ia_codes WHERE redeemed_by = ? ORDER BY redeemed_at DESC LIMIT 1'
-    );
-    $st->execute([$uid]);
-    return (int)($st->fetchColumn() ?: 1);
+    $tier = 1;
+    try {
+        // 1. Check direct user record
+        $st = db()->prepare('SELECT trust_tier FROM ia_users WHERE id = ?');
+        $st->execute([$uid]);
+        $user_tier = (int)$st->fetchColumn();
+        if ($user_tier > $tier) $tier = $user_tier;
+
+        // 2. Check completed PayPal payments
+        $st2 = db()->prepare('SELECT MAX(tier) FROM ia_payments WHERE user_id = ? AND status = "completed"');
+        $st2->execute([$uid]);
+        $pay_tier = (int)$st2->fetchColumn();
+        if ($pay_tier > $tier) $tier = $pay_tier;
+
+        // 3. Check AppSumo / voucher redemptions
+        $st3 = db()->prepare('SELECT MAX(tier) FROM ia_codes WHERE redeemed_by = ?');
+        $st3->execute([$uid]);
+        $code_tier = (int)$st3->fetchColumn();
+        if ($code_tier > $tier) $tier = $code_tier;
+    } catch (Throwable $e) {}
+
+    return max(1, min(5, $tier));
 }
 
 /** Generate N kode AppSumo (dipakai script generate_codes.php). */
