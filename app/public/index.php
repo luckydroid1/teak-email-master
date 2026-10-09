@@ -338,6 +338,13 @@ a { color: inherit; text-decoration: none; }
 .terminal-tabs {
   display: flex;
   gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.terminal-tabs::-webkit-scrollbar {
+  display: none;
 }
 .terminal-tab-btn {
   background: transparent;
@@ -350,6 +357,8 @@ a { color: inherit; text-decoration: none; }
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .terminal-tab-btn:hover { color: #f8fafc; background: rgba(255,255,255,0.03); }
 .terminal-tab-btn.active {
@@ -676,41 +685,42 @@ footer {
 }
 .footer-links a:hover { color: #f8fafc; }
 
-	/* Mobile Responsiveness */
-	@media (max-width: 1080px) {
-	  .pricing-ladder { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-	  .bento-grid { grid-template-columns: 1fr; }
-	}
-	@media (max-width: 768px) {
-	  .hero { padding: 48px 0 36px; }
-	  .nav-menu { display: none; }
-	  .hero-tag { font-size: 0.72rem; padding: 5px 12px; gap: 6px; }
-	  .hero-title { font-size: 1.95rem; line-height: 1.25; margin-bottom: 16px; }
-	  .hero-desc { font-size: 0.92rem; line-height: 1.6; margin-bottom: 28px; }
-	  .hero-cta-group { flex-direction: column; width: 100%; max-width: 360px; margin: 0 auto 44px; gap: 12px; }
-	  .hero-cta-group .btn { width: 100%; padding: 13px 20px; font-size: 0.92rem; }
-	  .metrics-strip { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 18px 12px; }
-	  .metric-val { font-size: 1.45rem; }
-	  .metric-lbl { font-size: 0.72rem; }
-	  .terminal-tabs { width: 100%; overflow-x: auto; scrollbar-width: none; }
-	  .terminal-tabs::-webkit-scrollbar { display: none; }
-	  .code-pane { font-size: 0.76rem; padding: 16px 14px; }
-	}
-	@media (max-width: 540px) {
-	  .container { padding: 0 16px; }
-	  .nav-inner { height: 58px; }
-	  .brand-pill { display: none; }
-	  .nav-actions { gap: 8px; }
-	  .nav-actions .btn { padding: 6px 11px; font-size: 0.78rem; white-space: nowrap; }
-	  .hero { padding: 36px 0 28px; }
-	  .hero-tag { font-size: 0.68rem; padding: 4px 10px; gap: 5px; flex-wrap: wrap; justify-content: center; border-radius: 12px; }
-		  .hero-title { font-size: 1.55rem; line-height: 1.25; letter-spacing: -0.025em; }
-	  .hero-desc { font-size: 0.88rem; line-height: 1.55; }
-	  .metrics-strip { grid-template-columns: 1fr 1fr; gap: 10px; }
-	  .metric-col { padding: 8px; }
-	  .footer-inner { flex-direction: column; text-align: center; }
-	  .footer-links { justify-content: center; flex-wrap: wrap; gap: 16px; }
-	}
+		/* Mobile Responsiveness */
+		@media (max-width: 1080px) {
+		  .pricing-ladder { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+		  .bento-grid { grid-template-columns: 1fr; }
+		}
+		@media (max-width: 768px) {
+		  .hero { padding: 44px 0 32px; }
+		  .nav-menu { display: none; }
+		  .hero-tag { font-size: 0.72rem; padding: 5px 12px; gap: 6px; }
+		  .hero-title { font-size: 1.85rem; line-height: 1.25; letter-spacing: -0.025em; margin-bottom: 16px; }
+		  .hero-desc { font-size: 0.92rem; line-height: 1.6; margin-bottom: 26px; }
+		  .hero-cta-group { flex-direction: column; width: 100%; max-width: 360px; margin: 0 auto 40px; gap: 12px; }
+		  .hero-cta-group .btn { width: 100%; padding: 13px 20px; font-size: 0.92rem; }
+		  .metrics-strip { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 18px 12px; }
+		  .metric-val { font-size: 1.45rem; }
+		  .metric-lbl { font-size: 0.72rem; }
+		  .terminal-header { flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 14px; }
+		  .terminal-tabs { width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+		  .terminal-tabs::-webkit-scrollbar { display: none; }
+		  .code-pane { font-size: 0.76rem; padding: 16px 14px; }
+		}
+		@media (max-width: 540px) {
+		  .container { padding: 0 16px; }
+		  .nav-inner { height: 58px; }
+		  .brand-pill { display: none; }
+		  .nav-actions { gap: 8px; }
+		  .nav-actions .btn { padding: 6px 11px; font-size: 0.78rem; white-space: nowrap; }
+		  .hero { padding: 32px 0 24px; }
+		  .hero-tag { font-size: 0.68rem; padding: 4px 10px; gap: 5px; flex-wrap: wrap; justify-content: center; border-radius: 12px; }
+		  .hero-title { font-size: 1.55rem; line-height: 1.25; letter-spacing: -0.02em; }
+		  .hero-desc { font-size: 0.88rem; line-height: 1.55; }
+		  .metrics-strip { grid-template-columns: 1fr 1fr; gap: 10px; }
+		  .metric-col { padding: 8px; }
+		  .footer-inner { flex-direction: column; text-align: center; }
+		  .footer-links { justify-content: center; flex-wrap: wrap; gap: 16px; }
+		}
 </style>
 </head>
 <body>
