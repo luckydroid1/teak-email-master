@@ -39,12 +39,30 @@ $msg_error = null;
 	                audit($user['id'], 'admin_credit_adjust', 'web', "target_id=$targetId delta=$delta");
 	                $msg_success = "Adjusted credits by " . ($delta > 0 ? "+$delta" : "$delta") . " for user #$targetId.";
 	            }
-	        } elseif ($action === 'set_tier' && $targetId > 0) {
-	            $tier = (int)($_POST['tier'] ?? 1);
-	            $pdo->prepare('UPDATE ia_users SET trust_tier = ? WHERE id = ?')->execute([$tier, $targetId]);
-	            audit($user['id'], 'admin_set_tier', 'web', "target_id=$targetId tier=$tier");
-	            $msg_success = "User #$targetId tier updated to Tier $tier.";
-	        }
+        } elseif ($action === 'set_tier' && $targetId > 0) {
+            $tier = (int)($_POST['tier'] ?? 1);
+            $pdo->prepare('UPDATE ia_users SET trust_tier = ? WHERE id = ?')->execute([$tier, $targetId]);
+            audit($user['id'], 'admin_set_tier', 'web', "target_id=$targetId tier=$tier");
+            $msg_success = "User #$targetId tier updated to Tier $tier.";
+        } elseif ($action === 'delete_user' && $targetId > 0) {
+            if ($targetId !== (int)$user['id']) {
+                $st = $pdo->prepare('SELECT email FROM ia_users WHERE id = ?');
+                $st->execute([$targetId]);
+                $targetEmail = $st->fetchColumn();
+
+                // Delete related records and user
+                $pdo->prepare('DELETE FROM ia_inboxes WHERE user_id = ?')->execute([$targetId]);
+                $pdo->prepare('DELETE FROM ia_credit_ledger WHERE user_id = ?')->execute([$targetId]);
+                $pdo->prepare('DELETE FROM ia_payments WHERE user_id = ?')->execute([$targetId]);
+                $pdo->prepare('UPDATE ia_codes SET redeemed_by = NULL, status = "active" WHERE redeemed_by = ?')->execute([$targetId]);
+                $pdo->prepare('DELETE FROM ia_users WHERE id = ?')->execute([$targetId]);
+
+                audit($user['id'], 'admin_delete_user', 'web', "deleted_user_id=$targetId email=$targetEmail");
+                $msg_success = "User #$targetId ($targetEmail) and associated records successfully deleted.";
+            } else {
+                $msg_error = 'You cannot delete your own active administrator account.';
+            }
+        }
 	    }
 	}
 
@@ -125,6 +143,14 @@ admin_header('Users & Roles', $user, 'users');
                                         <?= !empty($u['is_admin']) ? 'Demote' : 'Promote Admin' ?>
                                     </button>
                                 </form>
+                                <?php if ((int)$u['id'] !== (int)$user['id']): ?>
+                                    <form method="POST" action="/admin/users.php" style="display:inline" onsubmit="return confirm('Permanently delete user <?= htmlspecialchars($u['email']) ?> and all related inboxes & payments?')">
+                                        <?php csrf_field(); ?>
+                                        <input type="hidden" name="action" value="delete_user">
+                                        <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-ghost" style="padding:4px 8px;font-size:0.75rem;color:#f87171;border-color:rgba(239,68,68,0.3)" title="Delete User">Delete</button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
