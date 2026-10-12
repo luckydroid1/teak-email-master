@@ -76,13 +76,19 @@ page_header('Plans & Upgrades', $user);
 ?>
 
 <style>
+.pricing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
 .pricing-page-header {
   text-align: center;
   max-width: 720px;
-  margin: 0 auto 36px;
+  margin: 0 auto 32px;
 }
 .pricing-page-header h1 {
-  font-size: 2rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: #f8fafc;
   letter-spacing: -0.02em;
@@ -90,31 +96,26 @@ page_header('Plans & Upgrades', $user);
 }
 .pricing-page-header p {
   color: #94a3b8;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 36px;
 }
 
 .plan-card {
   background: #111827;
   border: 1px solid #1f2937;
   border-radius: 14px;
-  padding: 24px;
+  padding: 22px 20px;
   display: flex;
   flex-direction: column;
   position: relative;
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-
-.plan-card:hover {
-  transform: translateY(-3px);
-  border-color: #3b82f6;
-  box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
 .plan-card.featured {
@@ -132,9 +133,9 @@ page_header('Plans & Upgrades', $user);
   position: absolute;
   top: 14px;
   right: 14px;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 12px;
 }
 
@@ -151,14 +152,14 @@ page_header('Plans & Upgrades', $user);
 }
 
 .plan-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #f8fafc;
   margin-bottom: 6px;
 }
 
 .plan-price {
-  font-size: 2.1rem;
+  font-size: 1.9rem;
   font-weight: 800;
   color: #f8fafc;
   margin-bottom: 16px;
@@ -168,7 +169,7 @@ page_header('Plans & Upgrades', $user);
 }
 
 .plan-price span {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #94a3b8;
   font-weight: 500;
 }
@@ -176,98 +177,107 @@ page_header('Plans & Upgrades', $user);
 .plan-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   flex-grow: 1;
 }
 
 .plan-features li {
-  font-size: 0.84rem;
+  font-size: 0.83rem;
   color: #cbd5e1;
   margin-bottom: 10px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  line-height: 1.4;
 }
 
 .plan-features li svg {
   color: #38bdf8;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .redeem-box {
   background: #0f172a;
   border: 1px dashed #334155;
   border-radius: 12px;
-  padding: 20px 24px;
+  padding: 20px;
   text-align: center;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0 auto 30px;
+}
+
+@media (max-width: 640px) {
+  .pricing-page-header h1 { font-size: 1.6rem; }
+  .plan-grid { grid-template-columns: 1fr; }
 }
 </style>
 
-<div style="max-width:1200px;margin:0 auto 16px">
-  <a href="/dashboard.php" style="color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;padding:6px 12px;border-radius:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2)">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-    <span>← Back to Dashboard / My Account</span>
-  </a>
-</div>
-
-<div class="pricing-page-header">
-  <h1>Choose Your Plan & Upgrade Credits</h1>
-  <p>Non-expiring API credits, instant sub-50ms OTP extraction, and multi-brand mailbox scaling.</p>
-</div>
-
-<?php if ($user && $current_balance === 0): ?>
-  <div class="alert alert-s" style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;margin-bottom:28px">
-    <span>💡 <strong>Account Status:</strong> You currently have <strong>0 credits</strong>. Select any plan below to activate your inboxes and receive instant credits.</span>
+<div class="pricing-container">
+  <div style="margin-bottom: 16px;">
+    <a href="/dashboard.php" style="color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;padding:6px 12px;border-radius:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      <span>← Back to Dashboard / My Account</span>
+    </a>
   </div>
-<?php endif; ?>
 
-<div class="plan-grid">
-  <?php foreach ($tiers as $t_num => $t): ?>
-    <?php 
-      $is_active = ($user && $current_tier === $t_num);
-      $is_featured = !empty($t['popular']) && !$is_active;
-    ?>
-    <div class="plan-card <?= $is_active ? 'current-active' : ($is_featured ? 'featured' : '') ?>">
-      <?php if ($is_active): ?>
-        <span class="plan-badge badge-active">Current Plan</span>
-      <?php elseif (!empty($t['popular'])): ?>
-        <span class="plan-badge badge-pop">Most Popular</span>
-      <?php endif; ?>
+  <div class="pricing-page-header">
+    <h1>Choose Your Plan & Upgrade Credits</h1>
+    <p>Non-expiring API credits, instant sub-50ms OTP extraction, and multi-brand mailbox scaling.</p>
+  </div>
 
-      <div class="plan-title"><?= htmlspecialchars($t['name']) ?></div>
-      <div class="plan-price">
-        $<?= number_format($t['price'], 2) ?>
-        <span>/ month</span>
-      </div>
-
-      <ul class="plan-features">
-        <?php foreach ($t['features'] as $f): ?>
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span><?= htmlspecialchars($f) ?></span>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-
-      <?php if ($user): ?>
-        <a href="/checkout.php?tier=<?= $t_num ?>" class="btn <?= $is_active ? 'btn-ghost' : 'btn-primary' ?>" style="width:100%;padding:11px 0;font-size:0.9rem">
-          <?= $is_active ? 'Re-up / Add Credits →' : 'Upgrade to Tier ' . $t_num . ' →' ?>
-        </a>
-      <?php else: ?>
-        <a href="/signup.php?redirect=<?= urlencode('/checkout.php?tier=' . $t_num) ?>" class="btn btn-primary" style="width:100%;padding:11px 0;font-size:0.9rem">
-          Get Started ($<?= number_format($t['price'], 2) ?>/mo) →
-        </a>
-      <?php endif; ?>
+  <?php if ($user && $current_balance === 0): ?>
+    <div style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;margin-bottom:24px;padding:14px 16px;border-radius:10px;font-size:0.88rem;line-height:1.5">
+      <span>💡 <strong>Account Status:</strong> You currently have <strong>0 credits</strong>. Select any plan below to activate your inboxes and receive instant credits.</span>
     </div>
-  <?php endforeach; ?>
-</div>
+  <?php endif; ?>
 
-<div class="redeem-box">
-  <h3 style="font-size:1.05rem;color:#f8fafc;margin-bottom:6px">Have an AppSumo or Lifetime License Key?</h3>
-  <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:14px">Redeem your voucher code to unlock lifetime inboxes and permanent credit allocations.</p>
-  <a href="/redeem.php" class="btn btn-ghost" style="font-size:0.85rem;padding:8px 18px">Redeem License Key →</a>
+  <div class="plan-grid">
+    <?php foreach ($tiers as $t_num => $t): ?>
+      <?php
+        $is_active = ($user && $current_tier === $t_num);
+        $is_featured = !empty($t['popular']) && !$is_active;
+      ?>
+      <div class="plan-card <?= $is_active ? 'current-active' : ($is_featured ? 'featured' : '') ?>">
+        <?php if ($is_active): ?>
+          <span class="plan-badge badge-active">Current Plan</span>
+        <?php elseif (!empty($t['popular'])): ?>
+          <span class="plan-badge badge-pop">Most Popular</span>
+        <?php endif; ?>
+
+        <div class="plan-title"><?= htmlspecialchars($t['name']) ?></div>
+        <div class="plan-price">
+          $<?= number_format($t['price'], 2) ?>
+          <span>/ month</span>
+        </div>
+
+        <ul class="plan-features">
+          <?php foreach ($t['features'] as $f): ?>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span><?= htmlspecialchars($f) ?></span>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+
+        <?php if ($user): ?>
+          <a href="/checkout.php?tier=<?= $t_num ?>" class="btn <?= $is_active ? 'btn-ghost' : 'btn-primary' ?>" style="width:100%;box-sizing:border-box;padding:12px 0;font-size:0.9rem;text-align:center">
+            <?= $is_active ? 'Re-up / Add Credits →' : 'Upgrade to Tier ' . $t_num . ' →' ?>
+          </a>
+        <?php else: ?>
+          <a href="/signup.php?redirect=<?= urlencode('/checkout.php?tier=' . $t_num) ?>" class="btn btn-primary" style="width:100%;box-sizing:border-box;padding:12px 0;font-size:0.9rem;text-align:center">
+            Get Started ($<?= number_format($t['price'], 2) ?>/mo) →
+          </a>
+        <?php endif; ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+
+  <div class="redeem-box">
+    <h3 style="font-size:1rem;color:#f8fafc;margin-bottom:6px">Have an AppSumo or Lifetime License Key?</h3>
+    <p style="font-size:0.83rem;color:#94a3b8;margin-bottom:14px;line-height:1.4">Redeem your voucher code to unlock lifetime inboxes and permanent credit allocations.</p>
+    <a href="/redeem.php" class="btn btn-ghost" style="font-size:0.85rem;padding:8px 18px;display:inline-block">Redeem License Key →</a>
+  </div>
 </div>
 
 <?php page_footer(); ?>
