@@ -146,7 +146,7 @@ function register_user(string $email, string $password): array {
         'INSERT INTO ia_users (email, password_hash, status, trust_tier, risk_score, verify_token)
          VALUES (?,?,?,?,?,?)'
     );
-    $st->execute([$email, password_hash($password, PASSWORD_BCRYPT), 'pending', 1, $risk, $token]);
+    $st->execute([$email, password_hash($password, PASSWORD_BCRYPT), 'pending', 0, $risk, $token]);
     $uid = (int)db()->lastInsertId();
     audit($uid, 'signup', 'web', "risk=$risk");
     send_verify_email($email, $token);
@@ -253,9 +253,17 @@ function verify_email_token(string $token): bool {
     $st->execute([$token]);
     $u = $st->fetch();
     if (!$u) return false;
+    $uid = (int)$u['id'];
     db()->prepare("UPDATE ia_users SET status='active', verify_token=NULL, verified_at=NOW() WHERE id = ?")
-        ->execute([$u['id']]);
-    audit((int)$u['id'], 'email_verified', 'web');
+        ->execute([$uid]);
+    audit($uid, 'email_verified', 'web');
+
+    // Allocate 5 trial credits for new user free sandbox (exactly 5 trial operations)
+    require_once __DIR__ . '/credits.php';
+    if (credit_balance($uid) === 0) {
+        credit_mutate($uid, 5, 'signup_bonus', 'free_trial_5x');
+    }
+
     return true;
 }
 
@@ -265,7 +273,21 @@ function logout(): void {
 }
 
 function client_ip(): string {
-    return $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $ip = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+        }
+    }
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        $ip = trim($ips[0] ?? '');
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+        }
+    }
+    $remote = trim($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+    return filter_var($remote, FILTER_VALIDATE_IP) ? $remote : '0.0.0.0';
 }
 
 /** Mark onboarding as completed. */

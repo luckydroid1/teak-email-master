@@ -146,10 +146,10 @@ function custom_domain_classify(string $domain): array {
         }
     }
 
-    // Check if MX points to Teak's server (mail.pesat.ai or 94.100.26.189)
+    // Check if MX points to Teak's server (mail.teak.email, teak.email, or 43.156.240.174)
     foreach ($mxHosts as $host) {
         $hostLower = strtolower($host);
-        if (str_contains($hostLower, 'pesat.ai') || $host === '94.100.26.189') {
+        if (str_contains($hostLower, 'teak.email') || str_contains($hostLower, 'pesat.ai') || $host === '43.156.240.174' || $host === '94.100.26.189') {
             return [
                 'classification' => 'safe',
                 'mx_summary' => $mxStr,
@@ -185,4 +185,74 @@ function custom_domain_summary(int $user_id): array {
         else $summary['unknown']++;
     }
     return $summary;
+}
+
+/**
+ * Verify live DNS records for a domain: MX, SPF, DKIM, and DMARC.
+ */
+function custom_domain_verify_dns_records(string $domain): array {
+    $results = [
+        'mx' => ['valid' => false, 'record' => null, 'expected' => 'mail.teak.email'],
+        'spf' => ['valid' => false, 'record' => null, 'expected' => 'v=spf1 mx ~all'],
+        'dkim' => ['valid' => false, 'record' => null, 'selector' => 'dkim'],
+        'dmarc' => ['valid' => false, 'record' => null, 'expected' => 'v=DMARC1; p=none;']
+    ];
+
+    if (!function_exists('dns_get_record')) {
+        return $results;
+    }
+
+    // 1. Check MX
+    $mx = @dns_get_record($domain, DNS_MX);
+    if (!empty($mx)) {
+        foreach ($mx as $m) {
+            $target = strtolower($m['target'] ?? '');
+            $results['mx']['record'] = $target;
+            if (str_contains($target, 'teak.email') || str_contains($target, 'pesat.ai')) {
+                $results['mx']['valid'] = true;
+                break;
+            }
+        }
+    }
+
+    // 2. Check SPF
+    $txt = @dns_get_record($domain, DNS_TXT);
+    if (!empty($txt)) {
+        foreach ($txt as $t) {
+            $txtVal = $t['txt'] ?? ($t['entries'][0] ?? '');
+            if (str_starts_with(strtolower($txtVal), 'v=spf1')) {
+                $results['spf']['record'] = $txtVal;
+                $results['spf']['valid'] = true;
+                break;
+            }
+        }
+    }
+
+    // 3. Check DKIM
+    $dkimTxt = @dns_get_record("dkim._domainkey.{$domain}", DNS_TXT);
+    if (!empty($dkimTxt)) {
+        foreach ($dkimTxt as $t) {
+            $txtVal = $t['txt'] ?? ($t['entries'][0] ?? '');
+            if (str_contains($txtVal, 'v=DKIM1') || str_contains($txtVal, 'p=')) {
+                $results['dkim']['record'] = $txtVal;
+                $results['dkim']['valid'] = true;
+                break;
+            }
+        }
+    }
+
+    // 4. Check DMARC
+    $dmarcTxt = @dns_get_record("_dmarc.{$domain}", DNS_TXT);
+    if (!empty($dmarcTxt)) {
+        foreach ($dmarcTxt as $t) {
+            $txtVal = $t['txt'] ?? ($t['entries'][0] ?? '');
+            if (str_starts_with(strtolower($txtVal), 'v=dmarc1')) {
+                $results['dmarc']['record'] = $txtVal;
+                $results['dmarc']['valid'] = true;
+                break;
+            }
+        }
+    }
+
+    return $results;
 }

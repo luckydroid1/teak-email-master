@@ -1,0 +1,23 @@
+[Unit]
+Description=Teak Email MCP Server (Model Context Protocol)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/codeinbox/mcp-server
+Environment=NODE_ENV=production
+Environment=PORT=3456
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=5
+
+# Security Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

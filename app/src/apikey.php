@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/abuse.php';
 
 /** Generate new API key. Returns plaintext (shown once). */
 function apikey_create(int $uid): array {

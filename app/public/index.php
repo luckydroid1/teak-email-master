@@ -10,6 +10,7 @@ require_once __DIR__ . '/../src/redeem.php';
 
 $user = current_user();
 
+$t0 = tier_info(0);
 $t1 = tier_info(1);
 $t2 = tier_info(2);
 $t3 = tier_info(3);
@@ -748,6 +749,7 @@ footer {
       <nav class="nav-menu">
         <a href="#runtime" class="nav-item">Protocol</a>
         <a href="#audiences" class="nav-item">Workflows</a>
+        <a href="#credits-guide" class="nav-item">Credits Guide</a>
         <a href="#pricing" class="nav-item">Pricing</a>
         <a href="#faq" class="nav-item">FAQ</a>
       </nav>
@@ -758,7 +760,7 @@ footer {
           <a href="/logout.php" class="btn btn-ghost btn-sm">Logout</a>
         <?php else: ?>
           <a href="/login.php" class="btn btn-ghost btn-sm">Log In</a>
-          <a href="/signup.php" class="btn btn-primary btn-sm">Start for $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo</a>
+          <a href="/signup.php" class="btn btn-primary btn-sm">Start Free Sandbox →</a>
         <?php endif; ?>
       </div>
     </div>
@@ -961,16 +963,107 @@ footer {
   </div>
 </section>
 
+<!-- Credits Explained & Real-World Examples Section -->
+<section id="credits-guide" class="section" style="padding-bottom: 20px;">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">02 // Operational Credits</div>
+      <h2 class="section-title">What Are Credits &amp; How Do They Work?</h2>
+      <p class="section-sub">Credits are utility tokens for automated actions. Storing emails in inboxes is <strong>always 100% free</strong> — you only consume credits when an automated worker or AI agent reads an email or extracts a code.</p>
+    </div>
+
+    <!-- 3 Real-World Usage Example Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;margin-bottom:30px">
+      <!-- Example 1 -->
+      <div class="card" style="background:#0a0e1a;border:1px solid #1f2937;border-radius:14px;padding:24px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:inline-block;padding:4px 10px;border-radius:20px;background:rgba(56,189,248,0.1);color:#38bdf8;font-size:0.75rem;font-weight:700;font-family:var(--font-mono);margin-bottom:12px">
+            EXAMPLE 01 // 1 CREDIT
+          </div>
+          <h3 style="color:#f8fafc;font-size:1.1rem;margin-bottom:8px">Instant OTP Code Extraction</h3>
+          <p style="color:#94a3b8;font-size:0.86rem;line-height:1.6;margin-bottom:16px">
+            Your bot or QA test suite receives a verification email. Calling <code style="color:#38bdf8">GET /api/inboxes/{email}/otp/{uid}</code> extracts the 6-digit code in sub-50ms.
+          </p>
+        </div>
+        <div style="font-size:0.8rem;color:#cbd5e1;background:#111827;padding:10px 14px;border-radius:8px;border:1px solid #1f2937">
+          Cost: <strong style="color:#38bdf8">1 Credit</strong> per OTP extracted.
+        </div>
+      </div>
+
+      <!-- Example 2 -->
+      <div class="card" style="background:#0a0e1a;border:1px solid #1f2937;border-radius:14px;padding:24px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:inline-block;padding:4px 10px;border-radius:20px;background:rgba(168,85,247,0.1);color:#a855f7;font-size:0.75rem;font-weight:700;font-family:var(--font-mono);margin-bottom:12px">
+            EXAMPLE 02 // 1 CREDIT
+          </div>
+          <h3 style="color:#f8fafc;font-size:1.1rem;margin-bottom:8px">Claude Desktop &amp; Cursor AI Agent</h3>
+          <p style="color:#94a3b8;font-size:0.86rem;line-height:1.6;margin-bottom:16px">
+            Your autonomous AI agent uses the native <code style="color:#a855f7">read_email</code> tool via MCP to parse body text, JSON payloads, or download invoice receipts.
+          </p>
+        </div>
+        <div style="font-size:0.8rem;color:#cbd5e1;background:#111827;padding:10px 14px;border-radius:8px;border:1px solid #1f2937">
+          Cost: <strong style="color:#a855f7">1 Credit</strong> per full message fetch.
+        </div>
+      </div>
+
+      <!-- Example 3 -->
+      <div class="card" style="background:#0a0e1a;border:1px solid #1f2937;border-radius:14px;padding:24px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:inline-block;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,0.1);color:#10b981;font-size:0.75rem;font-weight:700;font-family:var(--font-mono);margin-bottom:12px">
+            EXAMPLE 03 // 50 CREDITS / MO
+          </div>
+          <h3 style="color:#f8fafc;font-size:1.1rem;margin-bottom:8px">SaaS Receipt &amp; Expense Tracker</h3>
+          <p style="color:#94a3b8;font-size:0.86rem;line-height:1.6;margin-bottom:16px">
+            Automatically track and sync 50 monthly receipts, order confirmations, and invoices into Google Sheets or accounting software via Webhooks.
+          </p>
+        </div>
+        <div style="font-size:0.8rem;color:#cbd5e1;background:#111827;padding:10px 14px;border-radius:8px;border:1px solid #1f2937">
+          Cost: <strong style="color:#10b981">50 Credits</strong> total for the whole month.
+        </div>
+      </div>
+    </div>
+
+    <!-- Non-expiring highlights banner -->
+    <div style="background:rgba(15,23,42,0.8);border:1px solid #334155;border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.2rem">⏳</span>
+        <span style="font-size:0.88rem;color:#cbd5e1"><strong>Non-Expiring Lifetime Rollover:</strong> Unused credits never expire. They stay in your account balance until consumed.</span>
+      </div>
+      <div style="font-size:0.82rem;color:#38bdf8;font-weight:700">
+        Tier 1 includes 3,000 Credits = 3,000 Operations
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Pricing Ladder Section (Dynamic Data from Database & PayPal Integration) -->
 <section id="pricing" class="section">
   <div class="container">
     <div class="section-head">
-      <div class="section-tag">02 // Flexible Pricing</div>
-      <h2 class="section-title">Transparent Plans. Start at $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo.</h2>
+      <div class="section-tag">03 // Flexible Pricing</div>
+      <h2 class="section-title">Transparent Plans. Free Sandbox or $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo.</h2>
       <p class="section-sub">Simple subscriptions via PayPal. Change plan or cancel anytime with non-expiring credits.</p>
     </div>
 
     <div class="pricing-ladder">
+      <!-- Tier 0: Free Sandbox -->
+      <div class="pricing-card" style="border-color:rgba(16,185,129,0.35);background:linear-gradient(180deg, rgba(6,40,30,0.4) 0%, rgba(17,24,39,0.9) 100%)">
+        <div>
+          <div class="p-tier" style="color:#34d399">FREE / DEVELOPER SANDBOX</div>
+          <div class="p-cost" style="color:#34d399">$0<span>/forever</span></div>
+          <div class="p-sub">no credit card required</div>
+          <ul class="p-specs">
+            <li><strong>5 trial credits</strong> (5x test operations)</li>
+            <li><strong>1 active inbox</strong> slot (@teak.email)</li>
+            <li>Sub-50ms instant OTP extraction</li>
+            <li>2-day email retention</li>
+            <li>Basic REST API test access</li>
+            <li>Instant email verification</li>
+          </ul>
+        </div>
+        <a href="/signup.php" class="btn btn-ghost btn-sm" style="width:100%;border-color:#10b981;color:#6ee7b7">Try Free Sandbox (5x) →</a>
+      </div>
+
       <!-- Tier 1 -->
       <div class="pricing-card">
         <div>

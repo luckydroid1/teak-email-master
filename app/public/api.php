@@ -76,6 +76,11 @@ if (isset($res['rate_limited'])) {
     api_json(['error' => 'API rate limit exceeded'], 429);
 }
 if (!$res) {
+    $ip = client_ip();
+    if (!rate_limit_check("api_fail:$ip", 20)) {
+        api_json(['error' => 'Too many failed authentication attempts. Please wait 1 minute.'], 429);
+    }
+    abuse_fail_attempt("api_fail:$ip");
     api_json(['error' => 'Unauthorized'], 401);
 }
 $user = $res['user'];

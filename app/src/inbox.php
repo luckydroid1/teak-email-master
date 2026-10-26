@@ -84,6 +84,28 @@ function inbox_eligible_domains(int $uid): array {
  */
 function inbox_create(int $uid, string $domain, string $local_part, int $tier): array {
     $lp = strtolower(trim($local_part));
+    $domain = strtolower(trim($domain));
+
+    // Support user entering full email in local_part field (e.g. "testnell@aerisresearch.com")
+    if (str_contains($lp, '@')) {
+        [$lp_clean, $domain_part] = explode('@', $lp, 2);
+        $lp = trim($lp_clean);
+        if (!empty($domain_part)) {
+            $domain = trim($domain_part);
+        }
+    }
+
+    // Auto-resolve domain if user provided domain without TLD (e.g. "aerisresearch" -> "aerisresearch.com")
+    if (!str_contains($domain, '.')) {
+        $eligible = inbox_eligible_domains($uid);
+        foreach ($eligible['all'] as $ed) {
+            if (str_starts_with($ed, $domain . '.')) {
+                $domain = $ed;
+                break;
+            }
+        }
+    }
+
     if (!preg_match('/^[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]$/', $lp)) {
         return ['error' => 'Invalid local part. Use letters, numbers, dots, hyphens.'];
     }
@@ -110,7 +132,8 @@ function inbox_create(int $uid, string $domain, string $local_part, int $tier): 
     }
 
     // Batas slot inbox sesuai tier
-    $slot_limit = (int)tier_info($tier)['inbox_slots'];
+    $tier_data = tier_info($tier) ?? tier_info(1);
+    $slot_limit = (int)($tier_data['inbox_slots'] ?? 3);
     $cnt = inbox_count_active($uid);
     if ($cnt >= $slot_limit) {
         return ['error' => "Inbox slot limit reached ($slot_limit). Upgrade tier to add more."];
@@ -130,8 +153,10 @@ function inbox_create(int $uid, string $domain, string $local_part, int $tier): 
     );
     $st->execute([$uid, $email, $lp, $domain, $retention, $retention]);
 
-    // Debit rent inbox aktif (bulan pertama sekaligus, pro-rata)
-    credit_mutate($uid, -(CREDIT_INBOX_ACTIVE_DAY * 30), 'inbox_create', $email);
+    // Debit rent inbox aktif (Tier 0 free sandbox gets 1 complimentary inbox with 0 rent deduction)
+    if ($tier > 0) {
+        credit_mutate($uid, -(CREDIT_INBOX_ACTIVE_DAY * 30), 'inbox_create', $email);
+    }
 
     audit($uid, 'inbox_create', '', $email);
     return ['ok' => true, 'email' => $email, 'password' => $pw];
@@ -176,7 +201,7 @@ function inbox_read(int $uid, string $email_address, int $uid_num): array {
     $inbox = inbox_owned($uid, $email_address);
     if (!$inbox) return ['error' => 'Inbox not found'];
     $res = credit_mutate($uid, -1, 'api_call', 'read_email');
-    if (!$res['ok']) return ['error' => $res['error']];
+    if (!$res['ok']) return ['error' => 'Insufficient credits. You have used your 5 free trial credits. Please upgrade your plan to continue reading emails.'];
     $raw = mailcow_fetch_message($email_address, $uid_num);
     if ($raw === null) return ['error' => 'Email not found'];
     return ['ok' => true, 'raw' => $raw];
@@ -225,6 +250,9 @@ function inbox_daily_rent(): void {
     $users = db()->query('SELECT DISTINCT user_id FROM ia_inboxes WHERE status = \'active\'')->fetchAll();
     foreach ($users as $u) {
         $uid = (int)$u['user_id'];
+        if (function_exists('user_tier') && user_tier($uid) === 0) {
+            continue; // Free sandbox accounts have 0 daily rent for their complimentary trial inbox
+        }
         $cnt = inbox_count_active($uid);
         $delta = -(CREDIT_INBOX_ACTIVE_DAY * $cnt);
         credit_mutate($uid, $delta, 'daily_rent', 'daily');

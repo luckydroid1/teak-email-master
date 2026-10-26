@@ -77,34 +77,48 @@ if (isset($_GET['export']) && $_GET['export'] === 'json') {
     exit;
 }
 
-$read_raw = null; $otp = null; $html_body = null; $clean_text_body = ''; $subject_line = ''; $sender_display = '';
+$read_raw = null; $otp = null; $html_body = null; $clean_text_body = ''; $subject_line = ''; $sender_display = ''; $attachments = [];
+$credit_insufficient = false;
 if ($msg_id > 0) {
-    $raw = mailcow_fetch_message($email, $msg_id);
-    if ($raw !== null) {
-        $read_raw = $raw;
-        $parsed = extract_otp($raw);
-        $otp = $parsed['otp'];
+    if (credit_balance($uid) <= 0) {
+        $credit_insufficient = true;
+    } else {
+        $raw = mailcow_fetch_message($email, $msg_id);
+        if ($raw !== null) {
+            $mutate = credit_mutate($uid, -1, 'api_call', "read:$msg_id");
+            if ($mutate['ok']) {
+                $read_raw = $raw;
+                $parsed = extract_otp($raw);
+                $otp = $parsed['otp'];
+                $clean_meta = mailcow_clean_body($raw);
+                $attachments = $clean_meta['attachments'] ?? [];
 
-        if (preg_match('/^hdr\.subject:\s*(.+)$/m', $raw, $m)) {
-            $raw_subj = trim($m[1]);
-            $subject_line = function_exists('mb_decode_mimeheader') ? mb_decode_mimeheader($raw_subj) : $raw_subj;
-        }
-        if (preg_match('/^hdr\.from:\s*(.+)$/m', $raw, $m)) {
-            $raw_from = trim($m[1]);
-            $sender_display = function_exists('mb_decode_mimeheader') ? mb_decode_mimeheader($raw_from) : $raw_from;
-        }
-        if (preg_match('/text\.html:\s*([\s\S]+?)(?=\n[a-z0-9_.-]+:|$)/i', $raw, $m)) {
-            $html_body = trim($m[1]);
-        }
+                if (preg_match('/^hdr\.subject:\s*(.+)$/m', $raw, $m)) {
+                    $raw_subj = trim($m[1]);
+                    $subject_line = function_exists('mb_decode_mimeheader') ? mb_decode_mimeheader($raw_subj) : $raw_subj;
+                }
+                if (preg_match('/^hdr\.from:\s*(.+)$/m', $raw, $m)) {
+                    $raw_from = trim($m[1]);
+                    $sender_display = function_exists('mb_decode_mimeheader') ? mb_decode_mimeheader($raw_from) : $raw_from;
+                }
+                if (preg_match('/text\.html:\s*([\s\S]+?)(?=\n[a-z0-9_.-]+:|$)/i', $raw, $m)) {
+                    $html_body = trim($m[1]);
+                } elseif (!empty($clean_meta['html'])) {
+                    $html_body = $clean_meta['html'];
+                }
 
-        // Extract pure clean text body
-        if (preg_match('/text\.utf8:\s*([\s\S]+)$/i', $raw, $m)) {
-            $clean_text_body = trim($m[1]);
-        } else {
-            $clean_text_body = trim($raw);
+                // Extract pure clean text body
+                if (preg_match('/text\.utf8:\s*([\s\S]+)$/i', $raw, $m)) {
+                    $clean_text_body = trim($m[1]);
+                } elseif (!empty($clean_meta['text'])) {
+                    $clean_text_body = $clean_meta['text'];
+                } else {
+                    $clean_text_body = trim($raw);
+                }
+            } else {
+                $credit_insufficient = true;
+            }
         }
-
-        credit_mutate($uid, -1, 'api_call', "read:$msg_id");
     }
 }
 
@@ -224,6 +238,22 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
   </div>
 </div>
 
+<?php if ($credit_insufficient): ?>
+  <div class="card" style="border-left:4px solid #ef4444;background:rgba(239,68,68,0.08);margin-bottom:20px;padding:24px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:1.4rem">⚠️</span>
+      <h3 style="margin:0;color:#fca5a5;font-size:1.15rem;font-weight:700">0 Credits Remaining (Trial Reached)</h3>
+    </div>
+    <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:16px;line-height:1.6">
+      You have used all <strong>5 free trial operations</strong>. Upgrade to <strong>Tier 1 Plan ($1/mo)</strong> to unlock 3,000 non-expiring credits, 3 active inboxes, and unlimited sub-50ms OTP extractions.
+    </p>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <a href="/pricing.php" class="btn btn-primary">Upgrade Plan ($1/mo) →</a>
+      <a href="?email=<?= urlencode($email) ?>" class="btn btn-ghost btn-sm">← Back to Inbox</a>
+    </div>
+  </div>
+<?php endif; ?>
+
 <?php if ($read_raw !== null): ?>
 <!-- 📧 Detailed Single Message View -->
 <div class="card">
@@ -262,7 +292,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 
   <?php if ($html_body && $view_mode === 'html'): ?>
     <div style="background:#fff;padding:0;overflow:hidden;border-radius:10px;border:1px solid #374151">
-      <iframe id="email-frame" style="width:100%;min-height:300px;border:none;background:#fff;display:block" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+      <iframe id="email-frame" style="width:100%;min-height:300px;border:none;background:#fff;display:block" sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>
     </div>
     <script>
     (function() {
@@ -286,6 +316,32 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     <!-- Clean Dark-Themed Text View with Native Clickable Links -->
     <div class="msg-view" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:0.95rem;line-height:1.8;background:#0a0e1a;border-radius:10px;padding:24px;border:1px solid #1f2937;color:#e2e8f0;white-space:normal">
       <?= render_clean_email_text($clean_text_body, $otp) ?>
+    </div>
+  <?php endif; ?>
+
+  <?php if (!empty($attachments)): ?>
+    <div style="margin-top:16px;background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:16px">
+      <div style="font-weight:700;font-size:0.9rem;color:#f8fafc;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span>📎 Attachments (<?= count($attachments) ?>)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <?php foreach ($attachments as $att): ?>
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#1e293b;padding:10px 14px;border-radius:8px;flex-wrap:wrap;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="font-weight:600;font-size:0.88rem;color:#e2e8f0"><?= htmlspecialchars($att['filename']) ?></span>
+              <span style="font-size:0.75rem;color:#94a3b8">(<?= number_format($att['size'] / 1024, 1) ?> KB)</span>
+              <?php if (!empty($att['is_dangerous'])): ?>
+                <span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:6px">⚠️ BLOCKED / SUSPICIOUS FILE</span>
+              <?php endif; ?>
+            </div>
+            <?php if (!empty($att['is_dangerous'])): ?>
+              <span style="font-size:0.78rem;color:#ef4444">Direct execution blocked for safety</span>
+            <?php else: ?>
+              <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&export=eml" class="btn btn-sm btn-ghost" style="font-size:0.78rem;padding:4px 10px">Download .EML</a>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      </div>
     </div>
   <?php endif; ?>
 </div>

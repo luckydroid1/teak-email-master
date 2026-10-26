@@ -11,6 +11,7 @@ require_once __DIR__ . '/settings.php';
 
 /** Tier table: [credits, inbox_slots, domains, api_full, retention_days, price_usd] */
 const TIER_TABLE = [
+    0 => ['name' => 'Free Sandbox', 'price' => 0,  'credits' => 5,      'inbox_slots' => 1,   'domains' => 0,  'api' => 'basic',  'retention' => 2],
     1 => ['name' => 'Tier 1 Plan', 'price' => 1,  'credits' => 3000,   'inbox_slots' => 3,   'domains' => 1,  'api' => 'basic',  'retention' => 7],
     2 => ['name' => 'Tier 2 Plan', 'price' => 7,  'credits' => 25000,  'inbox_slots' => 25,  'domains' => 3,  'api' => 'full',   'retention' => 14],
     3 => ['name' => 'Tier 3 Plan', 'price' => 17, 'credits' => 70000,  'inbox_slots' => 70,  'domains' => 5,  'api' => 'full',   'retention' => 30],
@@ -21,6 +22,18 @@ const TIER_TABLE = [
 function tier_info(int $tier): ?array {
     $def = TIER_TABLE[$tier] ?? null;
     if (!$def) return null;
+
+    if ($tier === 0) {
+        return [
+            'name'        => 'Free Sandbox',
+            'price'       => 0.0,
+            'credits'     => 5,
+            'inbox_slots' => 1,
+            'domains'     => 0,
+            'api'         => 'basic',
+            'retention'   => 2,
+        ];
+    }
 
     $price = setting_get("tier_{$tier}_price");
     $credits = setting_get("tier_{$tier}_credits");
@@ -64,28 +77,30 @@ function redeem_code(int $uid, string $code): array {
 
 /** Tier user dari kode voucher, pembayaran PayPal, atau trust_tier. */
 function user_tier(int $uid): int {
-    $tier = 1;
+    $tier = 0;
     try {
-        // 1. Check direct user record
-        $st = db()->prepare('SELECT trust_tier FROM ia_users WHERE id = ?');
-        $st->execute([$uid]);
-        $user_tier = (int)$st->fetchColumn();
-        if ($user_tier > $tier) $tier = $user_tier;
-
-        // 2. Check completed PayPal payments
+        // 1. Check completed PayPal payments
         $st2 = db()->prepare('SELECT MAX(tier) FROM ia_payments WHERE user_id = ? AND status = "completed"');
         $st2->execute([$uid]);
         $pay_tier = (int)$st2->fetchColumn();
-        if ($pay_tier > $tier) $tier = $pay_tier;
+        if ($pay_tier > 0) $tier = max($tier, $pay_tier);
 
-        // 3. Check AppSumo / voucher redemptions
+        // 2. Check AppSumo / voucher redemptions
         $st3 = db()->prepare('SELECT MAX(tier) FROM ia_codes WHERE redeemed_by = ?');
         $st3->execute([$uid]);
         $code_tier = (int)$st3->fetchColumn();
-        if ($code_tier > $tier) $tier = $code_tier;
+        if ($code_tier > 0) $tier = max($tier, $code_tier);
+
+        // 3. Check direct user record
+        if ($tier === 0) {
+            $st = db()->prepare('SELECT trust_tier FROM ia_users WHERE id = ?');
+            $st->execute([$uid]);
+            $user_tier = (int)$st->fetchColumn();
+            if ($user_tier > 0) $tier = $user_tier;
+        }
     } catch (Throwable $e) {}
 
-    return max(1, min(5, $tier));
+    return max(0, min(5, $tier));
 }
 
 /** Generate N kode AppSumo (dipakai script generate_codes.php). */

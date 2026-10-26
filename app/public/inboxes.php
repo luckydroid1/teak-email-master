@@ -44,17 +44,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Inbox not found';
         }
     } elseif (isset($_POST['create_inbox'])) {
-        if (!$has_redeemed) {
-            $error = 'Please redeem your AppSumo code first to activate your account slots';
-        } else {
-            $res = inbox_create($uid, $_POST['domain'] ?? '', $_POST['local_part'] ?? '', $tier);
-            if (isset($res['ok'])) {
-                $new_email = $res['email'];
-                $new_pw = $res['password'];
-                $success = 'Inbox created successfully!';
-            } else {
-                $error = $res['error'];
+        $dom = strtolower(trim($_POST['domain'] ?? ''));
+        if ($dom === '' && !empty($eligible['all'])) {
+            $dom = $eligible['all'][0];
+        } elseif (!str_contains($dom, '.')) {
+            foreach ($eligible['all'] as $ed) {
+                if (str_starts_with($ed, $dom . '.')) {
+                    $dom = $ed;
+                    break;
+                }
             }
+        }
+        $res = inbox_create($uid, $dom, $_POST['local_part'] ?? '', $tier);
+        if (isset($res['ok'])) {
+            $new_email = $res['email'];
+            $new_pw = $res['password'];
+            $success = 'Inbox created successfully!';
+        } else {
+            $error = $res['error'];
         }
     }
 }

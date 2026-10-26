@@ -31,10 +31,19 @@ $new_quick_email = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_create_inbox'])) {
     if (!csrf_validate()) {
         $quick_error = 'Session expired or invalid submission. Please try again.';
-    } elseif (!$has_redeemed && (int)$user['is_admin'] !== 1) {
-        $quick_error = 'Please activate your tier license before creating inboxes.';
     } else {
-        $dom = trim($_POST['domain'] ?? '');
+        $dom = strtolower(trim($_POST['domain'] ?? ''));
+        // If domain omitted or incomplete, match against eligible domains
+        if ($dom === '' && !empty($eligible['all'])) {
+            $dom = $eligible['all'][0];
+        } elseif (!str_contains($dom, '.')) {
+            foreach ($eligible['all'] as $ed) {
+                if (str_starts_with($ed, $dom . '.')) {
+                    $dom = $ed;
+                    break;
+                }
+            }
+        }
         $prefix = trim($_POST['local_part'] ?? '');
         if (empty($prefix)) {
             $prefix = 'agent-' . substr(bin2hex(random_bytes(4)), 0, 7);

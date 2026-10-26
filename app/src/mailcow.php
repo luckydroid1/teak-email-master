@@ -138,11 +138,13 @@ function mailcow_fix_maildir_permissions(string $maildir): void {
 }
 
 /**
- * Robust MIME parser to extract clean plain text and clean HTML.
+ * Robust MIME parser to extract clean plain text, clean HTML, and detect attachments.
  */
 function mailcow_clean_body(string $raw_body, array $headers = []): array {
     $extracted_text = '';
     $extracted_html = '';
+    $attachments = [];
+    $dangerous_extensions = ['exe', 'bat', 'cmd', 'scr', 'vbs', 'js', 'pif', 'jar', 'ps1', 'sh', 'com', 'hta', 'cpl', 'iso', 'dll'];
 
     // Detect multipart boundary (from header or directly from body)
     $boundary = '';
@@ -163,6 +165,30 @@ function mailcow_clean_body(string $raw_body, array $headers = []): array {
             $subparts = preg_split('/\r?\n\r?\n/', $part, 2);
             $subhead = strtolower($subparts[0] ?? '');
             $subbody = $subparts[1] ?? '';
+
+            // Check if this part is an attachment
+            $filename = '';
+            if (preg_match('/filename=["\']?([^"\'\r\n;]+)["\']?/i', $subhead, $fm)) {
+                $filename = trim($fm[1]);
+            } elseif (preg_match('/name=["\']?([^"\'\r\n;]+)["\']?/i', $subhead, $fm)) {
+                $filename = trim($fm[1]);
+            }
+
+            if (!empty($filename)) {
+                $decoded_name = function_exists('mb_decode_mimeheader') ? mb_decode_mimeheader($filename) : $filename;
+                $ext = strtolower(pathinfo($decoded_name, PATHINFO_EXTENSION));
+                $raw_len = strlen($subbody);
+                $is_b64 = str_contains($subhead, 'base64');
+                $est_size = $is_b64 ? (int)floor($raw_len * 0.75) : $raw_len;
+
+                $attachments[] = [
+                    'filename' => $decoded_name,
+                    'extension' => $ext,
+                    'size' => $est_size,
+                    'is_dangerous' => in_array($ext, $dangerous_extensions, true),
+                ];
+                continue;
+            }
 
             if (str_contains($subhead, 'quoted-printable')) {
                 $subbody = quoted_printable_decode($subbody);
@@ -203,7 +229,8 @@ function mailcow_clean_body(string $raw_body, array $headers = []): array {
 
     return [
         'text' => trim($extracted_text),
-        'html' => trim($extracted_html)
+        'html' => trim($extracted_html),
+        'attachments' => $attachments
     ];
 }
 
@@ -232,13 +259,14 @@ function mailcow_parse_email_file(string $filepath): ?array {
     $parsed_bodies = mailcow_clean_body($raw_body, $headers);
 
     return [
-        'uid'     => $uid,
-        'from'    => $headers['from'] ?? '',
-        'subject' => $headers['subject'] ?? '',
-        'date'    => $headers['date'] ?? '',
-        'raw'     => $raw,
-        'body'    => $parsed_bodies['text'],
-        'html'    => $parsed_bodies['html']
+        'uid'         => $uid,
+        'from'        => $headers['from'] ?? '',
+        'subject'     => $headers['subject'] ?? '',
+        'date'        => $headers['date'] ?? '',
+        'raw'         => $raw,
+        'body'        => $parsed_bodies['text'],
+        'html'        => $parsed_bodies['html'],
+        'attachments' => $parsed_bodies['attachments'] ?? []
     ];
 }
 

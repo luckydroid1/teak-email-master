@@ -58,30 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sync_registrar'])) {
 $dns_report = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_dns_domain'])) {
     if (csrf_validate()) {
+        require_once __DIR__ . '/../src/custom_domains.php';
         $chk_dom = strtolower(trim($_POST['check_dns_domain']));
-        $mx_records = @dns_get_record($chk_dom, DNS_MX) ?: [];
-        $txt_records = @dns_get_record($chk_dom, DNS_TXT) ?: [];
-
-        $has_mx = false;
-        foreach ($mx_records as $mx) {
-            if (isset($mx['target']) && str_contains(strtolower($mx['target']), 'teak.email')) {
-                $has_mx = true;
-                break;
-            }
-        }
-        $has_spf = false;
-        foreach ($txt_records as $txt) {
-            if (isset($txt['txt']) && str_contains($txt['txt'], 'v=spf1')) {
-                $has_spf = true;
-                break;
-            }
-        }
+        $records = custom_domain_verify_dns_records($chk_dom);
         $dns_report = [
             'domain' => $chk_dom,
-            'has_mx' => $has_mx,
-            'has_spf' => $has_spf,
-            'mx_count' => count($mx_records),
-            'txt_count' => count($txt_records)
+            'records' => $records
         ];
     }
 }
@@ -150,14 +132,22 @@ page_header('Custom Domains', $user);
   <?php if ($dns_report): ?>
   <div class="card" style="border-color:#3b82f6;background:rgba(59,130,246,0.06);margin-bottom:20px">
     <h3 style="color:#93c5fd;margin:0 0 10px;font-size:1.05rem">DNS Verification Status: <?= htmlspecialchars($dns_report['domain']) ?></h3>
-    <div style="font-size:0.88rem;line-height:1.8">
+    <div style="font-size:0.88rem;line-height:2">
       <div style="display:flex;align-items:center;gap:8px">
-        <span>MX Record (Incoming Mail):</span>
-        <?= $dns_report['has_mx'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (Pointing to mail.teak.email)</span>' : '<span style="color:#fca5a5;font-weight:700">✗ Missing (Point MX to mail.teak.email)</span>' ?>
+        <strong style="color:#cbd5e1;width:140px">MX Record:</strong>
+        <?= $dns_report['records']['mx']['valid'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (' . htmlspecialchars($dns_report['records']['mx']['record'] ?? 'mail.teak.email') . ')</span>' : '<span style="color:#fca5a5;font-weight:700">✗ Missing (Point MX to mail.teak.email)</span>' ?>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span>SPF Protection Record:</span>
-        <?= $dns_report['has_spf'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (SPF TXT record active)</span>' : '<span style="color:#fbbf24;font-weight:700">Optional (Add TXT v=spf1)</span>' ?>
+        <strong style="color:#cbd5e1;width:140px">SPF Protection:</strong>
+        <?= $dns_report['records']['spf']['valid'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (' . htmlspecialchars($dns_report['records']['spf']['record']) . ')</span>' : '<span style="color:#fbbf24;font-weight:700">⚠️ Optional / Recommended (v=spf1 mx a ~all)</span>' ?>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <strong style="color:#cbd5e1;width:140px">DKIM Signature:</strong>
+        <?= $dns_report['records']['dkim']['valid'] ? '<span style="color:#86efac;font-weight:700">✓ Verified (dkim._domainkey active)</span>' : '<span style="color:#94a3b8;font-weight:500">Unconfigured (Add TXT dkim._domainkey)</span>' ?>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <strong style="color:#cbd5e1;width:140px">DMARC Policy:</strong>
+        <?= $dns_report['records']['dmarc']['valid'] ? '<span style="color:#86efac;font-weight:700">✓ Active (' . htmlspecialchars($dns_report['records']['dmarc']['record']) . ')</span>' : '<span style="color:#94a3b8;font-weight:500">Unconfigured (_dmarc TXT)</span>' ?>
       </div>
     </div>
   </div>

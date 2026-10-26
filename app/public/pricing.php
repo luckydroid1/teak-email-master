@@ -24,6 +24,15 @@ try {
 } catch (Throwable $e) {}
 
 $tiers = [
+    0 => [
+        'name' => 'Free Sandbox',
+        'price' => 0.00,
+        'slots' => 1,
+        'credits' => '5 (Trial)',
+        'retention' => '2 Days',
+        'domains' => '0 Custom Domains',
+        'features' => ['1 Active Inbox Slot', '5 Instant Trial Credits (5x Operations)', 'Shared Pool Domain (@teak.email)', '2-Day Email Retention', 'Sub-50ms OTP Parser', 'REST API Test Access']
+    ],
     1 => [
         'name' => 'Tier 1 Plan',
         'price' => $db_settings['price_tier_1'] ?? 1.00,
@@ -260,7 +269,17 @@ page_header('Plans & Upgrades', $user);
           <?php endforeach; ?>
         </ul>
 
-        <?php if ($user): ?>
+        <?php if ($t_num === 0): ?>
+          <?php if ($user): ?>
+            <a href="/dashboard.php" class="btn btn-ghost" style="width:100%;box-sizing:border-box;padding:12px 0;font-size:0.9rem;text-align:center">
+              <?= $is_active ? 'Active Sandbox (Go to App) →' : 'Included in Account' ?>
+            </a>
+          <?php else: ?>
+            <a href="/signup.php" class="btn btn-ghost" style="width:100%;box-sizing:border-box;padding:12px 0;font-size:0.9rem;text-align:center;border-color:#10b981;color:#6ee7b7">
+              Try Free Sandbox (5x) →
+            </a>
+          <?php endif; ?>
+        <?php elseif ($user): ?>
           <a href="/checkout.php?tier=<?= $t_num ?>" class="btn <?= $is_active ? 'btn-ghost' : 'btn-primary' ?>" style="width:100%;box-sizing:border-box;padding:12px 0;font-size:0.9rem;text-align:center">
             <?= $is_active ? 'Re-up / Add Credits →' : 'Upgrade to Tier ' . $t_num . ' →' ?>
           </a>
