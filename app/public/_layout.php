@@ -9,13 +9,15 @@ function page_header(string $title, array $user = null): void {
     $app = cfg()['app_name'] ?? 'Teak Email';
     $nav = '';
     if ($user) {
+        require_once __DIR__ . '/../src/credits.php';
+        require_once __DIR__ . '/../src/redeem.php';
         $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
         $uid = (int)$user['id'];
         $balance = function_exists('credit_balance') ? credit_balance($uid) : 0;
-        $tier = function_exists('user_tier') ? user_tier($uid) : 1;
+        $tier = function_exists('user_tier') ? user_tier($uid) : 0;
 
         $tier_badges = [
-            0 => ['badge' => 'Free Sandbox', 'title' => 'Free / Developer Sandbox (5x Trial)', 'style' => 'background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.35);color:#34d399;'],
+            0 => ['badge' => 'Free Sandbox', 'title' => 'Free / Developer Sandbox (5x Trial)', 'style' => 'background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.35);color:#34d399;font-weight:700;'],
             1 => ['badge' => 'T1 Starter', 'title' => 'Tier 1 / Starter Plan', 'style' => 'background:#1e293b;border-color:#334155;color:#fbbf24;'],
             2 => ['badge' => 'T2 Pro', 'title' => 'Tier 2 / Pro Builder Plan', 'style' => 'background:rgba(56,189,248,0.15);border-color:rgba(56,189,248,0.4);color:#38bdf8;'],
             3 => ['badge' => 'T3 Business', 'title' => 'Tier 3 / Business Plan', 'style' => 'background:#1e293b;border-color:#334155;color:#fbbf24;'],
