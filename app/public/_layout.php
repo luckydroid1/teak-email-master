@@ -47,24 +47,24 @@ function page_header(string $title, array $user = null): void {
 					                        <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">Upgrade / Plans</a>
 					                        ' . $adminLink . '
 					                        <div class="nav-mobile-user">
-					                            <div class="nav-mobile-info">
-					                                <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none" title="Buy Credits / Upgrade Plan">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits +</span></a>
-					                                <a href="/pricing.php" class="nav-tier-badge" style="text-decoration:none" title="Upgrade Tier">Tier ' . $tier . '</a>
-					                            </div>
-					                            <div class="nav-mobile-account">
-					                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-					                                <a href="/logout.php" class="nav-logout">Logout</a>
-					                            </div>
-					                        </div>
-					                    </div>
-					                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
-					                </div>
-					                <div class="nav-user">
-					                    <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none;cursor:pointer" title="Click to Top Up / Buy Credits">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span> <span style="color:#38bdf8;font-weight:bold">+</span></a>
-					                    <a href="/pricing.php" class="nav-tier-badge" style="text-decoration:none;cursor:pointer" title="Click to Upgrade Plan">T' . $tier . '</a>
-					                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-					                    <a href="/logout.php" class="nav-logout">Logout</a>
-					                </div>
+						                            <div class="nav-mobile-info">
+						                                <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none" title="Buy Credits / Upgrade Plan">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits +</span></a>
+						                                <a href="/pricing.php" class="nav-tier-badge" style="text-decoration:none;' . ($tier === 0 ? 'background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.35);color:#34d399;' : '') . '" title="Account Plan: ' . ($tier === 0 ? 'Free Sandbox' : 'Tier ' . $tier) . '">' . ($tier === 0 ? 'Free' : 'Tier ' . $tier) . '</a>
+						                            </div>
+						                            <div class="nav-mobile-account">
+						                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+						                                <a href="/logout.php" class="nav-logout">Logout</a>
+						                            </div>
+						                        </div>
+						                    </div>
+						                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
+						                </div>
+						                <div class="nav-user">
+						                    <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none;cursor:pointer" title="Click to Top Up / Buy Credits">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span> <span style="color:#38bdf8;font-weight:bold">+</span></a>
+						                    <a href="/pricing.php" class="nav-tier-badge" style="text-decoration:none;cursor:pointer;' . ($tier === 0 ? 'background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.35);color:#34d399;' : '') . '" title="Account Plan: ' . ($tier === 0 ? 'Free Sandbox' : 'Tier ' . $tier) . '">' . ($tier === 0 ? 'Free' : 'T' . $tier) . '</a>
+						                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+						                    <a href="/logout.php" class="nav-logout">Logout</a>
+						                </div>
 				                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">
 				                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
 				                </button>
