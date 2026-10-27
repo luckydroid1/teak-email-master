@@ -36,62 +36,96 @@ function page_header(string $title, array $user = null): void {
             $tb['url'] = '/pricing.php';
         }
 
-		        $isDashboard = ($currentPage === 'dashboard.php');
-		        $isUnified = ($currentPage === 'unified.php');
-		        $isInboxes = in_array($currentPage, ['inboxes.php', 'inbox_view.php'], true);
-		        $isSend = ($currentPage === 'send.php');
-		        $isSent = ($currentPage === 'sent.php');
-		        $isWarmup = ($currentPage === 'warmup.php');
-		        $isExpenses = ($currentPage === 'expenses.php');
-			        $isDomains = ($currentPage === 'domains.php');
-			        $isBuyDomain = ($currentPage === 'buy-domain.php');
-			        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
-			        $isPricing = in_array($currentPage, ['pricing.php', 'checkout.php'], true);
+        $ui_mode = function_exists('current_ui_mode') ? current_ui_mode() : 'simple';
+        $is_advanced = ($ui_mode === 'advanced');
 
-				        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
-				        $adminLink = !empty($user['is_admin'])
-				            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">Admin</a>'
-				            : '';
+        // Mode toggle URL
+        $target_mode = $is_advanced ? 'simple' : 'advanced';
+        $current_uri = $_SERVER['REQUEST_URI'] ?? '/';
+        $clean_uri = preg_replace('/([?&])set_ui_mode=[^&]+(&|$)/', '$1', $current_uri);
+        $clean_uri = rtrim($clean_uri, '?&');
+        $toggle_url = $clean_uri . (str_contains($clean_uri, '?') ? '&' : '?') . 'set_ui_mode=' . $target_mode;
 
-					        $nav = '<nav class="topnav">
-					            <div class="nav-inner">
-					                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
-					                <div class="nav-links-wrapper" id="nav-links-wrapper">
-					                    <button type="button" class="nav-arrow-btn nav-arrow-left" id="nav-arrow-left" onclick="scrollNav(-1)" aria-label="Slide left">‹</button>
-					                    <div class="nav-links" id="main-nav-links">
-					                        <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
-					                        <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">Unified Inbox</a>
-					                        <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
-					                        <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">Expenses</a>
-					                        <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send Email</a>
-					                        <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
-					                        <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API Keys</a>
-					                        <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">Upgrade / Plans</a>
-					                        ' . $adminLink . '
-					                        <div class="nav-mobile-user">
-								                            <div class="nav-mobile-info">
-								                                <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none" title="Buy Credits / Upgrade Plan">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits +</span></a>
-								                                <a href="' . $tb['url'] . '" class="nav-tier-badge" style="text-decoration:none;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
-								                            </div>
-								                            <div class="nav-mobile-account">
-								                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-								                                <a href="/logout.php" class="nav-logout">Logout</a>
-								                            </div>
-								                        </div>
-								                    </div>
-								                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
-								                </div>
-								                <div class="nav-user">
-								                    <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none;cursor:pointer" title="Click to Top Up / Buy Credits">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span> <span style="color:#38bdf8;font-weight:bold">+</span></a>
-								                    <a href="' . $tb['url'] . '" class="nav-tier-badge" style="text-decoration:none;cursor:pointer;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
-								                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-								                    <a href="/logout.php" class="nav-logout">Logout</a>
-								                </div>
-				                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">
-				                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-				                </button>
-				            </div>
-				        </nav>';
+        $toggle_btn_text = $is_advanced ? '⚡ Advanced' : '🌱 Simple';
+        $toggle_btn_title = $is_advanced ? 'Switch to Simple Mode (Clean & Beginner Friendly)' : 'Switch to Advanced Mode (Developer & Power Tools)';
+        $toggle_btn_style = $is_advanced 
+            ? 'background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#93c5fd;' 
+            : 'background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#34d399;';
+
+        $mode_badge_html = '<a href="' . htmlspecialchars($toggle_url) . '" class="nav-mode-pill" style="' . $toggle_btn_style . '" title="' . htmlspecialchars($toggle_btn_title) . '">' . htmlspecialchars($toggle_btn_text) . '</a>';
+
+        $isDashboard = ($currentPage === 'dashboard.php');
+        $isUnified = ($currentPage === 'unified.php');
+        $isInboxes = in_array($currentPage, ['inboxes.php', 'inbox_view.php'], true);
+        $isSend = ($currentPage === 'send.php');
+        $isSent = ($currentPage === 'sent.php');
+        $isWarmup = ($currentPage === 'warmup.php');
+        $isExpenses = ($currentPage === 'expenses.php');
+        $isDomains = ($currentPage === 'domains.php');
+        $isBuyDomain = ($currentPage === 'buy-domain.php');
+        $isApi = in_array($currentPage, ['api_keys.php', 'mcp_setup.php'], true);
+        $isPricing = in_array($currentPage, ['pricing.php', 'checkout.php'], true);
+
+        $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
+        $adminLink = !empty($user['is_admin'])
+            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>'
+            : '';
+
+        if (!$is_advanced) {
+            // SIMPLE MODE (Clean, friendly 3-action navigation)
+            $nav_links_content = '
+                <a href="/dashboard.php" class="nav-link' . ($isDashboard || $isInboxes ? ' active' : '') . '">📬 Inboxes</a>
+                <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">✉️ Send</a>
+                <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">💎 Plans</a>
+                ' . $adminLink;
+        } else {
+            // ADVANCED MODE (Full developer suite)
+            $nav_links_content = '
+                <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
+                <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">Unified</a>
+                <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
+                <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send</a>
+                <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
+                <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API & MCP</a>
+                <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">Expenses</a>
+                <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">Plans</a>
+                ' . $adminLink;
+        }
+
+        $nav = '<nav class="topnav">
+            <div class="nav-inner">
+                <a href="/dashboard.php" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
+                <div class="nav-links-wrapper" id="nav-links-wrapper">
+                    ' . ($is_advanced ? '<button type="button" class="nav-arrow-btn nav-arrow-left" id="nav-arrow-left" onclick="scrollNav(-1)" aria-label="Slide left">‹</button>' : '') . '
+                    <div class="nav-links ' . ($is_advanced ? 'is-advanced' : 'is-simple') . '" id="main-nav-links">
+                        ' . $nav_links_content . '
+                        <div class="nav-mobile-user">
+                            <div class="nav-mobile-info">
+                                <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none" title="Buy Credits / Upgrade Plan">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span></a>
+                                <a href="' . $tb['url'] . '" class="nav-tier-badge" style="text-decoration:none;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
+                                ' . $mode_badge_html . '
+                            </div>
+                            <div class="nav-mobile-account">
+                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+                                <a href="/logout.php" class="nav-logout">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                    ' . ($is_advanced ? '<button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>' : '') . '
+                </div>
+                <!-- Always Visible Desktop & Mobile Chips -->
+                <div class="nav-chips-bar">
+                    <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none;cursor:pointer" title="Click to Top Up / Buy Credits">' . number_format($balance) . ' <span class="nav-cr-lbl">credits</span></a>
+                    <a href="' . $tb['url'] . '" class="nav-tier-badge" style="text-decoration:none;cursor:pointer;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
+                    ' . $mode_badge_html . '
+                    <span class="nav-email nav-desktop-only" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+                    <a href="/logout.php" class="nav-logout nav-desktop-only">Logout</a>
+                </div>
+                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+        </nav>';
     }
 	    echo '<!DOCTYPE html><html lang="en"><head>
 		<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -129,28 +163,31 @@ function page_header(string $title, array $user = null): void {
 				.nav-link{padding:6px 12px;border-radius:7px;font-size:.83rem;font-weight:500;color:#9ca3af;text-decoration:none;white-space:nowrap;transition:all .15s;flex-shrink:0;user-select:none}
 				.nav-link:hover{background:#1f2937;color:#f9fafb}
 				.nav-link.active{background:#2563eb;color:#fff}
-				.nav-user{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;margin-left:auto}
-				.nav-mobile-user{display:none}
-				.nav-credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:12px;flex-shrink:0}
-				.nav-tier-badge{background:#1e293b;border:1px solid #334155;color:#fbbf24;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0}
-				.nav-email{font-size:.78rem;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
-				.nav-logout{font-size:.78rem;color:#9ca3af;text-decoration:none;padding:4px 8px;border-radius:6px;border:1px solid #374151;flex-shrink:0}
-				.nav-logout:hover{background:#1f2937;color:#f9fafb;border-color:#4b5563}
-				.nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px;flex-shrink:0}
+					.nav-chips-bar{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;margin-left:auto}
+					.nav-mode-pill{font-size:.74rem;font-weight:700;padding:3px 9px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:all .2s;flex-shrink:0}
+					.nav-mode-pill:hover{filter:brightness(1.25);transform:translateY(-1px)}
+					.nav-mobile-user{display:none}
+					.nav-credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:12px;flex-shrink:0}
+					.nav-tier-badge{background:#1e293b;border:1px solid #334155;color:#fbbf24;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0}
+					.nav-email{font-size:.78rem;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+					.nav-logout{font-size:.78rem;color:#9ca3af;text-decoration:none;padding:4px 8px;border-radius:6px;border:1px solid #374151;flex-shrink:0}
+					.nav-logout:hover{background:#1f2937;color:#f9fafb;border-color:#4b5563}
+					.nav-toggle{display:none;background:none;border:none;color:#9ca3af;font-size:1.4rem;cursor:pointer;padding:4px 8px;flex-shrink:0}
 
-				@media(max-width:880px){
-				    .nav-links-wrapper{position:static;margin:0;flex:none}
-				    .nav-arrow-btn{display:none !important}
-				    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;width:100%;box-sizing:border-box;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);cursor:default;z-index:99}
-				    .nav-links.open{display:flex}
-				    .nav-link{padding:10px 14px;font-size:.9rem;width:100%}
-				    .nav-user{display:none}
-				    .nav-toggle{display:block;margin-left:auto}
-				    .nav-mobile-user{display:flex;flex-direction:column;gap:10px;padding-top:12px;margin-top:8px;border-top:1px solid #1f2937}
-				    .nav-mobile-info{display:flex;gap:8px;align-items:center}
-				    .nav-mobile-account{display:flex;justify-content:space-between;align-items:center;gap:8px}
-				    .nav-email-mobile{font-size:.82rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-				}
+					@media(max-width:880px){
+					    .nav-links-wrapper{position:static;margin:0;flex:none}
+					    .nav-arrow-btn{display:none !important}
+					    .nav-links{display:none;position:absolute;top:56px;left:0;right:0;width:100%;box-sizing:border-box;background:#111827;border-bottom:1px solid #1f2937;flex-direction:column;padding:12px 16px;gap:6px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);cursor:default;z-index:99}
+					    .nav-links.open{display:flex}
+					    .nav-link{padding:10px 14px;font-size:.9rem;width:100%}
+					    .nav-desktop-only{display:none !important}
+					    .nav-toggle{display:block;margin-left:4px}
+					    .nav-mobile-user{display:flex;flex-direction:column;gap:10px;padding-top:12px;margin-top:8px;border-top:1px solid #1f2937}
+					    .nav-mobile-info{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+					    .nav-mobile-account{display:flex;justify-content:space-between;align-items:center;gap:8px}
+					    .nav-email-mobile{font-size:.82rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+					    .nav-cr-lbl{display:none}
+					}
 
 /* Layout */
 .container{max-width:960px;margin:0 auto;padding:24px 16px;overflow-x:hidden}

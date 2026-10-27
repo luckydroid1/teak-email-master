@@ -247,12 +247,12 @@ function resend_verification_email(string $email): array {
     return ['ok' => true];
 }
 
-/** Verify token from email link. */
-function verify_email_token(string $token): bool {
-    $st = db()->prepare('SELECT id FROM ia_users WHERE verify_token = ? AND status = \'pending\'');
+/** Verify token from email link. Returns user array on success or null. */
+function verify_email_token(string $token): ?array {
+    $st = db()->prepare('SELECT * FROM ia_users WHERE verify_token = ? AND status = \'pending\'');
     $st->execute([$token]);
     $u = $st->fetch();
-    if (!$u) return false;
+    if (!$u) return null;
     $uid = (int)$u['id'];
     db()->prepare("UPDATE ia_users SET status='active', verify_token=NULL, verified_at=NOW() WHERE id = ?")
         ->execute([$uid]);
@@ -264,7 +264,19 @@ function verify_email_token(string $token): bool {
         credit_mutate($uid, 5, 'signup_bonus', 'free_trial_5x');
     }
 
-    return true;
+    $u['status'] = 'active';
+    return $u;
+}
+
+/** Get active UI mode: 'simple' (default for beginners) or 'advanced' (developer/power user). */
+function current_ui_mode(): string {
+    start_session();
+    if (isset($_GET['set_ui_mode']) && in_array($_GET['set_ui_mode'], ['simple', 'advanced'], true)) {
+        $mode = $_GET['set_ui_mode'];
+        $_SESSION['teak_ui_mode'] = $mode;
+        setcookie('teak_ui_mode', $mode, time() + (86400 * 365), '/', '', false, false);
+    }
+    return $_SESSION['teak_ui_mode'] ?? $_COOKIE['teak_ui_mode'] ?? 'simple';
 }
 
 function logout(): void {

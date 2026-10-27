@@ -420,15 +420,21 @@ function filterMessages() {
 <?php if ($read_raw === null): ?>
 let timeLeft = 5;
 const timerEl = document.getElementById('sync-timer');
-let countdownInterval = setInterval(() => {
+const countdownInterval = setInterval(() => {
   timeLeft--;
   if (timerEl) timerEl.textContent = timeLeft + 's';
   if (timeLeft <= 0) {
-    if (!document.hidden) {
-      location.reload();
-    } else {
-      timeLeft = 5;
-    }
+    timeLeft = 5;
+    if (document.hidden) return;
+    // Silent background AJAX check — no white screen flash, preserves scroll
+    fetch('/unified.php?ajax=1', { headers: { 'Accept': 'application/json' } })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok && data.count > (typeof lastKnownCount !== 'undefined' ? lastKnownCount : data.count)) {
+          location.reload();
+        }
+      })
+      .catch(() => {});
   }
 }, 1000);
 <?php endif; ?>

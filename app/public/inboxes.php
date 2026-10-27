@@ -121,7 +121,7 @@ if ($new_email):
       <span style="font-size:.78rem;color:#94a3b8">Slots: <strong style="color:#f8fafc"><?= count($inboxes) ?> / <?= $max_slots ?></strong></span>
     </div>
 
-    <?php if (!$has_redeemed): ?>
+    <?php if (false): ?>
       <div style="background:#1c1917;border:1px solid #78350f;padding:14px;border-radius:8px;margin-bottom:12px">
         <p style="color:#fbbf24;font-size:.85rem;margin:0 0 8px"><strong>AppSumo Code Required:</strong> Redeem your license code to activate your inbox slots.</p>
         <a href="/redeem.php" class="btn btn-sm" style="background:#d97706">Redeem Code Now →</a>

@@ -1,6 +1,7 @@
 <?php
 /**
  * dashboard.php — Modern Account Overview & Quick Actions.
+ * Supports Simple Mode (Beginner Friendly) & Advanced Mode (Power User).
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../src/db.php';
@@ -8,6 +9,7 @@ require_once __DIR__ . '/../src/auth.php';
 require_once __DIR__ . '/../src/credits.php';
 require_once __DIR__ . '/../src/inbox.php';
 require_once __DIR__ . '/../src/redeem.php';
+require_once __DIR__ . '/../src/unified.php';
 
 $user = require_login();
 $uid = (int)$user['id'];
@@ -18,6 +20,9 @@ $tier_info = tier_info($tier);
 $max_slots = $tier_info ? $tier_info['inbox_slots'] : 1;
 $used_slots = count($inboxes);
 $eligible = inbox_eligible_domains($uid);
+
+$ui_mode = current_ui_mode();
+$is_advanced = ($ui_mode === 'advanced');
 
 $tier_plan_details = [
     0 => ['name' => 'Free Sandbox', 'sub' => 'Developer Sandbox (5x Trial)'],
@@ -42,29 +47,24 @@ $redeemed->execute([$uid]);
 $redemptions = $redeemed->fetchAll();
 $has_redeemed = count($redemptions) > 0 || (int)$user['is_admin'] === 1;
 
-// Handle Quick Inbox Creation directly from Dashboard
+// Handle Quick Inbox Creation
 $quick_error = '';
 $quick_success = '';
 $new_quick_email = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_create_inbox'])) {
     if (!csrf_validate()) {
-        $quick_error = 'Session expired or invalid submission. Please try again.';
+        $quick_error = 'Session expired. Please try again.';
     } else {
         $dom = strtolower(trim($_POST['domain'] ?? ''));
-        // If domain omitted or incomplete, match against eligible domains
         if ($dom === '' && !empty($eligible['all'])) {
             $dom = $eligible['all'][0];
-        } elseif (!str_contains($dom, '.')) {
-            foreach ($eligible['all'] as $ed) {
-                if (str_starts_with($ed, $dom . '.')) {
-                    $dom = $ed;
-                    break;
-                }
-            }
         }
         $prefix = trim($_POST['local_part'] ?? '');
         if (empty($prefix)) {
-            $prefix = 'agent-' . substr(bin2hex(random_bytes(4)), 0, 7);
+            $u_prefix = explode('@', $user['email'])[0];
+            $clean_u = preg_replace('/[^a-z0-9]/', '', strtolower($u_prefix));
+            if (strlen($clean_u) < 3) $clean_u = 'user';
+            $prefix = substr($clean_u, 0, 8) . '-' . substr(bin2hex(random_bytes(3)), 0, 4);
         }
         $res = inbox_create($uid, $dom, $prefix, $tier);
         if (isset($res['ok']) && $res['ok']) {
@@ -79,44 +79,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_create_inbox'])
     }
 }
 
+// Fetch recent messages for instant OTP feed
+$recent_messages = [];
+try {
+    $recent_messages = fetch_unified_inbox($uid, 3, 5);
+} catch (Throwable $e) {}
+
+$first_inbox = !empty($inboxes) ? $inboxes[0] : null;
+
 require_once __DIR__ . '/_layout.php';
 page_header('Dashboard', $user);
 ?>
 
 <style>
-/* Dashboard Specific Modern Styles */
+/* Dashboard Styling */
 .dash-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 .dash-title h1 {
-  font-size: 1.65rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: #f8fafc;
   letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .dash-title p {
   color: #94a3b8;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   margin: 0;
 }
 
+/* Hero Mailbox Card (Simple Mode) */
+.hero-mailbox-card {
+  background: linear-gradient(135deg, #0b1329 0%, #171b38 100%);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+.hero-email-box {
+  background: #060b18;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.hero-email-text {
+  font-family: monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #38bdf8;
+  word-break: break-all;
+}
+
+/* OTP Stream Box */
+.otp-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.otp-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  background: #0a0e1a;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.otp-item:hover {
+  border-color: #38bdf8;
+}
+.otp-badge {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #fff;
+  background: #064e3b;
+  padding: 3px 12px;
+  border-radius: 6px;
+  border: 1px solid #059669;
+}
+
+/* Stat Cards (Advanced Mode) */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 .stat-card {
   background: #111827;
   border: 1px solid #1f2937;
   border-radius: 12px;
-  padding: 18px 20px;
+  padding: 16px 18px;
   position: relative;
   overflow: hidden;
   transition: transform 0.15s, border-color 0.15s;
@@ -127,277 +199,275 @@ page_header('Dashboard', $user);
 }
 .stat-card .stat-icon {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: 1.3rem;
+  top: 14px;
+  right: 14px;
+  font-size: 1.2rem;
   opacity: 0.8;
 }
 .stat-card .stat-val {
-  font-size: 1.7rem;
+  font-size: 1.55rem;
   font-weight: 800;
   line-height: 1.2;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .stat-card .stat-lbl {
   color: #94a3b8;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.quick-box {
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  border: 1px solid rgba(139, 92, 246, 0.35);
-  border-radius: 14px;
-  padding: 20px 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-}
-
-.quick-form-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.inbox-table-card {
-  background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 24px;
-}
-.inbox-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 14px 16px;
-  background: #0a0e1a;
-  border: 1px solid #1f2937;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  transition: all 0.15s;
-}
-.inbox-row:hover {
-  border-color: #3b82f6;
-  background: #0c1322;
-}
-
 @media(max-width: 900px) {
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media(max-width: 680px) {
-  .quick-box { padding: 16px; }
-  .quick-form-grid { grid-template-columns: 1fr; gap: 10px; }
-  .stat-grid { grid-template-columns: 1fr; gap: 12px; }
-  .inbox-row { flex-direction: column; align-items: flex-start; }
-  .inbox-actions { width: 100%; justify-content: flex-start; }
+@media(max-width: 640px) {
+  .hero-mailbox-card { padding: 16px; }
+  .hero-email-box { flex-direction: column; align-items: flex-start; }
+  .hero-email-actions { width: 100%; display: flex; gap: 8px; }
+  .hero-email-actions .btn { flex: 1; }
+  .otp-item { flex-direction: column; align-items: flex-start; }
+  .stat-grid { grid-template-columns: 1fr; gap: 10px; }
 }
 </style>
 
 <div class="dash-header">
   <div class="dash-title">
-    <h1>Welcome back, <?= htmlspecialchars(explode('@', $user['email'])[0]) ?></h1>
-    <p>Manage your active inboxes, OTP extractions, and AI MCP automations.</p>
+    <h1>Welcome, <?= htmlspecialchars(explode('@', $user['email'])[0]) ?> 👋</h1>
+    <p><?= $is_advanced ? 'Developer Control Center & System Metrics' : 'Your private inboxes and instant OTP codes' ?></p>
   </div>
-  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <a href="/unified.php" class="btn" style="background:#8b5cf6;font-size:0.85rem">Unified Inbox Stream</a>
-    <a href="/inbox_view.php?email=<?= !empty($inboxes) ? urlencode($inboxes[0]['email_address']) : '' ?>" class="btn" style="background:#10b981;font-size:0.85rem">Live OTP Viewer</a>
-    <a href="/send.php" class="btn btn-ghost" style="font-size:0.85rem">Send Email</a>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <?php if ($is_advanced): ?>
+      <a href="/unified.php" class="btn btn-sm" style="background:#8b5cf6">Unified Stream</a>
+      <a href="/domains.php" class="btn btn-sm btn-ghost">Domains</a>
+      <a href="/api_keys.php" class="btn btn-sm btn-ghost">API Keys</a>
+    <?php else: ?>
+      <a href="/send.php" class="btn btn-sm" style="background:#2563eb">✉️ Send Email</a>
+      <a href="/pricing.php" class="btn btn-sm btn-ghost" style="border-color:#38bdf8;color:#38bdf8">💎 Upgrade</a>
+    <?php endif; ?>
   </div>
 </div>
 
-	<?php if ($quick_error): ?>
-	  <div class="alert alert-e" style="margin-bottom:20px"><?= htmlspecialchars($quick_error) ?></div>
-	<?php endif; ?>
-	<?php if ($quick_success): ?>
-	  <div class="alert alert-s" style="margin-bottom:20px"><?= $quick_success ?></div>
-	<?php endif; ?>
+<?php if ($quick_error): ?>
+  <div class="alert alert-e" style="margin-bottom:16px"><?= htmlspecialchars($quick_error) ?></div>
+<?php endif; ?>
+<?php if ($quick_success): ?>
+  <div class="alert alert-s" style="margin-bottom:16px"><?= $quick_success ?></div>
+<?php endif; ?>
 
-		<?php if ($tier === 0): ?>
-		  <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 18px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-		    <div>
-		      <div style="font-weight:700;color:#34d399;font-size:0.95rem;margin-bottom:2px">🌱 Free Sandbox Account (Active)</div>
-		      <div style="font-size:0.83rem;color:#cbd5e1">You have <strong>1 active inbox slot</strong> and <strong>5 trial operations</strong>. Upgrade anytime to unlock 3,000 credits and custom domains.</div>
-		    </div>
-		    <a href="/pricing.php" class="btn btn-primary" style="font-size:0.82rem;padding:8px 16px">Upgrade Plan ($1/mo) →</a>
-		  </div>
-		<?php elseif (!$has_redeemed && (int)$user['is_admin'] !== 1 && $balance === 0): ?>
-		  <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12) 0%,rgba(147,51,234,0.12) 100%);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-		    <div>
-		      <div style="font-weight:700;color:#f8fafc;font-size:0.95rem;margin-bottom:2px">🚀 Ready to start creating inboxes & extracting OTPs?</div>
-		      <div style="font-size:0.82rem;color:#cbd5e1">Choose a plan starting at $1/mo or redeem a license key to unlock inboxes and non-expiring credits.</div>
-		    </div>
-		    <div style="display:flex;gap:8px;flex-wrap:wrap">
-		      <a href="/pricing.php" class="btn btn-primary" style="font-size:0.82rem;padding:8px 16px">View Pricing & Plans →</a>
-		      <a href="/redeem.php" class="btn btn-ghost" style="font-size:0.82rem;padding:8px 14px">Redeem Key</a>
-		    </div>
-		  </div>
-		<?php endif; ?>
-
-			<!-- 4 Key Stat Cards -->
-			<div class="stat-grid">
-			  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='<?= $is_admin ? '/admin/index.php' : '/pricing.php' ?>'">
-			    <div class="stat-icon" style="color:#60a5fa">
-			      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-			    </div>
-			    <div class="stat-val" style="color:#60a5fa"><?= $is_admin ? '∞' : number_format($balance) ?></div>
-			    <div class="stat-lbl">Credits Available</div>
-			    <?php if ($is_admin): ?>
-			      <a href="/admin/index.php" style="font-size:0.72rem;color:#f59e0b;margin-top:4px;display:inline-block;text-decoration:none;font-weight:600">Admin Bypass Active →</a>
-			    <?php else: ?>
-			      <a href="/pricing.php" style="font-size:0.72rem;color:#38bdf8;margin-top:4px;display:inline-block;text-decoration:none;font-weight:600">+ Top Up / Buy Credits →</a>
-			    <?php endif; ?>
-			  </div>
-
-			  <div class="stat-card">
-			    <div class="stat-icon" style="color:#a78bfa">
-			      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
-			    </div>
-			    <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $is_admin ? '∞' : $max_slots ?></span></div>
-			    <div class="stat-lbl">Inbox Slots Used</div>
-			    <?php if ($is_admin): ?>
-			      <div style="font-size:0.68rem;color:#a78bfa;margin-top:2px">Unlimited Admin Allocation</div>
-			    <?php elseif ($used_slots >= $max_slots): ?>
-			      <a href="/pricing.php" style="font-size:0.7rem;color:#f59e0b;font-weight:700;text-decoration:none;display:inline-block;margin-top:2px">Slots Full · Upgrade Plan →</a>
-			    <?php else: ?>
-			      <div style="font-size:0.68rem;color:#64748b;margin-top:2px"><?= $max_slots - $used_slots ?> slots remaining</div>
-			    <?php endif; ?>
-			  </div>
-
-			  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='<?= $current_plan['url'] ?>'">
-			    <div class="stat-icon" style="color:<?= $is_admin ? '#f59e0b' : ($tier === 0 ? '#34d399' : '#fbbf24') ?>">
-			      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-			    </div>
-			    <div class="stat-val" style="font-size:1.35rem;color:<?= $is_admin ? '#f59e0b' : ($tier === 0 ? '#34d399' : '#fbbf24') ?>"><?= htmlspecialchars($current_plan['name']) ?></div>
-			    <div class="stat-lbl"><?= htmlspecialchars($current_plan['sub']) ?></div>
-			    <a href="<?= $current_plan['url'] ?>" style="font-size:0.68rem;color:<?= $is_admin ? '#f59e0b' : '#38bdf8' ?>;margin-top:2px;display:inline-block;text-decoration:none"><?= htmlspecialchars($current_plan['action']) ?></a>
-			  </div>
-
-	  <div class="stat-card">
-	    <div class="stat-icon" style="color:#34d399">
-	      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-	    </div>
-	    <div class="stat-val" style="color:#34d399"><?= (int)($tier_info['retention_days'] ?? 30) ?>d</div>
-	    <div class="stat-lbl">Email Retention</div>
-	    <div style="font-size:0.68rem;color:#64748b;margin-top:2px">Auto-purged after expiry</div>
-	  </div>
-	</div>
-
-<!-- 1-Click Quick Inbox Creator -->
-<div class="quick-box">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+<!-- Free Trial Status Banner -->
+<?php if ($tier === 0): ?>
+  <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
     <div>
-      <h3 style="margin:0;font-size:1.05rem;color:#c4b5fd;display:flex;align-items:center;gap:8px">
-        <span>Quick Create Inbox</span>
-        <span style="font-size:0.75rem;padding:2px 8px;border-radius:12px;background:rgba(139,92,246,0.25);color:#ddd6fe;font-weight:600">Instant Activation</span>
-      </h3>
-      <p style="margin:4px 0 0;font-size:0.82rem;color:#cbd5e1">Generate a clean, disposable or permanent email address ready to receive OTPs in seconds.</p>
+      <div style="font-weight:700;color:#34d399;font-size:0.92rem">🌱 Free Sandbox Account Active</div>
+      <div style="font-size:0.8rem;color:#cbd5e1">You have <strong><?= number_format($balance) ?> trial operations</strong> remaining. Upgrade to $1/mo for 3,000 credits & custom domains.</div>
     </div>
-    <button type="button" onclick="randomizePrefix()" class="btn btn-sm btn-ghost" style="color:#ddd6fe;border-color:rgba(139,92,246,0.4)">Randomize Name</button>
+    <a href="/pricing.php" class="btn btn-sm btn-success" style="padding:6px 14px">Upgrade Plan ($1/mo) →</a>
+  </div>
+<?php endif; ?>
+
+<?php if (!$is_advanced): ?>
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <!-- SIMPLE MODE (NEWBIE / CLEAN INTERFACE)                            -->
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+
+  <!-- Hero: Primary Active Mailbox -->
+  <div class="hero-mailbox-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <span style="font-size:0.75rem;padding:2px 8px;border-radius:10px;background:rgba(56,189,248,0.2);color:#7dd3fc;font-weight:700">PRIMARY INBOX</span>
+        <h2 style="margin:4px 0 0;font-size:1.15rem;color:#f8fafc">Ready to Receive Verification Codes</h2>
+      </div>
+      <div style="font-size:0.8rem;color:#94a3b8">
+        Active inboxes: <strong style="color:#f8fafc"><?= count($inboxes) ?> / <?= $is_admin ? '∞' : $max_slots ?></strong>
+      </div>
+    </div>
+
+    <?php if ($first_inbox): ?>
+      <div class="hero-email-box">
+        <div class="hero-email-text"><?= htmlspecialchars($first_inbox['email_address']) ?></div>
+        <div class="hero-email-actions">
+          <button type="button" class="btn btn-sm btn-success" onclick="copyToClipboard('<?= htmlspecialchars($first_inbox['email_address']) ?>', this)">
+            📋 Copy Email
+          </button>
+          <a href="/inbox_view.php?email=<?= urlencode($first_inbox['email_address']) ?>" class="btn btn-sm" style="background:#2563eb">
+            Open Messages ✉️
+          </a>
+        </div>
+      </div>
+    <?php else: ?>
+      <div style="text-align:center;padding:20px;background:#060b18;border-radius:10px;margin:12px 0">
+        <p style="color:#94a3b8;margin-bottom:10px">You don't have an active inbox yet.</p>
+        <form method="post" style="display:inline">
+          <?php csrf_field(); ?>
+          <input type="hidden" name="quick_create_inbox" value="1">
+          <button type="submit" class="btn btn-success">⚡ Generate My Inbox Now</button>
+        </form>
+      </div>
+    <?php endif; ?>
+
+    <!-- Quick 1-Click Additional Inbox Creation (if quota allows) -->
+    <?php if ($used_slots < $max_slots || $is_admin): ?>
+      <form method="post" style="margin:10px 0 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <?php csrf_field(); ?>
+        <input type="hidden" name="quick_create_inbox" value="1">
+        <input type="text" name="local_part" placeholder="Custom name (e.g. test-bot) or leave blank for auto" style="max-width:320px;margin:0;padding:7px 12px;font-size:0.85rem">
+        <button type="submit" class="btn btn-sm btn-ghost" style="border-color:#38bdf8;color:#38bdf8;padding:7px 14px">
+          + Create Another Inbox
+        </button>
+      </form>
+    <?php endif; ?>
   </div>
 
-  <form method="POST" action="/dashboard.php" style="margin:0">
-    <?php csrf_field(); ?>
-    <input type="hidden" name="quick_create_inbox" value="1">
-
-    <div class="quick-form-grid">
+  <!-- Recent Inbound Messages & Instant OTP Codes -->
+  <div class="otp-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <div>
-        <input type="text" id="quick_local_part" name="local_part" placeholder="e.g. auth-bot-01 (or blank for random)" pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]?" style="margin:0;background:#060a12;border-color:#334155;width:100%" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')">
+        <h2 style="margin:0;font-size:1.05rem;color:#f8fafc">⚡ Recent Verification Codes & Messages</h2>
+        <p style="margin:2px 0 0;font-size:0.8rem;color:#94a3b8">Codes detected automatically sub-50ms.</p>
       </div>
-      <div>
-        <select name="domain" style="margin:0;background:#060a12;border-color:#334155;width:100%" required>
+      <?php if (!empty($inboxes)): ?>
+        <a href="/inbox_view.php?email=<?= urlencode($first_inbox['email_address']) ?>" style="font-size:0.8rem;color:#38bdf8;text-decoration:none">View All Messages →</a>
+      <?php endif; ?>
+    </div>
+
+    <?php if (empty($recent_messages)): ?>
+      <div style="text-align:center;padding:28px 16px;background:#0a0e1a;border-radius:10px;border:1px dashed #1f2937">
+        <div style="font-size:1.4rem;margin-bottom:6px">📬</div>
+        <p style="color:#94a3b8;font-size:0.88rem;margin:0">No messages received yet.</p>
+        <p style="color:#64748b;font-size:0.78rem;margin:4px 0 0">Copy your email address above and use it to register on apps or request a verification code.</p>
+      </div>
+    <?php else: ?>
+      <?php foreach ($recent_messages as $m): ?>
+        <div class="otp-item">
+          <div style="flex:1;min-width:180px">
+            <div style="font-size:0.88rem;font-weight:700;color:#f8fafc"><?= htmlspecialchars($m['subject']) ?></div>
+            <div style="font-size:0.78rem;color:#94a3b8;margin-top:2px">
+              From: <strong style="color:#cbd5e1"><?= htmlspecialchars($m['from']) ?></strong> · To: <?= htmlspecialchars($m['inbox_email']) ?>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <?php if (!empty($m['otp_code'])): ?>
+              <div class="otp-badge"><?= htmlspecialchars($m['otp_code']) ?></div>
+              <button type="button" class="btn btn-sm btn-success" onclick="copyToClipboard('<?= htmlspecialchars($m['otp_code']) ?>', this)">
+                📋 Copy
+              </button>
+            <?php endif; ?>
+            <a href="/inbox_view.php?email=<?= urlencode($m['inbox_email']) ?>&msg_id=<?= (int)$m['uid'] ?>" class="btn btn-sm btn-ghost" style="border-color:#374151">
+              Read →
+            </a>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  </div>
+
+  <!-- All Inboxes Accordion (if user has multiple) -->
+  <?php if (count($inboxes) > 1): ?>
+    <div class="card" style="padding:16px 20px">
+      <h3 style="margin:0 0 10px;font-size:0.95rem;color:#f8fafc">All Your Active Inboxes (<?= count($inboxes) ?>)</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:8px">
+        <?php foreach ($inboxes as $in): ?>
+          <div style="background:#0a0e1a;border:1px solid #1f2937;border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:monospace;font-size:0.88rem;color:#e2e8f0"><?= htmlspecialchars($in['email_address']) ?></span>
+            <div style="display:flex;gap:4px">
+              <button type="button" class="btn btn-sm btn-ghost" style="padding:4px 8px;font-size:0.75rem" onclick="copyToClipboard('<?= htmlspecialchars($in['email_address']) ?>', this)">Copy</button>
+              <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn btn-sm btn-ghost" style="padding:4px 8px;font-size:0.75rem">Open</a>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  <?php endif; ?>
+
+<?php else: ?>
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <!-- ADVANCED MODE (DEVELOPER & POWER USER TOOLS)                      -->
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+
+  <!-- 4 Key Stat Cards -->
+  <div class="stat-grid">
+    <div class="stat-card" style="cursor:pointer" onclick="window.location.href='<?= $is_admin ? '/admin/index.php' : '/pricing.php' ?>'">
+      <div class="stat-icon" style="color:#60a5fa">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      </div>
+      <div class="stat-val" style="color:#60a5fa"><?= $is_admin ? '∞' : number_format($balance) ?></div>
+      <div class="stat-lbl">Credits Available</div>
+      <a href="<?= $is_admin ? '/admin/index.php' : '/pricing.php' ?>" style="font-size:0.72rem;color:<?= $is_admin ? '#f59e0b' : '#38bdf8' ?>;margin-top:4px;display:inline-block;text-decoration:none;font-weight:600">
+        <?= $is_admin ? 'Admin Bypass Active →' : '+ Top Up Credits →' ?>
+      </a>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="color:#a78bfa">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+      </div>
+      <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $is_admin ? '∞' : $max_slots ?></span></div>
+      <div class="stat-lbl">Inbox Slots Used</div>
+      <div style="font-size:0.68rem;color:#64748b;margin-top:2px"><?= $is_admin ? 'Unlimited Allocation' : ($max_slots - $used_slots) . ' slots remaining' ?></div>
+    </div>
+
+    <div class="stat-card" style="cursor:pointer" onclick="window.location.href='<?= $current_plan['url'] ?>'">
+      <div class="stat-icon" style="color:<?= $is_admin ? '#f59e0b' : ($tier === 0 ? '#34d399' : '#fbbf24') ?>">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </div>
+      <div class="stat-val" style="font-size:1.35rem;color:<?= $is_admin ? '#f59e0b' : ($tier === 0 ? '#34d399' : '#fbbf24') ?>"><?= htmlspecialchars($current_plan['name']) ?></div>
+      <div class="stat-lbl"><?= htmlspecialchars($current_plan['sub']) ?></div>
+      <a href="<?= $current_plan['url'] ?>" style="font-size:0.68rem;color:<?= $is_admin ? '#f59e0b' : '#38bdf8' ?>;margin-top:2px;display:inline-block;text-decoration:none"><?= htmlspecialchars($current_plan['action']) ?></a>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="color:#34d399">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      </div>
+      <div class="stat-val" style="color:#34d399"><?= (int)($tier_info['retention_days'] ?? 30) ?>d</div>
+      <div class="stat-lbl">Email Retention</div>
+      <div style="font-size:0.68rem;color:#64748b;margin-top:2px">Auto-purged after expiry</div>
+    </div>
+  </div>
+
+  <!-- Full Quick Creator (with Domain Selector) -->
+  <div class="card" style="background:#0f172a;border-color:#334155;margin-bottom:20px">
+    <h3 style="margin:0 0 8px;font-size:1.05rem;color:#f8fafc">Create Inbox with Specific Domain</h3>
+    <form method="post" style="margin:0">
+      <?php csrf_field(); ?>
+      <input type="hidden" name="quick_create_inbox" value="1">
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center">
+        <input type="text" name="local_part" placeholder="username / agent-id" style="margin:0">
+        <select name="domain" style="margin:0" required>
           <?php if (!empty($eligible['pool'])): ?>
-            <optgroup label="Shared Domain Pool">
+            <optgroup label="Shared Domains">
               <?php foreach ($eligible['pool'] as $d): ?>
                 <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
               <?php endforeach; ?>
             </optgroup>
           <?php endif; ?>
           <?php if (!empty($eligible['custom'])): ?>
-            <optgroup label="Your Custom Domains">
+            <optgroup label="Custom Domains">
               <?php foreach ($eligible['custom'] as $d): ?>
                 <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
               <?php endforeach; ?>
             </optgroup>
           <?php endif; ?>
         </select>
+        <button type="submit" class="btn btn-primary" style="white-space:nowrap">Create Mailbox</button>
       </div>
-      <div>
-        <button type="submit" class="btn" style="background:#8b5cf6;white-space:nowrap;width:100%">Create Inbox</button>
-      </div>
-    </div>
-  </form>
-</div>
-
-<!-- Active Inboxes List -->
-<div class="inbox-table-card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-    <div>
-      <h2 style="margin:0;font-size:1.15rem;color:#f8fafc">Active Inboxes (<?= count($inboxes) ?>)</h2>
-      <p style="margin:2px 0 0;font-size:0.8rem;color:#94a3b8">Click "View Messages" to monitor incoming emails and real-time OTP codes.</p>
-    </div>
-    <div style="display:flex;gap:8px">
-      <a href="/inboxes.php" class="btn btn-sm btn-ghost">+ Advanced Settings</a>
-    </div>
+    </form>
   </div>
 
-  <?php if (empty($inboxes)): ?>
-    <div style="text-align:center;padding:40px 16px;background:#0a0e1a;border-radius:10px;border:1px dashed #334155">
-      <h3 style="margin:0 0 6px;color:#f1f5f9">No Inboxes Active</h3>
-      <p style="color:#94a3b8;font-size:0.85rem;max-width:400px;margin:0 auto 14px">Use the Quick Creator above to generate your first mailbox.</p>
+  <!-- Advanced Developer Cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card" style="border-left:4px solid #8b5cf6">
+      <h3 style="margin:0 0 6px">AI Agent & MCP Quickstart</h3>
+      <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:10px">Connect Claude Desktop, Cursor, or autonomous agent bots via MCP tool server.</p>
+      <a href="/api_keys.php" class="btn btn-sm btn-ghost" style="border-color:#8b5cf6;color:#c4b5fd">View API Keys & MCP Config →</a>
     </div>
-  <?php else: ?>
-    <?php foreach ($inboxes as $in): ?>
-      <div class="inbox-row">
-        <div style="flex:1;min-width:200px">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-family:monospace;font-size:0.95rem;font-weight:700;color:#f8fafc"><?= htmlspecialchars($in['email_address']) ?></span>
-            <button type="button" class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?>', this)">Copy</button>
-          </div>
-          <div style="font-size:0.76rem;color:#64748b;margin-top:4px">
-            <?= (int)$in['retention_days'] ?>d Retention · Ready for OTP extraction
-          </div>
-        </div>
-
-        <div class="inbox-actions" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-          <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-success" style="padding:6px 14px;font-weight:600">View Messages</a>
-          <a href="/expenses.php?inbox=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" title="Extract Receipts & Invoices" style="border-color:#334155">Receipts</a>
-          <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" style="border-color:#334155">Send</a>
-        </div>
-      </div>
-    <?php endforeach; ?>
-  <?php endif; ?>
-</div>
-
-<!-- Quick Integrations Banner -->
-<div class="grid2">
-  <div class="card" style="border-left:4px solid #8b5cf6">
-    <div style="font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#f8fafc">AI Agent &amp; MCP Integration</div>
-    <p class="sub">Equip Claude Desktop, Cursor, or your autonomous LLM with email retrieval and OTP extraction tools.</p>
-    <a href="/mcp_setup.php" class="btn btn-sm" style="background:#1e293b;border:1px solid #334155;color:#f8fafc">Setup MCP Server →</a>
+    <div class="card" style="border-left:4px solid #38bdf8">
+      <h3 style="margin:0 0 6px">Custom Domain Mapping</h3>
+      <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:10px">Connect your corporate or brand domain with automated DKIM, SPF, and MX verification.</p>
+      <a href="/domains.php" class="btn btn-sm btn-ghost" style="border-color:#38bdf8;color:#38bdf8">Manage Domains →</a>
+    </div>
   </div>
-
-  <div class="card" style="border-left:4px solid #3b82f6">
-    <div style="font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#f8fafc">Custom Brand Domains</div>
-    <p class="sub">Attach your personal domain names to receive incoming business emails with full SPF/DKIM verification.</p>
-    <a href="/domains.php" class="btn btn-sm" style="background:#1e293b;border:1px solid #334155;color:#f8fafc">Manage Domains →</a>
-  </div>
-</div>
-
-<script>
-function randomizePrefix() {
-  const adjectives = ['alpha', 'bravo', 'turbo', 'swift', 'agent', 'auth', 'verify', 'matrix', 'bot', 'nexus'];
-  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-  const num = Math.floor(1000 + Math.random() * 9000);
-  const input = document.getElementById('quick_local_part');
-  if (input) {
-    input.value = adj + '-' + num;
-  }
-}
-</script>
+<?php endif; ?>
 
 <?php page_footer(); ?>
