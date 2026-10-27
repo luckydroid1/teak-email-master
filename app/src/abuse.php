@@ -27,7 +27,11 @@ function trust_limits(int $uid): array {
     $st = db()->prepare('SELECT trust_tier, created_at FROM ia_users WHERE id = ?');
     $st->execute([$uid]);
     $u = $st->fetch();
-    $age_days = (int)floor((time() - strtotime($u['created_at'])) / 86400);
+    if (!$u) {
+        // Unknown user: safest minimal limits
+        return ['max_inboxes_per_hour' => 3, 'max_inboxes' => 1, 'max_api_per_hour' => 60];
+    }
+    $age_days = (int)floor((time() - strtotime($u['created_at'] ?? 'now')) / 86400);
     $tier = (int)$u['trust_tier'];
 
     // Trust increases gradually based on account age
@@ -40,13 +44,15 @@ function trust_limits(int $uid): array {
     }
 
     $map = [
+        // Tier 0 = new Free Sandbox accounts: tight throttle, same as tier 1
+        0 => ['max_inboxes_per_hour' => 3,  'max_inboxes' => 1,  'max_api_per_hour' => 30],
         1 => ['max_inboxes_per_hour' => 3,  'max_inboxes' => 5,  'max_api_per_hour' => 60],
         2 => ['max_inboxes_per_hour' => 5,  'max_inboxes' => 15, 'max_api_per_hour' => 120],
         3 => ['max_inboxes_per_hour' => 10, 'max_inboxes' => 999, 'max_api_per_hour' => 600],
         4 => ['max_inboxes_per_hour' => 20, 'max_inboxes' => 999, 'max_api_per_hour' => 1200],
         5 => ['max_inboxes_per_hour' => 50, 'max_inboxes' => 999, 'max_api_per_hour' => 3000],
     ];
-    return $map[$tier] ?? $map[3];
+    return $map[$tier] ?? $map[0];
 }
 
 /** Login lockout (5 fails → 5 min). Key: ip. Uses DB (no APCu dependency). */
