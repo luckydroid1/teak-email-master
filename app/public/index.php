@@ -550,8 +550,8 @@ a { color: inherit; text-decoration: none; }
 /* Pricing Ladder (Synced with Admin Settings & PayPal) */
 .pricing-ladder {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
   margin-bottom: 50px;
 }
 .pricing-card {
@@ -686,11 +686,14 @@ footer {
 }
 .footer-links a:hover { color: #f8fafc; }
 
-		/* Mobile Responsiveness */
-		@media (max-width: 1080px) {
-		  .pricing-ladder { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-		  .bento-grid { grid-template-columns: 1fr; }
-		}
+			/* Mobile Responsiveness */
+			@media (max-width: 1024px) {
+			  .pricing-ladder { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+			  .bento-grid { grid-template-columns: 1fr; }
+			}
+			@media (max-width: 680px) {
+			  .pricing-ladder { grid-template-columns: 1fr; gap: 16px; }
+			}
 		@media (max-width: 768px) {
 		  .hero { padding: 44px 0 32px; }
 		  .nav-menu { display: none; }

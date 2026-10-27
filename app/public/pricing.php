@@ -111,8 +111,8 @@ page_header('Plans & Upgrades', $user);
 
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
   margin-bottom: 36px;
 }
 
@@ -216,9 +216,13 @@ page_header('Plans & Upgrades', $user);
   margin: 0 auto 30px;
 }
 
+@media (max-width: 1024px) {
+  .plan-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+}
+
 @media (max-width: 640px) {
   .pricing-page-header h1 { font-size: 1.6rem; }
-  .plan-grid { grid-template-columns: 1fr; }
+  .plan-grid { grid-template-columns: 1fr; gap: 16px; }
 }
 </style>
 
