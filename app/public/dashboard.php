@@ -19,6 +19,16 @@ $max_slots = $tier_info ? $tier_info['inbox_slots'] : 1;
 $used_slots = count($inboxes);
 $eligible = inbox_eligible_domains($uid);
 
+$tier_plan_details = [
+    0 => ['name' => 'Free Sandbox', 'sub' => 'Developer Sandbox (5x Trial)'],
+    1 => ['name' => 'Tier 1 · Starter', 'sub' => 'Starter Plan (3 Inboxes)'],
+    2 => ['name' => 'Tier 2 · Pro Builder', 'sub' => 'Pro Builder Plan (25 Inboxes)'],
+    3 => ['name' => 'Tier 3 · Business', 'sub' => 'Business Plan (70 Inboxes)'],
+    4 => ['name' => 'Tier 4 · Scale', 'sub' => 'High-Volume Scale (125 Inboxes)'],
+    5 => ['name' => 'Tier 5 · Enterprise', 'sub' => 'Enterprise Plan (190 Inboxes)'],
+];
+$current_plan = $tier_plan_details[$tier] ?? ['name' => 'Tier ' . $tier, 'sub' => 'Active Plan'];
+
 $redeemed = db()->prepare('SELECT tier, redeemed_at FROM ia_codes WHERE redeemed_by = ?');
 $redeemed->execute([$uid]);
 $redemptions = $redeemed->fetchAll();
@@ -248,8 +258,8 @@ page_header('Dashboard', $user);
 		    <div class="stat-icon" style="color:<?= $tier === 0 ? '#34d399' : '#fbbf24' ?>">
 		      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
 		    </div>
-		    <div class="stat-val" style="color:<?= $tier === 0 ? '#34d399' : '#fbbf24' ?>"><?= $tier === 0 ? 'Free Sandbox' : 'Tier ' . $tier ?></div>
-		    <div class="stat-lbl"><?= $tier === 0 ? 'Trial Account (5x)' : 'Active Plan' ?></div>
+		    <div class="stat-val" style="font-size:1.35rem;color:<?= $tier === 0 ? '#34d399' : '#fbbf24' ?>"><?= htmlspecialchars($current_plan['name']) ?></div>
+		    <div class="stat-lbl"><?= htmlspecialchars($current_plan['sub']) ?></div>
 		    <a href="/pricing.php" style="font-size:0.68rem;color:#38bdf8;margin-top:2px;display:inline-block;text-decoration:none"><?= $tier === 0 ? 'Upgrade Plan →' : 'Change Plan →' ?></a>
 		  </div>
 
