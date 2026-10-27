@@ -22,7 +22,17 @@ function page_header(string $title, array $user = null): void {
             4 => ['badge' => 'T4 Scale', 'title' => 'Tier 4 / Scale Plan', 'style' => 'background:#1e293b;border-color:#334155;color:#fbbf24;'],
             5 => ['badge' => 'T5 Enterprise', 'title' => 'Tier 5 / Enterprise Plan', 'style' => 'background:#1e293b;border-color:#334155;color:#fbbf24;'],
         ];
-        $tb = $tier_badges[$tier] ?? ['badge' => 'Tier ' . $tier, 'title' => 'Tier ' . $tier, 'style' => ''];
+        if (!empty($user['is_admin'])) {
+            $tb = [
+                'badge' => 'Admin',
+                'title' => 'System Administrator (Root Access)',
+                'style' => 'background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4);color:#fbbf24;font-weight:700;',
+                'url'   => '/admin/index.php'
+            ];
+        } else {
+            $tb = $tier_badges[$tier] ?? ['badge' => 'Tier ' . $tier, 'title' => 'Tier ' . $tier, 'style' => ''];
+            $tb['url'] = '/pricing.php';
+        }
 
 		        $isDashboard = ($currentPage === 'dashboard.php');
 		        $isUnified = ($currentPage === 'unified.php');
@@ -57,24 +67,24 @@ function page_header(string $title, array $user = null): void {
 					                        <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">Upgrade / Plans</a>
 					                        ' . $adminLink . '
 					                        <div class="nav-mobile-user">
-							                            <div class="nav-mobile-info">
-							                                <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none" title="Buy Credits / Upgrade Plan">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits +</span></a>
-							                                <a href="/pricing.php" class="nav-tier-badge" style="text-decoration:none;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
-							                            </div>
-							                            <div class="nav-mobile-account">
-							                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-							                                <a href="/logout.php" class="nav-logout">Logout</a>
-							                            </div>
-							                        </div>
-							                    </div>
-							                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
-							                </div>
-							                <div class="nav-user">
-							                    <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none;cursor:pointer" title="Click to Top Up / Buy Credits">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span> <span style="color:#38bdf8;font-weight:bold">+</span></a>
-							                    <a href="/pricing.php" class="nav-tier-badge" style="text-decoration:none;cursor:pointer;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
-							                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
-							                    <a href="/logout.php" class="nav-logout">Logout</a>
-							                </div>
+								                            <div class="nav-mobile-info">
+								                                <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none" title="Buy Credits / Upgrade Plan">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits +</span></a>
+								                                <a href="' . $tb['url'] . '" class="nav-tier-badge" style="text-decoration:none;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
+								                            </div>
+								                            <div class="nav-mobile-account">
+								                                <span class="nav-email-mobile" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+								                                <a href="/logout.php" class="nav-logout">Logout</a>
+								                            </div>
+								                        </div>
+								                    </div>
+								                    <button type="button" class="nav-arrow-btn nav-arrow-right" id="nav-arrow-right" onclick="scrollNav(1)" aria-label="Slide right">›</button>
+								                </div>
+								                <div class="nav-user">
+								                    <a href="/pricing.php" class="nav-credit-badge" style="text-decoration:none;cursor:pointer" title="Click to Top Up / Buy Credits">' . number_format($balance) . ' <span style="opacity:0.75;font-size:0.75rem">credits</span> <span style="color:#38bdf8;font-weight:bold">+</span></a>
+								                    <a href="' . $tb['url'] . '" class="nav-tier-badge" style="text-decoration:none;cursor:pointer;' . $tb['style'] . '" title="' . htmlspecialchars($tb['title']) . '">' . htmlspecialchars($tb['badge']) . '</a>
+								                    <span class="nav-email" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
+								                    <a href="/logout.php" class="nav-logout">Logout</a>
+								                </div>
 				                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">
 				                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
 				                </button>

@@ -27,7 +27,15 @@ $tier_plan_details = [
     4 => ['name' => 'Tier 4 · Scale', 'sub' => 'High-Volume Scale (125 Inboxes)'],
     5 => ['name' => 'Tier 5 · Enterprise', 'sub' => 'Enterprise Plan (190 Inboxes)'],
 ];
-$current_plan = $tier_plan_details[$tier] ?? ['name' => 'Tier ' . $tier, 'sub' => 'Active Plan'];
+
+$is_admin = ((int)($user['is_admin'] ?? 0) === 1);
+if ($is_admin) {
+    $current_plan = ['name' => 'System Admin', 'sub' => 'Root / Unlimited Access', 'url' => '/admin/index.php', 'action' => 'Admin Panel →'];
+} else {
+    $current_plan = $tier_plan_details[$tier] ?? ['name' => 'Tier ' . $tier, 'sub' => 'Active Plan'];
+    $current_plan['url'] = '/pricing.php';
+    $current_plan['action'] = ($tier === 0 ? 'Upgrade Plan →' : 'Change Plan →');
+}
 
 $redeemed = db()->prepare('SELECT tier, redeemed_at FROM ia_codes WHERE redeemed_by = ?');
 $redeemed->execute([$uid]);
@@ -230,38 +238,44 @@ page_header('Dashboard', $user);
 		  </div>
 		<?php endif; ?>
 
-		<!-- 4 Key Stat Cards -->
-		<div class="stat-grid">
-		  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='/pricing.php'">
-		    <div class="stat-icon" style="color:#60a5fa">
-		      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-		    </div>
-		    <div class="stat-val" style="color:#60a5fa"><?= number_format($balance) ?></div>
-		    <div class="stat-lbl">Credits Available</div>
-		    <a href="/pricing.php" style="font-size:0.72rem;color:#38bdf8;margin-top:4px;display:inline-block;text-decoration:none;font-weight:600">+ Top Up / Buy Credits →</a>
-		  </div>
+			<!-- 4 Key Stat Cards -->
+			<div class="stat-grid">
+			  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='<?= $is_admin ? '/admin/index.php' : '/pricing.php' ?>'">
+			    <div class="stat-icon" style="color:#60a5fa">
+			      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+			    </div>
+			    <div class="stat-val" style="color:#60a5fa"><?= $is_admin ? '∞' : number_format($balance) ?></div>
+			    <div class="stat-lbl">Credits Available</div>
+			    <?php if ($is_admin): ?>
+			      <a href="/admin/index.php" style="font-size:0.72rem;color:#f59e0b;margin-top:4px;display:inline-block;text-decoration:none;font-weight:600">Admin Bypass Active →</a>
+			    <?php else: ?>
+			      <a href="/pricing.php" style="font-size:0.72rem;color:#38bdf8;margin-top:4px;display:inline-block;text-decoration:none;font-weight:600">+ Top Up / Buy Credits →</a>
+			    <?php endif; ?>
+			  </div>
 
-		  <div class="stat-card">
-		    <div class="stat-icon" style="color:#a78bfa">
-		      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
-		    </div>
-		    <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $max_slots ?></span></div>
-		    <div class="stat-lbl">Inbox Slots Used</div>
-		    <?php if ($used_slots >= $max_slots): ?>
-		      <a href="/pricing.php" style="font-size:0.7rem;color:#f59e0b;font-weight:700;text-decoration:none;display:inline-block;margin-top:2px">Slots Full · Upgrade Plan →</a>
-		    <?php else: ?>
-		      <div style="font-size:0.68rem;color:#64748b;margin-top:2px"><?= $max_slots - $used_slots ?> slots remaining</div>
-		    <?php endif; ?>
-		  </div>
+			  <div class="stat-card">
+			    <div class="stat-icon" style="color:#a78bfa">
+			      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+			    </div>
+			    <div class="stat-val" style="color:#a78bfa"><?= $used_slots ?> <span style="font-size:0.95rem;color:#64748b;font-weight:500">/ <?= $is_admin ? '∞' : $max_slots ?></span></div>
+			    <div class="stat-lbl">Inbox Slots Used</div>
+			    <?php if ($is_admin): ?>
+			      <div style="font-size:0.68rem;color:#a78bfa;margin-top:2px">Unlimited Admin Allocation</div>
+			    <?php elseif ($used_slots >= $max_slots): ?>
+			      <a href="/pricing.php" style="font-size:0.7rem;color:#f59e0b;font-weight:700;text-decoration:none;display:inline-block;margin-top:2px">Slots Full · Upgrade Plan →</a>
+			    <?php else: ?>
+			      <div style="font-size:0.68rem;color:#64748b;margin-top:2px"><?= $max_slots - $used_slots ?> slots remaining</div>
+			    <?php endif; ?>
+			  </div>
 
-		  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='/pricing.php'">
-		    <div class="stat-icon" style="color:<?= $tier === 0 ? '#34d399' : '#fbbf24' ?>">
-		      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-		    </div>
-		    <div class="stat-val" style="font-size:1.35rem;color:<?= $tier === 0 ? '#34d399' : '#fbbf24' ?>"><?= htmlspecialchars($current_plan['name']) ?></div>
-		    <div class="stat-lbl"><?= htmlspecialchars($current_plan['sub']) ?></div>
-		    <a href="/pricing.php" style="font-size:0.68rem;color:#38bdf8;margin-top:2px;display:inline-block;text-decoration:none"><?= $tier === 0 ? 'Upgrade Plan →' : 'Change Plan →' ?></a>
-		  </div>
+			  <div class="stat-card" style="cursor:pointer" onclick="window.location.href='<?= $current_plan['url'] ?>'">
+			    <div class="stat-icon" style="color:<?= $is_admin ? '#f59e0b' : ($tier === 0 ? '#34d399' : '#fbbf24') ?>">
+			      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+			    </div>
+			    <div class="stat-val" style="font-size:1.35rem;color:<?= $is_admin ? '#f59e0b' : ($tier === 0 ? '#34d399' : '#fbbf24') ?>"><?= htmlspecialchars($current_plan['name']) ?></div>
+			    <div class="stat-lbl"><?= htmlspecialchars($current_plan['sub']) ?></div>
+			    <a href="<?= $current_plan['url'] ?>" style="font-size:0.68rem;color:<?= $is_admin ? '#f59e0b' : '#38bdf8' ?>;margin-top:2px;display:inline-block;text-decoration:none"><?= htmlspecialchars($current_plan['action']) ?></a>
+			  </div>
 
 	  <div class="stat-card">
 	    <div class="stat-icon" style="color:#34d399">
