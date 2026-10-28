@@ -273,6 +273,13 @@ function mailcow_parse_email_file(string $filepath): ?array {
 function mailcow_fetch_inbox(string $email): array {
     $maildir = mailcow_maildir_path($email);
     mailcow_fix_maildir_permissions($maildir);
+
+    // Auto-quarantine incoming spam so the main inbox remains pristine
+    if (file_exists(__DIR__ . '/spam.php')) {
+        require_once __DIR__ . '/spam.php';
+        spam_auto_filter_inbox($email);
+    }
+
     $result = [];
 
     foreach (['new', 'cur'] as $sub) {
@@ -314,7 +321,7 @@ function mailcow_fetch_message(string $email, int $uid): ?string {
     $maildir = mailcow_maildir_path($email);
     mailcow_fix_maildir_permissions($maildir);
 
-    foreach (['new', 'cur'] as $sub) {
+    foreach (['new', 'cur', '.Junk/cur', '.Junk/new'] as $sub) {
         $dir = "$maildir/$sub";
         if (!is_dir($dir)) continue;
         $files = @scandir($dir);

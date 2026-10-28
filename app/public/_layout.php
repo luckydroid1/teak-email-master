@@ -59,6 +59,7 @@ function page_header(string $title, array $user = null): void {
         $isInboxes = in_array($currentPage, ['inboxes.php', 'inbox_view.php'], true);
         $isSend = ($currentPage === 'send.php');
         $isSent = ($currentPage === 'sent.php');
+        $isSpam = ($currentPage === 'spam.php');
         $isWarmup = ($currentPage === 'warmup.php');
         $isExpenses = ($currentPage === 'expenses.php');
         $isDomains = ($currentPage === 'domains.php');
@@ -72,19 +73,23 @@ function page_header(string $title, array $user = null): void {
             : '';
 
         if (!$is_advanced) {
-            // SIMPLE MODE (Clean, friendly 3-action navigation)
+            // SIMPLE MODE (Clean, intuitive navigation with Sent & Spam links)
             $nav_links_content = '
                 <a href="/dashboard.php" class="nav-link' . ($isDashboard || $isInboxes ? ' active' : '') . '">📬 Inboxes</a>
                 <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">✉️ Send</a>
+                <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">📤 Sent</a>
+                <a href="/spam.php" class="nav-link' . ($isSpam ? ' active' : '') . '">🚫 Spam</a>
                 <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">💎 Plans</a>
                 ' . $adminLink;
         } else {
             // ADVANCED MODE (Full developer suite)
             $nav_links_content = '
                 <a href="/dashboard.php" class="nav-link' . ($isDashboard ? ' active' : '') . '">Dashboard</a>
-                <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">Unified</a>
                 <a href="/inboxes.php" class="nav-link' . ($isInboxes ? ' active' : '') . '">My Inboxes</a>
                 <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send</a>
+                <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">Sent</a>
+                <a href="/spam.php" class="nav-link' . ($isSpam ? ' active' : '') . '">Spam</a>
+                <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">Unified</a>
                 <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
                 <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API & MCP</a>
                 <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">Expenses</a>

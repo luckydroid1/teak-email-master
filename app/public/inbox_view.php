@@ -10,12 +10,15 @@ require_once __DIR__ . '/../src/inbox.php';
 require_once __DIR__ . '/../src/otp.php';
 require_once __DIR__ . '/../src/mailcow.php';
 require_once __DIR__ . '/../src/receipt.php';
+require_once __DIR__ . '/../src/spam.php';
 
 $user = require_login();
 $uid = (int)$user['id'];
 $email = $_GET['email'] ?? '';
 $msg_id = (int)($_GET['msg'] ?? 0);
 $view_mode = $_GET['view'] ?? 'text'; // default to native clean text view
+$folder = ($_GET['folder'] ?? 'inbox') === 'spam' ? 'spam' : 'inbox';
+$flash_msg = '';
 
 $inbox = inbox_owned($uid, $email);
 if (!$inbox) {
@@ -24,6 +27,36 @@ if (!$inbox) {
     echo '<div class="card" style="text-align:center;padding:40px 20px"><h2>Inbox Not Found</h2><p style="color:#94a3b8;margin-bottom:16px">The requested mailbox does not exist or does not belong to your account.</p><p><a href="/dashboard.php" class="btn">← Back to Dashboard</a></p></div>';
     page_footer();
     exit;
+}
+
+// Handle Spam actions (Move to Spam, Restore, Delete Permanent)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_spam'])) {
+    if (csrf_validate()) {
+        $act = $_POST['action_spam'];
+        $target_uid = (int)($_POST['target_uid'] ?? 0);
+        if ($act === 'mark_spam' && $target_uid > 0) {
+            if (spam_move_to_junk($email, $target_uid)) {
+                header('Location: ?email=' . urlencode($email) . '&msg_action=marked_spam');
+                exit;
+            }
+        } elseif ($act === 'restore_inbox' && $target_uid > 0) {
+            if (spam_restore_to_inbox($email, $target_uid)) {
+                header('Location: ?email=' . urlencode($email) . '&folder=inbox&msg_action=restored');
+                exit;
+            }
+        } elseif ($act === 'delete_permanent' && $target_uid > 0) {
+            if (spam_delete_file($email, $target_uid)) {
+                header('Location: ?email=' . urlencode($email) . '&folder=spam&msg_action=deleted');
+                exit;
+            }
+        }
+    }
+}
+
+if (isset($_GET['msg_action'])) {
+    if ($_GET['msg_action'] === 'marked_spam') $flash_msg = 'Email moved to Spam folder.';
+    if ($_GET['msg_action'] === 'restored') $flash_msg = 'Email restored back to Inbox.';
+    if ($_GET['msg_action'] === 'deleted') $flash_msg = 'Spam email permanently deleted.';
 }
 
 // Handle Send Test OTP simulation
@@ -40,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_test_otp'])) {
 
 // Handle Export Raw EML
 if (isset($_GET['export']) && $_GET['export'] === 'eml' && $msg_id > 0) {
-    $raw = mailcow_fetch_message($email, $msg_id);
+    $raw = ($folder === 'spam') ? spam_fetch_message($email, $msg_id) : mailcow_fetch_message($email, $msg_id);
     if ($raw !== null) {
         header('Content-Type: message/rfc822');
         header('Content-Disposition: attachment; filename="email-' . $msg_id . '.eml"');
@@ -83,7 +116,7 @@ if ($msg_id > 0) {
     if (credit_balance($uid) <= 0) {
         $credit_insufficient = true;
     } else {
-        $raw = mailcow_fetch_message($email, $msg_id);
+        $raw = ($folder === 'spam') ? spam_fetch_message($email, $msg_id) : mailcow_fetch_message($email, $msg_id);
         if ($raw !== null) {
             $mutate = credit_mutate($uid, -1, 'api_call', "read:$msg_id");
             if ($mutate['ok']) {
@@ -122,7 +155,21 @@ if ($msg_id > 0) {
     }
 }
 
-$emails = mailcow_fetch_inbox($email);
+$spam_count = spam_count($email);
+$inbox_emails = mailcow_fetch_inbox($email);
+$inbox_count = count($inbox_emails);
+
+// Count sent emails from this inbox
+$st_sent = db()->prepare('SELECT COUNT(*) FROM ia_sent_emails WHERE user_id = ? AND LOWER(from_email) = ?');
+$st_sent->execute([$uid, strtolower($email)]);
+$sent_count = (int)$st_sent->fetchColumn();
+
+if ($folder === 'spam') {
+    $emails = spam_fetch_junk($email);
+} else {
+    $emails = $inbox_emails;
+}
+
 $total_emails = count($emails);
 $per_page = 25;
 $page = max(1, (int)($_GET['p'] ?? 1));
@@ -206,16 +253,22 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
   </div>
 
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-    <form method="post" style="display:inline;margin:0" onsubmit="const b=this.querySelector('button');b.textContent='Sending...';b.disabled=true;">
-      <?php csrf_field(); ?>
-      <input type="hidden" name="send_test_otp" value="1">
-      <button type="submit" class="btn btn-sm btn-warning" title="Simulate an instant incoming verification email">Send Test OTP</button>
-    </form>
+    <?php if ($folder !== 'spam'): ?>
+      <form method="post" style="display:inline;margin:0" onsubmit="const b=this.querySelector('button');b.textContent='Sending...';b.disabled=true;">
+        <?php csrf_field(); ?>
+        <input type="hidden" name="send_test_otp" value="1">
+        <button type="submit" class="btn btn-sm btn-warning" title="Simulate an instant incoming verification email">Send Test OTP</button>
+      </form>
+    <?php endif; ?>
     <a href="?email=<?= urlencode($email) ?>&export=json" class="btn-copy" style="text-decoration:none">Export JSON</a>
     <button class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($email, ENT_QUOTES) ?>', this)">Copy Address</button>
     <button onclick="refreshInbox()" id="sync-btn" class="btn btn-sm" style="background:#8b5cf6">🔄 Sync (<span id="sync-timer">5s</span>)</button>
   </div>
 </div>
+
+<?php if ($flash_msg): ?>
+  <div class="alert alert-s" style="margin-bottom:16px"><?= htmlspecialchars($flash_msg) ?></div>
+<?php endif; ?>
 
 <!-- Mailbox Status Banner -->
 <div class="card" style="margin-bottom:20px;background:linear-gradient(180deg,#111827 0%,#0f172a 100%)">
@@ -226,7 +279,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
         <span class="pulse-dot" title="Listening live for incoming mail"></span>
       </div>
       <div style="font-size:0.82rem;color:#94a3b8;margin-top:4px">
-        Live Auto-Sync Active · Retention: <?= (int)$inbox['retention_days'] ?> Days · Total: <strong style="color:#e2e8f0"><?= $total_emails ?> messages</strong>
+        Live Auto-Sync Active · Retention: <?= (int)$inbox['retention_days'] ?> Days · Total: <strong style="color:#e2e8f0"><?= $total_emails ?> messages</strong> (<?= ucfirst($folder) ?>)
       </div>
     </div>
 
@@ -236,6 +289,24 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
       </div>
     <?php endif; ?>
   </div>
+</div>
+
+<!-- Folder Tabs Navigation (Inbox, Spam, Sent) -->
+<div style="display:flex;gap:8px;margin-bottom:18px;border-bottom:1px solid #1f2937;padding-bottom:12px;flex-wrap:wrap;align-items:center">
+  <a href="?email=<?= urlencode($email) ?>&folder=inbox" class="btn btn-sm <?= $folder === 'inbox' ? 'btn-primary' : 'btn-ghost' ?>">
+    📥 Inbox <span style="background:rgba(255,255,255,0.15);padding:1px 7px;border-radius:10px;font-size:0.75rem;margin-left:4px"><?= $inbox_count ?></span>
+  </a>
+  <a href="?email=<?= urlencode($email) ?>&folder=spam" class="btn btn-sm <?= $folder === 'spam' ? 'btn-warning' : 'btn-ghost' ?>">
+    🚫 Spam <span style="background:rgba(255,255,255,0.15);padding:1px 7px;border-radius:10px;font-size:0.75rem;margin-left:4px"><?= $spam_count ?></span>
+  </a>
+  <a href="/sent.php?from=<?= urlencode($email) ?>" class="btn btn-sm btn-ghost">
+    📤 Sent <span style="background:rgba(255,255,255,0.15);padding:1px 7px;border-radius:10px;font-size:0.75rem;margin-left:4px"><?= $sent_count ?></span>
+  </a>
+  <?php if ($folder === 'spam'): ?>
+    <span style="font-size:0.78rem;color:#fca5a5;margin-left:auto;display:flex;align-items:center;gap:4px">
+      🛡️ Spam Quarantine Active
+    </span>
+  <?php endif; ?>
 </div>
 
 <?php if ($credit_insufficient): ?>
@@ -258,16 +329,38 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 <!-- 📧 Detailed Single Message View -->
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid #1f2937;padding-bottom:12px;flex-wrap:wrap;gap:10px">
-    <a href="?email=<?= urlencode($email) ?>" class="btn btn-sm btn-ghost">← Back to Message List</a>
+    <a href="?email=<?= urlencode($email) ?>&folder=<?= $folder ?>" class="btn btn-sm btn-ghost">← Back to <?= ucfirst($folder) ?></a>
 
-    <div style="display:flex;gap:8px;align-items:center">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <?php if ($folder === 'inbox'): ?>
+        <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Move this email to Spam folder?')">
+          <?php csrf_field(); ?>
+          <input type="hidden" name="action_spam" value="mark_spam">
+          <input type="hidden" name="target_uid" value="<?= $msg_id ?>">
+          <button type="submit" class="btn btn-sm btn-ghost" style="color:#f87171;border-color:rgba(239,68,68,0.3)" title="Move to Spam">🚫 Mark as Spam</button>
+        </form>
+      <?php else: ?>
+        <form method="post" style="display:inline;margin:0">
+          <?php csrf_field(); ?>
+          <input type="hidden" name="action_spam" value="restore_inbox">
+          <input type="hidden" name="target_uid" value="<?= $msg_id ?>">
+          <button type="submit" class="btn btn-sm btn-success" title="Restore to main Inbox">✓ Not Spam (Move to Inbox)</button>
+        </form>
+        <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Permanently delete this spam email?')">
+          <?php csrf_field(); ?>
+          <input type="hidden" name="action_spam" value="delete_permanent">
+          <input type="hidden" name="target_uid" value="<?= $msg_id ?>">
+          <button type="submit" class="btn btn-sm btn-ghost" style="color:#ef4444;border-color:rgba(239,68,68,0.4)" title="Delete permanently">🗑 Delete</button>
+        </form>
+      <?php endif; ?>
+
       <?php if ($html_body): ?>
-        <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&view=<?= $view_mode === 'html' ? 'text' : 'html' ?>" class="btn-copy" style="text-decoration:none">
+        <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&view=<?= $view_mode === 'html' ? 'text' : 'html' ?>&folder=<?= $folder ?>" class="btn-copy" style="text-decoration:none">
           <?= $view_mode === 'html' ? '📄 Plain Text View' : '🎨 HTML Card View' ?>
         </a>
       <?php endif; ?>
 
-      <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&export=eml" class="btn-copy" style="text-decoration:none">Download .EML</a>
+      <a href="?email=<?= urlencode($email) ?>&msg=<?= $msg_id ?>&export=eml&folder=<?= $folder ?>" class="btn-copy" style="text-decoration:none">Download .EML</a>
       <?php
       $rec_info = extract_receipt($raw);
       $reply_to = $sender_display;
@@ -278,7 +371,9 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
       <?php if ($rec_info['is_receipt']): ?>
         <span class="btn-sm btn-warning" style="cursor:default"><?= htmlspecialchars($rec_info['currency'] ?? 'USD') ?> <?= number_format((float)($rec_info['amount'] ?? 0), 2) ?></span>
       <?php endif; ?>
-      <a href="/send.php?from=<?= urlencode($email) ?>&reply_to=<?= urlencode($reply_to) ?>&reply_subject=<?= urlencode($subject_line) ?>" class="btn btn-sm btn-success">Reply</a>
+      <?php if ($folder !== 'spam'): ?>
+        <a href="/send.php?from=<?= urlencode($email) ?>&reply_to=<?= urlencode($reply_to) ?>&reply_subject=<?= urlencode($subject_line) ?>" class="btn btn-sm btn-success">Reply</a>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -350,7 +445,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 <!-- Message List View -->
 <div style="margin-bottom:16px" id="email-list-container">
   <?php $i = $total_emails - (($page - 1) * $per_page); foreach ($display_emails as $m): ?>
-    <a href="?email=<?= urlencode($email) ?>&msg=<?= (int)$m['uid'] ?>" class="mail-item email-item-row" data-from="<?= strtolower(htmlspecialchars($m['from'] ?? '')) ?>" data-subject="<?= strtolower(htmlspecialchars($m['subject'] ?? '')) ?>">
+    <a href="?email=<?= urlencode($email) ?>&msg=<?= (int)$m['uid'] ?>&folder=<?= $folder ?>" class="mail-item email-item-row" data-from="<?= strtolower(htmlspecialchars($m['from'] ?? '')) ?>" data-subject="<?= strtolower(htmlspecialchars($m['subject'] ?? '')) ?>">
       <span style="color:#64748b;font-size:0.75rem;width:24px;text-align:right"><?= $i-- ?></span>
       <div style="width:200px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
         <?= htmlspecialchars(substr($m['from'] ?? 'Unknown Sender', 0, 32)) ?>
@@ -368,29 +463,42 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
 <?php if ($total_pages > 1): ?>
 <div style="display:flex;justify-content:center;gap:6px;margin-top:16px">
   <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-    <a href="?email=<?= urlencode($email) ?>&p=<?= $p ?>" class="btn-sm <?= $p === $page ? 'btn-success' : 'btn-ghost' ?>" style="min-width:34px;text-align:center"><?= $p ?></a>
+    <a href="?email=<?= urlencode($email) ?>&folder=<?= $folder ?>&p=<?= $p ?>" class="btn-sm <?= $p === $page ? 'btn-success' : 'btn-ghost' ?>" style="min-width:34px;text-align:center"><?= $p ?></a>
   <?php endfor; ?>
 </div>
 <?php endif; ?>
 
 <?php else: ?>
-<!-- Empty State with Realtime Listening Animation -->
-<div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-  <div style="font-size:2.6rem;margin-bottom:10px"></div>
-  <h3 style="color:#f8fafc;margin-bottom:6px;font-size:1.15rem">Waiting for Incoming Emails...</h3>
-  <p style="color:#94a3b8;font-size:0.88rem;max-width:460px;margin:0 auto 18px">
-    Send any verification code or email to <strong style="color:#60a5fa"><?= htmlspecialchars($email) ?></strong>.<br>
-    This viewer automatically checks for new mail every <strong>5 seconds</strong>.
-  </p>
-  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-    <form method="post" style="display:inline;margin:0">
-      <?php csrf_field(); ?>
-      <input type="hidden" name="send_test_otp" value="1">
-      <button type="submit" class="btn btn-warning">Send Instant Test OTP</button>
-    </form>
-    <button onclick="refreshInbox()" class="btn btn-ghost">🔄 Sync Manually</button>
-  </div>
-</div>
+  <?php if ($folder === 'spam'): ?>
+    <!-- Empty Spam State -->
+    <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
+      <div style="font-size:2.6rem;margin-bottom:10px">🛡️</div>
+      <h3 style="color:#f8fafc;margin-bottom:6px;font-size:1.15rem">Spam Folder is Empty</h3>
+      <p style="color:#94a3b8;font-size:0.88rem;max-width:460px;margin:0 auto 18px">
+        No spam or quarantined messages for <strong style="color:#60a5fa"><?= htmlspecialchars($email) ?></strong>.<br>
+        Your incoming messages are automatically protected from phishing and unwanted broadcasts.
+      </p>
+      <a href="?email=<?= urlencode($email) ?>&folder=inbox" class="btn btn-primary">← View Main Inbox</a>
+    </div>
+  <?php else: ?>
+    <!-- Empty State with Realtime Listening Animation -->
+    <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
+      <div style="font-size:2.6rem;margin-bottom:10px">📬</div>
+      <h3 style="color:#f8fafc;margin-bottom:6px;font-size:1.15rem">Waiting for Incoming Emails...</h3>
+      <p style="color:#94a3b8;font-size:0.88rem;max-width:460px;margin:0 auto 18px">
+        Send any verification code or email to <strong style="color:#60a5fa"><?= htmlspecialchars($email) ?></strong>.<br>
+        This viewer automatically checks for new mail every <strong>5 seconds</strong>.
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <form method="post" style="display:inline;margin:0">
+          <?php csrf_field(); ?>
+          <input type="hidden" name="send_test_otp" value="1">
+          <button type="submit" class="btn btn-warning">Send Instant Test OTP</button>
+        </form>
+        <button onclick="refreshInbox()" class="btn btn-ghost">🔄 Sync Manually</button>
+      </div>
+    </div>
+  <?php endif; ?>
 <?php endif; ?>
 
 <script>

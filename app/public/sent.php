@@ -9,10 +9,16 @@ require_once __DIR__ . '/../src/inbox.php';
 
 $user = require_login();
 $uid = (int)$user['id'];
+$from_filter = strtolower(trim($_GET['from'] ?? ''));
 
 // Get sent emails
-$st = db()->prepare('SELECT * FROM ia_sent_emails WHERE user_id = ? ORDER BY sent_at DESC LIMIT 50');
-$st->execute([$uid]);
+if (!empty($from_filter)) {
+    $st = db()->prepare('SELECT * FROM ia_sent_emails WHERE user_id = ? AND LOWER(from_email) = ? ORDER BY sent_at DESC LIMIT 50');
+    $st->execute([$uid, $from_filter]);
+} else {
+    $st = db()->prepare('SELECT * FROM ia_sent_emails WHERE user_id = ? ORDER BY sent_at DESC LIMIT 50');
+    $st->execute([$uid]);
+}
 $sent = $st->fetchAll(PDO::FETCH_ASSOC);
 
 // Get specific email
@@ -29,8 +35,22 @@ page_header('Sent Emails', $user);
 ?>
 
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-  <h1 style="margin:0">Sent Emails History</h1>
-  <a href="/send.php" class="btn btn-success" style="font-size:.85rem">Compose New</a>
+  <div>
+    <h1 style="margin:0">Sent Emails History</h1>
+    <?php if (!empty($from_filter)): ?>
+      <div style="font-size:0.85rem;color:#94a3b8;margin-top:4px">
+        Filtered by sender: <strong style="color:#60a5fa"><?= htmlspecialchars($from_filter) ?></strong>
+        <a href="/sent.php" style="color:#f87171;margin-left:8px;text-decoration:none">(Clear filter)</a>
+        <a href="/inbox_view.php?email=<?= urlencode($from_filter) ?>" style="color:#34d399;margin-left:8px;text-decoration:none">← Back to Inbox</a>
+      </div>
+    <?php endif; ?>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <?php if (!empty($from_filter)): ?>
+      <a href="/inbox_view.php?email=<?= urlencode($from_filter) ?>" class="btn btn-sm btn-ghost">← Inbox View</a>
+    <?php endif; ?>
+    <a href="/send.php<?= !empty($from_filter) ? '?from=' . urlencode($from_filter) : '' ?>" class="btn btn-success" style="font-size:.85rem">Compose New</a>
+  </div>
 </div>
 
 <?php if ($view_email): ?>
