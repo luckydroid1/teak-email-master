@@ -57,14 +57,14 @@ page_header('Sent Emails', $user);
 <!-- View specific sent email -->
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid #1f2937;padding-bottom:12px;flex-wrap:wrap;gap:8px">
-    <a href="/sent.php" class="back" style="margin-bottom:0">← Back to sent history</a>
+    <a href="/sent.php<?= !empty($from_filter) ? '?from=' . urlencode($from_filter) : '' ?>" class="back" style="margin-bottom:0">← Back to sent history</a>
     <a href="/send.php?from=<?= urlencode($view_email['from_email']) ?>&to=<?= urlencode($view_email['to_email']) ?>&subject=<?= urlencode('Follow up: ' . $view_email['subject']) ?>" class="btn btn-sm btn-ghost">Send Follow-up</a>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:.85rem">
     <div>
       <span style="color:#64748b">From:</span>
-      <div style="font-weight:600;color:#f8fafc"><?= htmlspecialchars($view_email['from_email']) ?></div>
+      <div style="font-weight:600;color:#60a5fa"><?= htmlspecialchars($view_email['from_email']) ?></div>
     </div>
     <div>
       <span style="color:#64748b">To:</span>
@@ -81,27 +81,30 @@ page_header('Sent Emails', $user);
   </div>
 
   <div style="border-top:1px solid #1f2937;padding-top:14px">
-    <label>Message Content</label>
-    <div class="msg-view" style="background:#0a0e1a;padding:16px;border-radius:8px;border:1px solid #1f2937;white-space:pre-wrap"><?= htmlspecialchars($view_email['body']) ?></div>
+    <label style="font-size:0.85rem;color:#94a3b8;font-weight:600;margin-bottom:8px;display:block">Message Body</label>
+    <div class="msg-view" style="background:#0a0e1a;padding:20px;border-radius:8px;border:1px solid #1f2937;white-space:pre-wrap;color:#e2e8f0;line-height:1.7"><?= htmlspecialchars($view_email['body']) ?></div>
   </div>
 </div>
 
 <?php elseif (empty($sent)): ?>
-<div class="card" style="text-align:center;padding:48px 20px">
-  <div style="font-size:2.4rem;margin-bottom:8px"></div>
-  <h3>No Sent Emails Yet</h3>
-  <p class="sub" style="max-width:400px;margin:0 auto 16px">Outbound emails sent from any of your active inboxes will be logged and displayed here.</p>
-  <a href="/send.php" class="btn">Send First Email →</a>
+<div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
+  <div style="font-size:2.6rem;margin-bottom:10px">📤</div>
+  <h3 style="color:#f8fafc;margin-bottom:6px;font-size:1.15rem">No Sent Emails Yet</h3>
+  <p class="sub" style="max-width:440px;margin:0 auto 16px;color:#94a3b8;font-size:0.88rem">
+    <?= !empty($from_filter) ? 'No outbound emails have been sent from <strong style="color:#60a5fa">' . htmlspecialchars($from_filter) . '</strong> yet.' : 'Outbound emails sent from any of your active inboxes will be logged and displayed here.' ?>
+  </p>
+  <a href="/send.php<?= !empty($from_filter) ? '?from=' . urlencode($from_filter) : '' ?>" class="btn btn-primary">Send Email →</a>
 </div>
 
 <?php else: ?>
 <!-- Sent email list -->
-<div class="card" style="padding:4px">
+<div style="margin-bottom:16px">
   <?php foreach ($sent as $s): ?>
-  <a href="/sent.php?msg=<?= (int)$s['id'] ?>" class="email-row">
-    <span class="email-from" style="width:140px">To: <?= htmlspecialchars(substr($s['to_email'], 0, 24)) ?></span>
-    <span class="email-subject"><?= htmlspecialchars(substr($s['subject'], 0, 50)) ?></span>
-    <span class="email-date"><?= htmlspecialchars(substr($s['sent_at'], 0, 16)) ?></span>
+  <a href="/sent.php?msg=<?= (int)$s['id'] ?><?= !empty($from_filter) ? '&from=' . urlencode($from_filter) : '' ?>" class="mail-item" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;margin-bottom:8px;text-decoration:none;color:#e2e8f0;transition:all 0.15s">
+    <span style="font-size:0.75rem;background:#1e293b;color:#94a3b8;padding:2px 8px;border-radius:6px;white-space:nowrap"><?= htmlspecialchars($s['from_email']) ?></span>
+    <span style="width:160px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">To: <?= htmlspecialchars($s['to_email']) ?></span>
+    <span style="flex:1;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?= htmlspecialchars(substr($s['subject'], 0, 70)) ?></span>
+    <span style="font-size:0.78rem;color:#64748b;white-space:nowrap"><?= htmlspecialchars(substr($s['sent_at'], 0, 16)) ?></span>
   </a>
   <?php endforeach; ?>
 </div>
