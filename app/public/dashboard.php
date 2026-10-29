@@ -311,8 +311,10 @@ page_header('Dashboard', $user);
       <form method="post" style="margin:10px 0 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <?php csrf_field(); ?>
         <input type="hidden" name="quick_create_inbox" value="1">
-        <input type="text" name="local_part" placeholder="Custom name (e.g. test-bot) or leave blank for auto" style="max-width:320px;margin:0;padding:7px 12px;font-size:0.85rem">
-        <button type="submit" class="btn btn-sm btn-ghost" style="border-color:#38bdf8;color:#38bdf8;padding:7px 14px">
+        <div style="flex:1;max-width:320px;min-width:200px">
+          <input type="text" name="local_part" placeholder="Custom name (e.g. test-bot) or leave blank for auto" style="width:100%;margin:0;padding:7px 12px;font-size:0.85rem;box-sizing:border-box">
+        </div>
+        <button type="submit" class="btn btn-sm btn-ghost" style="border-color:#38bdf8;color:#38bdf8;padding:7px 14px;white-space:nowrap">
           + Create Another Inbox
         </button>
       </form>
@@ -427,30 +429,39 @@ page_header('Dashboard', $user);
   </div>
 
   <!-- Full Quick Creator (with Domain Selector) -->
-  <div class="card" style="background:#0f172a;border-color:#334155;margin-bottom:20px">
-    <h3 style="margin:0 0 8px;font-size:1.05rem;color:#f8fafc">Create Inbox with Specific Domain</h3>
+  <div class="card" style="background:#0f172a;border:1px solid #334155;border-radius:12px;margin-bottom:20px;padding:20px">
+    <div style="margin-bottom:12px">
+      <h3 style="margin:0;font-size:1.05rem;color:#f8fafc;font-weight:700">Create Inbox with Specific Domain</h3>
+      <p style="margin:3px 0 0;font-size:0.82rem;color:#94a3b8">Choose a custom username and domain for your dedicated inbox.</p>
+    </div>
     <form method="post" style="margin:0">
       <?php csrf_field(); ?>
       <input type="hidden" name="quick_create_inbox" value="1">
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center">
-        <input type="text" name="local_part" placeholder="username / agent-id" style="margin:0">
-        <select name="domain" style="margin:0" required>
-          <?php if (!empty($eligible['pool'])): ?>
-            <optgroup label="Shared Domains">
-              <?php foreach ($eligible['pool'] as $d): ?>
-                <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
-              <?php endforeach; ?>
-            </optgroup>
-          <?php endif; ?>
-          <?php if (!empty($eligible['custom'])): ?>
-            <optgroup label="Custom Domains">
-              <?php foreach ($eligible['custom'] as $d): ?>
-                <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
-              <?php endforeach; ?>
-            </optgroup>
-          <?php endif; ?>
-        </select>
-        <button type="submit" class="btn btn-primary" style="white-space:nowrap">Create Mailbox</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="flex:1 1 240px;min-width:180px">
+          <input type="text" name="local_part" placeholder="username / agent-id" style="margin:0;width:100%;height:44px;box-sizing:border-box" required pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]" title="Lowercase letters, numbers, dots, hyphens" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')">
+        </div>
+        <div style="flex:1 1 240px;min-width:180px">
+          <select name="domain" style="margin:0;width:100%;height:44px;box-sizing:border-box" required>
+            <?php if (!empty($eligible['pool'])): ?>
+              <optgroup label="Shared Domains">
+                <?php foreach ($eligible['pool'] as $d): ?>
+                  <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
+                <?php endforeach; ?>
+              </optgroup>
+            <?php endif; ?>
+            <?php if (!empty($eligible['custom'])): ?>
+              <optgroup label="Custom Domains">
+                <?php foreach ($eligible['custom'] as $d): ?>
+                  <option value="<?= htmlspecialchars($d) ?>">@<?= htmlspecialchars($d) ?></option>
+                <?php endforeach; ?>
+              </optgroup>
+            <?php endif; ?>
+          </select>
+        </div>
+        <div style="flex:0 0 auto">
+          <button type="submit" class="btn btn-primary" style="white-space:nowrap;height:44px;padding:0 24px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center">Create Mailbox</button>
+        </div>
       </div>
     </form>
   </div>
