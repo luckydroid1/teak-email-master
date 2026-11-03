@@ -258,34 +258,51 @@ page_header('Unified Inbox', $user);
         </button>
       </div>
 
-      <div style="flex:1;min-width:200px">
-        <input type="text" id="stream-search" placeholder="Search sender, subject, or inbox..." oninput="searchStream()" style="margin:0;padding:6px 14px;font-size:0.85rem;width:100%;background:#060a12;border-color:#334155">
+      <div style="display:flex;gap:10px;align-items:center;flex:1;min-width:280px;justify-content:flex-end;flex-wrap:wrap">
+        <?php if (count($inboxes) > 1): ?>
+          <div>
+            <select id="stream-inbox-filter" onchange="filterStreamInbox(this.value)" style="margin:0;padding:6px 12px;font-size:0.82rem;background:#060a12;border:1px solid #334155;border-radius:6px;color:#e2e8f0;min-width:180px;max-width:260px">
+              <option value="all">All Inboxes (<?= count($inboxes) ?>)</option>
+              <?php foreach ($inboxes as $ib): ?>
+                <option value="<?= htmlspecialchars(strtolower($ib['email_address'])) ?>"><?= htmlspecialchars($ib['email_address']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        <?php endif; ?>
+
+        <div style="flex:1;min-width:180px;max-width:320px">
+          <input type="text" id="stream-search" placeholder="Search sender, subject..." oninput="searchStream()" style="margin:0;padding:6px 14px;font-size:0.85rem;width:100%;background:#060a12;border-color:#334155">
+        </div>
       </div>
     </div>
   </div>
 
-	  <!-- Unified Stream List -->
-	  <div id="stream-container">
-	    <?php if (empty($inboxes)): ?>
-	      <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-	        <h3 style="color:#f8fafc;margin-bottom:6px">No Inboxes Created Yet</h3>
-	        <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
-	          Create your first email address to start receiving emails, OTPs, and invoices in your unified stream.
-	        </p>
-	        <a href="/dashboard.php" class="btn btn-sm btn-primary">Create Your First Inbox →</a>
-	      </div>
-	    <?php elseif (empty($stream)): ?>
-	      <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-	        <h3 style="color:#f8fafc;margin-bottom:6px">Unified Stream is Empty</h3>
-	        <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
-	          Emails received across any of your <?= count($inboxes) ?> mailboxes will appear here automatically with real-time updates.
-	        </p>
-	        <a href="/inbox_view.php?email=<?= urlencode($inboxes[0]['email_address']) ?>" class="btn btn-sm btn-ghost">View <?= htmlspecialchars($inboxes[0]['email_address']) ?> →</a>
-	      </div>
-	    <?php else: ?>
+  <!-- Unified Stream List -->
+  <div id="stream-container">
+    <?php if (empty($inboxes)): ?>
+      <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
+        <h3 style="color:#f8fafc;margin-bottom:6px">No Inboxes Created Yet</h3>
+        <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
+          Create your first email address to start receiving emails, OTPs, and invoices in your unified stream.
+        </p>
+        <a href="/dashboard.php" class="btn btn-sm btn-primary">Create Your First Inbox →</a>
+      </div>
+    <?php elseif (empty($stream)): ?>
+      <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
+        <h3 style="color:#f8fafc;margin-bottom:6px">Unified Stream is Empty</h3>
+        <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
+          Emails received across any of your <?= count($inboxes) ?> mailboxes will appear here automatically with real-time updates.
+        </p>
+        <a href="/inbox_view.php?email=<?= urlencode($inboxes[0]['email_address']) ?>" class="btn btn-sm btn-ghost">View <?= htmlspecialchars($inboxes[0]['email_address']) ?> →</a>
+      </div>
+    <?php else: ?>
+      <div id="stream-empty-filter" style="display:none" class="card" style="text-align:center;padding:40px 20px;background:#0a0e1a;border:1px dashed #334155">
+        <p style="color:#94a3b8;font-size:0.88rem;margin:0">No messages match the selected inbox filter.</p>
+      </div>
       <?php foreach ($stream as $m): ?>
         <a href="/inbox_view.php?email=<?= urlencode($m['inbox_email']) ?>&msg=<?= $m['uid'] ?>"
            class="stream-row stream-item"
+           data-inbox="<?= htmlspecialchars(strtolower($m['inbox_email'])) ?>"
            data-isotp="<?= $m['is_otp'] ? '1' : '0' ?>"
            data-isreceipt="<?= $m['is_receipt'] ? '1' : '0' ?>"
            data-search="<?= strtolower(htmlspecialchars($m['from'] . ' ' . $m['subject'] . ' ' . $m['inbox_email'])) ?>">
@@ -322,6 +339,7 @@ page_header('Unified Inbox', $user);
 
 <script>
 let currentTriage = 'all';
+let selectedInbox = 'all';
 
 function filterTriage(category) {
   currentTriage = category;
@@ -330,21 +348,37 @@ function filterTriage(category) {
   searchStream();
 }
 
+function filterStreamInbox(inbox) {
+  selectedInbox = (inbox || 'all').toLowerCase();
+  searchStream();
+}
+
 function searchStream() {
   const q = (document.getElementById('stream-search')?.value || '').toLowerCase().trim();
   const rows = document.querySelectorAll('.stream-item');
+  let visibleCount = 0;
   rows.forEach(r => {
     const isOtp = r.getAttribute('data-isotp') === '1';
     const isReceipt = r.getAttribute('data-isreceipt') === '1';
     const text = r.getAttribute('data-search') || '';
+    const inbox = (r.getAttribute('data-inbox') || '').toLowerCase();
 
     let matchCategory = true;
     if (currentTriage === 'otp' && !isOtp) matchCategory = false;
     if (currentTriage === 'receipts' && !isReceipt) matchCategory = false;
 
     const matchText = q === '' || text.includes(q);
-    r.style.display = (matchCategory && matchText) ? 'flex' : 'none';
+    const matchInbox = (selectedInbox === 'all' || inbox === selectedInbox);
+
+    const isVisible = (matchCategory && matchText && matchInbox);
+    r.style.display = isVisible ? 'flex' : 'none';
+    if (isVisible) visibleCount++;
   });
+
+  const emptyNotice = document.getElementById('stream-empty-filter');
+  if (emptyNotice) {
+    emptyNotice.style.display = (visibleCount === 0 && rows.length > 0) ? 'block' : 'none';
+  }
 }
 
 function copyUnifiedOtp(val) {

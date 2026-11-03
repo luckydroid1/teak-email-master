@@ -115,7 +115,7 @@ function attempt_login(string $email, string $password): array {
 }
 
 /** Create new account. Risk-scored. Rate-limited per IP. */
-function register_user(string $email, string $password): array {
+function register_user(string $email, string $password, string $redirect = ''): array {
     $email = strtolower(trim($email));
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return ['error' => 'Invalid email address'];
@@ -141,7 +141,7 @@ function register_user(string $email, string $password): array {
     if ($st->fetch()) {
         return ['error' => 'Email already registered'];
     }
-    $token = bin2hex(random_bytes(24));
+    $token = bin2hex(random_bytes(32));
     $st = db()->prepare(
         'INSERT INTO ia_users (email, password_hash, status, trust_tier, risk_score, verify_token)
          VALUES (?,?,?,?,?,?)'
@@ -149,13 +149,14 @@ function register_user(string $email, string $password): array {
     $st->execute([$email, password_hash($password, PASSWORD_BCRYPT), 'pending', 0, $risk, $token]);
     $uid = (int)db()->lastInsertId();
     audit($uid, 'signup', 'web', "risk=$risk");
-    send_verify_email($email, $token);
+    send_verify_email($email, $token, $redirect);
     return ['ok' => true, 'user_id' => $uid];
 }
 
 /** Send verification email via Mailcow mailbox (no-reply@teak.email). */
-function send_verify_email(string $to, string $token): void {
-    $link = cfg()['app_url'] . '/verify.php?token=' . urlencode($token);
+function send_verify_email(string $to, string $token, string $redirect = ''): void {
+    $redirParam = ($redirect !== '' && str_starts_with($redirect, '/') && !str_starts_with($redirect, '//')) ? '&redirect=' . urlencode($redirect) : '';
+    $link = cfg()['app_url'] . '/verify.php?token=' . urlencode($token) . $redirParam;
     $subject = 'Verify your Teak Email account';
     $body = "Hi,\n\nVerify your Teak Email account:\n$link\n\nIf you didn't request this, ignore this email.\n\n— Teak Email Team";
     mail_send($to, $subject, $body);
@@ -215,7 +216,7 @@ function smtp_send(string $host, int $port, string $from, string $to, string $da
 }
 
 /** Resend verification email. Rate limited. */
-function resend_verification_email(string $email): array {
+function resend_verification_email(string $email, string $redirect = ''): array {
     $email = strtolower(trim($email));
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return ['error' => 'Invalid email address'];
@@ -242,7 +243,7 @@ function resend_verification_email(string $email): array {
         $token = bin2hex(random_bytes(24));
         db()->prepare("UPDATE ia_users SET verify_token = ? WHERE id = ?")->execute([$token, $u['id']]);
     }
-    send_verify_email($email, $token);
+    send_verify_email($email, $token, $redirect);
     audit((int)$u['id'], 'resend_verify', 'web');
     return ['ok' => true];
 }

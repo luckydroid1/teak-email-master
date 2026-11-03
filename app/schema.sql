@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS ia_sent_emails (
 	  tier TINYINT UNSIGNED NOT NULL,
 	  amount DECIMAL(10,2) NOT NULL,
 	  currency VARCHAR(8) NOT NULL DEFAULT 'USD',
-	  status ENUM('created','completed','failed','refunded') NOT NULL DEFAULT 'created',
+	  status ENUM('created','completed','failed','refunded','cancelled') NOT NULL DEFAULT 'created',
 	  raw_payload JSON NULL,
 	  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -42,6 +42,7 @@ function tier_info(int $tier): ?array {
     $retention = setting_get("tier_{$tier}_retention");
 
     return [
+        'name'        => $def['name'] ?? ('Tier ' . $tier),
         'price'       => ($price !== null && $price !== '') ? (float)$price : $def['price'],
         'credits'     => ($credits !== null && $credits !== '') ? (int)$credits : $def['credits'],
         'inbox_slots' => ($inbox_slots !== null && $inbox_slots !== '') ? (int)$inbox_slots : $def['inbox_slots'],

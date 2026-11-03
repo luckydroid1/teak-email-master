@@ -72,8 +72,8 @@ function mailcow_add_domain(string $domain, string $description = ''): array {
     $pdo = db();
     try {
         $st = $pdo->prepare(
-            'INSERT INTO domain (domain, description, aliases, mailboxes, maxquota, quota, transport, backupmx, active)
-             VALUES (?, ?, 0, 0, 0, 0, \'virtual\', 0, 1)'
+            'INSERT INTO domain (domain, description, aliases, mailboxes, quota, active)
+             VALUES (?, ?, 400, 10, 10240, 1)'
         );
         $st->execute([$domain, $description ?: "Added via Teak Email"]);
         return ['ok' => true, 'domain' => $domain, 'existing' => false];

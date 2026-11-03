@@ -12,7 +12,7 @@ require_once __DIR__ . '/mailcow.php';
  * Send email from an inbox. Limited to 1 recipient, no CC/BCC.
  * @return array ['ok' => true] or ['error' => string]
  */
-function send_email(string $from_email, string $to, string $subject, string $body): array {
+function send_email(string $from_email, string $to, string $subject, string $body, int $user_id = 0): array {
     // Validate inputs
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return ['error' => 'Invalid recipient email address'];
@@ -30,11 +30,31 @@ function send_email(string $from_email, string $to, string $subject, string $bod
         return ['error' => 'Only 1 recipient allowed per message'];
     }
 
-    // Outbound rate limiting (max 15 emails per hour per mailbox to protect IP reputation)
+    // Resolve owner user_id if not explicitly provided
+    $uid = $user_id > 0 ? $user_id : (int)($_SESSION['uid'] ?? 0);
+    if ($uid === 0) {
+        $st_u = db()->prepare('SELECT user_id FROM ia_inboxes WHERE email_address = ?');
+        $st_u->execute([$from_email]);
+        $uid = (int)$st_u->fetchColumn();
+    }
+
+    // Outbound rate limiting scaled by user tier
     require_once __DIR__ . '/abuse.php';
-    $uid = $_SESSION['uid'] ?? 0;
-    if (!rate_limit_check("send_user:$uid", 20) || !rate_limit_check("send_mb:$from_email", 15)) {
-        return ['error' => 'Outbound rate limit exceeded (max 15 emails/hr). Please try again later.'];
+    require_once __DIR__ . '/redeem.php';
+    $u_tier = $uid > 0 ? user_tier($uid) : 0;
+    $tier_limits = [
+        0 => ['user' => 10,  'mb' => 5],
+        1 => ['user' => 40,  'mb' => 20],
+        2 => ['user' => 100, 'mb' => 50],
+        3 => ['user' => 200, 'mb' => 100],
+        4 => ['user' => 350, 'mb' => 150],
+        5 => ['user' => 600, 'mb' => 250],
+    ];
+    $user_limit = $tier_limits[$u_tier]['user'] ?? 40;
+    $mb_limit = $tier_limits[$u_tier]['mb'] ?? 20;
+
+    if (!rate_limit_check("send_user:$uid", $user_limit) || !rate_limit_check("send_mb:$from_email", $mb_limit)) {
+        return ['error' => "Outbound rate limit reached (max {$mb_limit} emails/hr for this mailbox). Upgrade tier for higher throughput."];
     }
 
     // Build email
@@ -63,7 +83,6 @@ function send_email(string $from_email, string $to, string $subject, string $bod
 
     if ($result) {
         // Log the send
-        $uid = $_SESSION['uid'] ?? 0;
         $pdo->prepare('INSERT INTO ia_audit (user_id, action, ip, detail) VALUES (?, ?, ?, ?)')
             ->execute([$uid, 'email_sent', $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0', "from=$from_email to=$to subject=" . substr($subject, 0, 50)]);
 

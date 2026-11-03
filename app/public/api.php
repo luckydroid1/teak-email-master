@@ -123,11 +123,18 @@ switch ($segment) {
             api_json(['error' => 'Method not allowed'], 405);
         }
 
-	        if ($sub === 'otp' && $method === 'GET' && $uid_num > 0) {
-	            $res = inbox_otp($uid, $email, $uid_num);
-	            if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
-	            api_json(['ok' => true, 'email' => $res['email'], 'uid' => $res['uid'], 'otp' => $res['otp'], 'text' => $res['text']]);
-	        }
+		        if ($sub === 'otp' && $method === 'GET') {
+		            if ($uid_num === 0) {
+		                $inbox_msgs = mailcow_fetch_inbox($email);
+		                if (empty($inbox_msgs)) {
+		                    api_json(['ok' => false, 'error' => 'No messages in inbox', 'otp' => null], 404);
+		                }
+		                $uid_num = (int)$inbox_msgs[0]['uid'];
+		            }
+		            $res = inbox_otp($uid, $email, $uid_num);
+		            if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
+		            api_json(['ok' => true, 'email' => $res['email'], 'uid' => $res['uid'], 'otp' => $res['otp'], 'text' => $res['text']]);
+		        }
 
 	        if ($sub === 'receipt' && $method === 'GET' && $uid_num > 0) {
 	            $res = inbox_receipt($uid, $email, $uid_num);
@@ -203,8 +210,47 @@ switch ($segment) {
 
         api_json(['error' => 'Not found'], 404);
 
+    case 'otp':
+        $email = trim($_GET['email'] ?? ($parts[1] ?? ''));
+        if (empty($email)) api_json(['error' => 'Email parameter required'], 400);
+        $inbox_msgs = mailcow_fetch_inbox($email);
+        if (empty($inbox_msgs)) api_json(['ok' => false, 'error' => 'No messages in inbox', 'otp' => null], 404);
+        $uid_num = (int)$inbox_msgs[0]['uid'];
+        $res = inbox_otp($uid, $email, $uid_num);
+        if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
+        api_json(['ok' => true, 'email' => $res['email'], 'uid' => $res['uid'], 'otp' => $res['otp'], 'text' => $res['text']]);
+
+    case 'messages':
+        $email = trim($_GET['email'] ?? ($parts[1] ?? ''));
+        if (empty($email)) api_json(['error' => 'Email parameter required'], 400);
+        $res = inbox_emails($uid, $email);
+        if (!isset($res['ok'])) api_json(['error' => $res['error']], 404);
+        api_json(['ok' => true, 'inbox' => $res['inbox'], 'messages' => $res['emails']]);
+
+    case 'credits':
     case 'balance':
-        api_json(['ok' => true, 'balance' => credit_balance($uid), 'tier' => user_tier($uid)]);
+        api_json(['ok' => true, 'credits' => credit_balance($uid), 'balance' => credit_balance($uid), 'tier' => user_tier($uid)]);
+
+    case 'send':
+        if ($method !== 'POST') api_json(['error' => 'Method not allowed'], 405);
+        require_once __DIR__ . '/../src/mail_send.php';
+        $body = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+        $from = trim($body['from'] ?? '');
+        $to = trim($body['to'] ?? '');
+        $subject = trim($body['subject'] ?? '');
+        $content = trim($body['body'] ?? $body['content'] ?? '');
+        if (empty($from) || empty($to) || empty($subject) || empty($content)) {
+            api_json(['error' => 'Missing required fields: from, to, subject, body'], 400);
+        }
+        if (!inbox_owned($uid, $from)) {
+            api_json(['error' => 'You do not own this sending address'], 403);
+        }
+        $res = send_email($from, $to, $subject, $content);
+        if (isset($res['ok'])) {
+            api_json(['ok' => true, 'message' => 'Email sent successfully']);
+        } else {
+            api_json(['error' => $res['error'] ?? 'Failed to send email'], 500);
+        }
 
     case 'account':
         if ($method === 'DELETE') {

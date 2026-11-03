@@ -88,7 +88,7 @@ page_header('Spam & Quarantine', $user);
   <div>
     <h1 style="margin:0;display:flex;align-items:center;gap:10px">
       <span>Spam & Quarantine</span>
-      <span style="font-size:0.75rem;background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);padding:3px 10px;border-radius:20px;font-weight:600">🛡️ Auto-Filter Active</span>
+      <span style="font-size:0.75rem;background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);padding:3px 10px;border-radius:20px;font-weight:600">Auto-Filter Active</span>
     </h1>
     <p style="color:#94a3b8;font-size:0.85rem;margin:4px 0 0">
       Suspicious emails, lottery scams, and unwanted solicitations are automatically isolated here to keep your main inboxes clean.
@@ -111,22 +111,27 @@ page_header('Spam & Quarantine', $user);
   <div class="alert alert-s" style="margin-bottom:16px"><?= htmlspecialchars($flash_msg) ?></div>
 <?php endif; ?>
 
-<!-- Filter by inbox pill row -->
+<!-- Filter by inbox dropdown (handles 1 to 200+ inboxes cleanly without overflow) -->
 <?php if (count($inboxes) > 1): ?>
-  <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:16px;flex-wrap:wrap">
-    <a href="/spam.php" class="btn btn-sm <?= empty($selected_email) ? 'btn-primary' : 'btn-ghost' ?>">
-      All Inboxes (<?= $total_spam_count ?>)
-    </a>
-    <?php foreach ($inboxes as $ib): ?>
-      <?php
-      $cnt = spam_count($ib['email_address']);
-      $is_active = ($selected_email === $ib['email_address']);
-      ?>
-      <a href="/spam.php?email=<?= urlencode($ib['email_address']) ?>" class="btn btn-sm <?= $is_active ? 'btn-warning' : 'btn-ghost' ?>" style="<?= $cnt > 0 ? 'font-weight:700' : 'opacity:0.75' ?>">
-        <?= htmlspecialchars($ib['email_address']) ?>
-        <span style="background:rgba(255,255,255,0.15);padding:1px 6px;border-radius:10px;font-size:0.72rem;margin-left:4px"><?= $cnt ?></span>
-      </a>
-    <?php endforeach; ?>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:8px 14px;background:#0d1322;border:1px solid #1f2937;border-radius:8px;flex-wrap:wrap">
+    <label style="font-size:0.82rem;color:#94a3b8;margin:0;font-weight:600">Filter by Inbox:</label>
+    <select onchange="window.location.href = this.value" style="margin:0;padding:6px 12px;font-size:0.82rem;background:#060a12;border:1px solid #334155;border-radius:6px;color:#e2e8f0;min-width:220px;max-width:360px">
+      <option value="/spam.php" <?= empty($selected_email) ? 'selected' : '' ?>>
+        All Inboxes (<?= $total_spam_count ?> spam)
+      </option>
+      <?php foreach ($inboxes as $ib): ?>
+        <?php
+        $cnt = spam_count($ib['email_address']);
+        $is_active = ($selected_email === $ib['email_address']);
+        ?>
+        <option value="/spam.php?email=<?= urlencode($ib['email_address']) ?>" <?= $is_active ? 'selected' : '' ?>>
+          <?= htmlspecialchars($ib['email_address']) ?> (<?= $cnt ?>)
+        </option>
+      <?php endforeach; ?>
+    </select>
+    <?php if (!empty($selected_email)): ?>
+      <a href="/spam.php" style="font-size:0.78rem;color:#f87171;text-decoration:none;margin-left:auto">Clear filter</a>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
 
@@ -142,7 +147,7 @@ page_header('Spam & Quarantine', $user);
         <input type="hidden" name="spam_action" value="restore">
         <input type="hidden" name="target_email" value="<?= htmlspecialchars($view_item['inbox']) ?>">
         <input type="hidden" name="target_uid" value="<?= (int)$view_item['uid'] ?>">
-        <button type="submit" class="btn btn-sm btn-success" title="Restore to main inbox">✓ Not Spam (Restore to Inbox)</button>
+        <button type="submit" class="btn btn-sm btn-success" title="Restore to main inbox">Not Spam (Restore to Inbox)</button>
       </form>
 
       <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Permanently delete this email?')">
@@ -150,14 +155,14 @@ page_header('Spam & Quarantine', $user);
         <input type="hidden" name="spam_action" value="delete">
         <input type="hidden" name="target_email" value="<?= htmlspecialchars($view_item['inbox']) ?>">
         <input type="hidden" name="target_uid" value="<?= (int)$view_item['uid'] ?>">
-        <button type="submit" class="btn btn-sm btn-ghost" style="color:#ef4444;border-color:rgba(239,68,68,0.4)">🗑 Delete</button>
+        <button type="submit" class="btn btn-sm btn-ghost" style="color:#ef4444;border-color:rgba(239,68,68,0.4)">Delete</button>
       </form>
     </div>
   </div>
 
   <div style="margin-bottom:16px;background:rgba(239,68,68,0.06);padding:14px;border-radius:8px;border:1px solid rgba(239,68,68,0.25)">
     <div style="display:flex;align-items:center;gap:8px;color:#fca5a5;font-size:0.85rem;font-weight:600;margin-bottom:6px">
-      <span>⚠️ Isolated in Spam Folder</span>
+      <span>Isolated in Spam Folder</span>
     </div>
     <div style="font-size:0.85rem;color:#94a3b8">
       <div><strong>Subject:</strong> <span style="color:#f8fafc"><?= htmlspecialchars($view_item['subject'] ?: '(No Subject)') ?></span></div>
@@ -201,7 +206,7 @@ page_header('Spam & Quarantine', $user);
             <input type="hidden" name="spam_action" value="restore">
             <input type="hidden" name="target_email" value="<?= htmlspecialchars($s['inbox']) ?>">
             <input type="hidden" name="target_uid" value="<?= (int)$s['uid'] ?>">
-            <button type="submit" class="btn btn-sm btn-ghost" style="color:#34d399;padding:4px 8px;font-size:0.78rem" title="Restore to Inbox">✓ Restore</button>
+            <button type="submit" class="btn btn-sm btn-ghost" style="color:#34d399;padding:4px 8px;font-size:0.78rem" title="Restore to Inbox">Restore</button>
           </form>
 
           <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Permanently delete?')">
@@ -209,7 +214,7 @@ page_header('Spam & Quarantine', $user);
             <input type="hidden" name="spam_action" value="delete">
             <input type="hidden" name="target_email" value="<?= htmlspecialchars($s['inbox']) ?>">
             <input type="hidden" name="target_uid" value="<?= (int)$s['uid'] ?>">
-            <button type="submit" class="btn btn-sm btn-ghost" style="color:#ef4444;padding:4px 8px;font-size:0.78rem" title="Delete">🗑</button>
+            <button type="submit" class="btn btn-sm btn-ghost" style="color:#ef4444;padding:4px 8px;font-size:0.78rem" title="Delete">Delete</button>
           </form>
         </div>
       </div>
@@ -220,7 +225,6 @@ page_header('Spam & Quarantine', $user);
 <?php else: ?>
 <!-- Clean State -->
 <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-  <div style="font-size:2.6rem;margin-bottom:10px">🛡️</div>
   <h3 style="color:#f8fafc;margin-bottom:6px;font-size:1.15rem">Your Inboxes Are Clean</h3>
   <p style="color:#94a3b8;font-size:0.88rem;max-width:440px;margin:0 auto 16px">
     No spam or quarantined messages detected. The automated spam filter is actively protecting all your custom inboxes.

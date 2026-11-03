@@ -90,7 +90,23 @@ function registrar_list(): array {
 /**
  * Sync domains from a registrar.
  */
-function registrar_sync(string $registrar, string $auth_key, string $auth_secret = ''): array {
+function registrar_sync(int|string $user_id_or_registrar, string $registrar_or_key, string $auth_key_or_secret = '', string $maybe_secret = ''): array {
+    @set_time_limit(120);
+    require_once __DIR__ . '/custom_domains.php';
+    require_once __DIR__ . '/mailcow.php';
+
+    if (is_int($user_id_or_registrar)) {
+        $user_id = $user_id_or_registrar;
+        $registrar = $registrar_or_key;
+        $auth_key = $auth_key_or_secret;
+        $auth_secret = $maybe_secret;
+    } else {
+        $user_id = 0;
+        $registrar = (string)$user_id_or_registrar;
+        $auth_key = $registrar_or_key;
+        $auth_secret = $auth_key_or_secret;
+    }
+
     $domains = match($registrar) {
         'cloudflare' => registrar_fetch_cloudflare($auth_key),
         'porkbun'    => registrar_fetch_porkbun($auth_key, $auth_secret),
@@ -111,17 +127,34 @@ function registrar_sync(string $registrar, string $auth_key, string $auth_secret
     $added = 0;
     $existing = 0;
     foreach ($domains as $d) {
-        $domain = strtolower($d);
-        if (mailcow_domain_exists($domain)) {
-            $existing++;
-            continue;
-        }
-        $res = mailcow_add_domain($domain);
-        if ($res['ok']) {
-            // Track sync source
-            db()->prepare('UPDATE domain SET description = ? WHERE domain = ?')
-                ->execute(["Synced from $registrar", $domain]);
-            $added++;
+        $domain = strtolower(trim($d));
+        if (empty($domain)) continue;
+
+        if ($user_id > 0) {
+            $res = custom_domain_add($user_id, $domain, $registrar);
+            if ($res['ok']) {
+                if (($res['status'] ?? '') === 'already_exists') {
+                    $existing++;
+                } else {
+                    $added++;
+                    // Run live DNS check to categorize right away
+                    $rep = custom_domain_verify_dns_records($domain);
+                    $new_st = $rep['mx']['valid'] ? 'verified' : (!empty($rep['mx']['record']) && $rep['mx']['record'] !== 'none' ? 'conflict' : 'pending');
+                    db()->prepare('UPDATE ia_user_domains SET status = ?, mx_summary = ? WHERE user_id = ? AND domain = ?')
+                        ->execute([$new_st, $rep['mx']['record'] ?? '', $user_id, $domain]);
+                }
+            }
+        } else {
+            if (mailcow_domain_exists($domain)) {
+                $existing++;
+                continue;
+            }
+            $res = mailcow_add_domain($domain);
+            if ($res['ok']) {
+                db()->prepare('UPDATE domain SET description = ? WHERE domain = ?')
+                    ->execute(["Synced from $registrar", $domain]);
+                $added++;
+            }
         }
     }
 

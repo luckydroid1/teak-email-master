@@ -9,6 +9,7 @@ require_once __DIR__ . '/../src/inbox.php';
 
 $user = require_login();
 $uid = (int)$user['id'];
+$user_inboxes = inbox_list($uid);
 $from_filter = strtolower(trim($_GET['from'] ?? ''));
 
 // Get sent emails
@@ -53,6 +54,20 @@ page_header('Sent Emails', $user);
   </div>
 </div>
 
+<?php if (count($user_inboxes) > 1 && !$view_email): ?>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:8px 14px;background:#0d1322;border:1px solid #1f2937;border-radius:8px;flex-wrap:wrap">
+    <label style="font-size:0.82rem;color:#94a3b8;margin:0;font-weight:600">Filter by Sender Inbox:</label>
+    <select onchange="window.location.href = this.value ? '/sent.php?from=' + encodeURIComponent(this.value) : '/sent.php'" style="margin:0;padding:6px 12px;font-size:0.82rem;background:#060a12;border:1px solid #334155;border-radius:6px;color:#e2e8f0;min-width:200px;max-width:340px">
+      <option value="">All Sender Inboxes (<?= count($user_inboxes) ?>)</option>
+      <?php foreach ($user_inboxes as $uib): ?>
+        <option value="<?= htmlspecialchars($uib['email_address']) ?>" <?= strtolower($uib['email_address']) === $from_filter ? 'selected' : '' ?>>
+          <?= htmlspecialchars($uib['email_address']) ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+<?php endif; ?>
+
 <?php if ($view_email): ?>
 <!-- View specific sent email -->
 <div class="card">
@@ -88,7 +103,6 @@ page_header('Sent Emails', $user);
 
 <?php elseif (empty($sent)): ?>
 <div class="card" style="text-align:center;padding:50px 20px;background:#0a0e1a;border:1px dashed #334155">
-  <div style="font-size:2.6rem;margin-bottom:10px">📤</div>
   <h3 style="color:#f8fafc;margin-bottom:6px;font-size:1.15rem">No Sent Emails Yet</h3>
   <p class="sub" style="max-width:440px;margin:0 auto 16px;color:#94a3b8;font-size:0.88rem">
     <?= !empty($from_filter) ? 'No outbound emails have been sent from <strong style="color:#60a5fa">' . htmlspecialchars($from_filter) . '</strong> yet.' : 'Outbound emails sent from any of your active inboxes will be logged and displayed here.' ?>

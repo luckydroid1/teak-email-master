@@ -113,6 +113,9 @@ page_header('Compose Email', $user);
         </div>
 
         <button type="submit" class="btn" style="width:100%;background:#2563eb;font-weight:700">Dispatch Email</button>
+        <div style="font-size:0.76rem;color:#94a3b8;margin-top:8px;text-align:center">
+          Cost: <strong>1 credit</strong> per outbound dispatch · Remaining balance: <strong style="color:#60a5fa"><?= number_format($balance) ?> credits</strong>
+        </div>
       </form>
 
       <p style="font-size:0.75rem;color:#64748b;margin:14px 0 0;text-align:center">

@@ -208,7 +208,7 @@ function custom_domain_verify_dns_records(string $domain): array {
         foreach ($mx as $m) {
             $target = strtolower($m['target'] ?? '');
             $results['mx']['record'] = $target;
-            if (str_contains($target, 'teak.email') || str_contains($target, 'pesat.ai')) {
+            if (str_contains($target, 'teak.email')) {
                 $results['mx']['valid'] = true;
                 break;
             }
@@ -228,15 +228,18 @@ function custom_domain_verify_dns_records(string $domain): array {
         }
     }
 
-    // 3. Check DKIM
-    $dkimTxt = @dns_get_record("dkim._domainkey.{$domain}", DNS_TXT);
-    if (!empty($dkimTxt)) {
-        foreach ($dkimTxt as $t) {
-            $txtVal = $t['txt'] ?? ($t['entries'][0] ?? '');
-            if (str_contains($txtVal, 'v=DKIM1') || str_contains($txtVal, 'p=')) {
-                $results['dkim']['record'] = $txtVal;
-                $results['dkim']['valid'] = true;
-                break;
+    // 3. Check DKIM (support both 'mail' and 'dkim' selectors)
+    foreach (['mail', 'dkim'] as $sel) {
+        $dkimTxt = @dns_get_record("{$sel}._domainkey.{$domain}", DNS_TXT);
+        if (!empty($dkimTxt)) {
+            foreach ($dkimTxt as $t) {
+                $txtVal = $t['txt'] ?? ($t['entries'][0] ?? '');
+                if (str_contains($txtVal, 'v=DKIM1') || str_contains($txtVal, 'p=')) {
+                    $results['dkim']['record'] = $txtVal;
+                    $results['dkim']['valid'] = true;
+                    $results['dkim']['selector'] = $sel;
+                    break 2;
+                }
             }
         }
     }

@@ -7,13 +7,20 @@ require_once __DIR__ . '/../src/db.php';
 require_once __DIR__ . '/../src/auth.php';
 require_once __DIR__ . '/../src/apikey.php';
 
-$user = require_login();
-$uid = (int)$user['id'];
-$keys = apikey_list($uid);
+$user = current_user();
+$keys = [];
+$sample_key = 'cib_your_api_key_here';
+if ($user) {
+    $uid = (int)$user['id'];
+    $keys = apikey_list($uid);
+    if (!empty($keys)) {
+        $sample_key = !empty($keys[0]['full_key']) ? $keys[0]['full_key'] : $keys[0]['key_prefix'] . '••••••••••••••••';
+    }
+}
 $app_url = cfg()['app_url'] ?? 'https://teak.email';
 
 require_once __DIR__ . '/_layout.php';
-page_header('Connect AI Agents & MCP', $user);
+page_header('MCP / API Documentation & Integration', $user);
 ?>
 
 <style>
@@ -44,20 +51,35 @@ page_header('Connect AI Agents & MCP', $user);
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">Connect AI Agents (MCP Server)</h1>
-      <p style="color:#94a3b8;font-size:0.88rem;margin:0">Give Claude Desktop, Cursor, or your autonomous agents tools to manage inboxes and grab OTP codes.</p>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#f8fafc;margin:0 0 4px">MCP / API Documentation</h1>
+      <p style="color:#94a3b8;font-size:0.88rem;margin:0">Give Claude Desktop, Cursor, or autonomous agents tools to manage inboxes and grab OTP codes.</p>
     </div>
     <div style="display:flex;gap:8px">
-      <a href="/api_keys.php" class="btn btn-sm btn-ghost">Manage API Keys</a>
-      <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
+      <?php if ($user): ?>
+        <a href="/api_keys.php" class="btn btn-sm btn-ghost">Manage MCP / API Keys</a>
+        <a href="/dashboard.php" class="btn btn-sm btn-ghost">← Dashboard</a>
+      <?php else: ?>
+        <a href="/signup.php" class="btn btn-sm btn-primary">Get Free API Key →</a>
+        <a href="/login.php" class="btn btn-sm btn-ghost">Log In</a>
+      <?php endif; ?>
     </div>
   </div>
 
-  <?php if (empty($keys)): ?>
+  <?php if (!$user): ?>
+  <div class="card" style="border-left:4px solid #3b82f6;background:rgba(59,130,246,0.08);padding:18px 20px;margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div>
+        <h3 style="margin:0 0 4px;font-size:1.05rem;color:#93c5fd">Public MCP / API Documentation</h3>
+        <p style="margin:0;font-size:0.85rem;color:#cbd5e1">Explore all configurations, tools, and endpoints freely. Create a free account anytime to generate your live API key.</p>
+      </div>
+      <a href="/signup.php" class="btn btn-sm btn-primary" style="white-space:nowrap">Sign Up Free →</a>
+    </div>
+  </div>
+  <?php elseif (empty($keys)): ?>
   <div class="card" style="border-left:4px solid #f59e0b;background:rgba(245,158,11,0.08);padding:24px;margin-bottom:24px">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div>
-        <h3 style="margin:0 0 4px;font-size:1.05rem;color:#fde68a">API Key Required for MCP</h3>
+        <h3 style="margin:0 0 4px;font-size:1.05rem;color:#fde68a">MCP / API Key Required</h3>
         <p style="margin:0;font-size:0.85rem;color:#cbd5e1">Generate your secret API key to populate all configuration blocks automatically.</p>
       </div>
       <a href="/api_keys.php" class="btn btn-sm btn-warning">Generate Key Now →</a>
@@ -97,7 +119,7 @@ page_header('Connect AI Agents & MCP', $user);
       "command": "npx",
       "args": ["-y", "codeinbox-mcp"],
       "env": {
-        "CODEINBOX_API_KEY": "<?= !empty($keys) ? htmlspecialchars($keys[0]['key_prefix']) . '••••••••••••••••' : 'YOUR_API_KEY' ?>",
+        "CODEINBOX_API_KEY": "<?= htmlspecialchars($sample_key) ?>",
         "CODEINBOX_API_URL": "<?= htmlspecialchars($app_url) ?>/api"
       }
     }
@@ -129,7 +151,7 @@ page_header('Connect AI Agents & MCP', $user);
       "command": "npx",
       "args": ["-y", "codeinbox-mcp"],
       "env": {
-        "CODEINBOX_API_KEY": "YOUR_API_KEY",
+        "CODEINBOX_API_KEY": "<?= htmlspecialchars($sample_key) ?>",
         "CODEINBOX_API_URL": "<?= htmlspecialchars($app_url) ?>/api"
       }
     }
@@ -153,7 +175,7 @@ page_header('Connect AI Agents & MCP', $user);
       "command": "npx",
       "args": ["-y", "codeinbox-mcp"],
       "env": {
-        "CODEINBOX_API_KEY": "YOUR_API_KEY",
+        "CODEINBOX_API_KEY": "<?= htmlspecialchars($sample_key) ?>",
         "CODEINBOX_API_URL": "<?= htmlspecialchars($app_url) ?>/api"
       }
     }
@@ -170,7 +192,7 @@ page_header('Connect AI Agents & MCP', $user);
         <span style="font-size:0.85rem;font-weight:700;color:#e2e8f0">1. List Active Inboxes (cURL)</span>
         <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('code-curl-list').innerText, this)">Copy</button>
       </div>
-      <div class="code" id="code-curl-list">curl -s -H "Authorization: Bearer YOUR_API_KEY" \
+      <div class="code" id="code-curl-list">curl -s -H "Authorization: Bearer <?= htmlspecialchars($sample_key) ?>" \
   <?= htmlspecialchars($app_url) ?>/api/inboxes</div>
     </div>
 
@@ -180,7 +202,7 @@ page_header('Connect AI Agents & MCP', $user);
         <button type="button" class="btn-copy" onclick="copyToClipboard(document.getElementById('code-curl-create').innerText, this)">Copy</button>
       </div>
       <div class="code" id="code-curl-create">curl -s -X POST \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer <?= htmlspecialchars($sample_key) ?>" \
   -H "Content-Type: application/json" \
   -d '{"domain":"toohumid.com","local_part":"agentbot01"}' \
   <?= htmlspecialchars($app_url) ?>/api/inboxes</div>

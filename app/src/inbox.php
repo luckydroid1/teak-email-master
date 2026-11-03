@@ -54,6 +54,17 @@ function inbox_domain_eligible(int $uid, string $domain): array {
         return ['ok' => true];
     }
 
+    $st_chk = db()->prepare('SELECT status, mx_summary FROM ia_user_domains WHERE user_id = ? AND domain = ?');
+    $st_chk->execute([$uid, $domain]);
+    $ud_info = $st_chk->fetch();
+    if ($ud_info) {
+        if ($ud_info['status'] === 'conflict') {
+            return ['error' => "Domain '$domain' has an external email provider (MX: " . ($ud_info['mx_summary'] ?: 'external') . "). Point MX to mail.teak.email in Spaceship to use it."];
+        } else {
+            return ['error' => "Domain '$domain' MX record is not pointing to mail.teak.email yet. Add MX in Spaceship before creating inboxes."];
+        }
+    }
+
     return ['error' => 'Domain not available. Use a pool domain or a verified custom domain.'];
 }
 

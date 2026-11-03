@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_validate()) {
         $error = 'Invalid form submission. Please try again.';
     } else {
-        $res = register_user($_POST['email'] ?? '', $_POST['password'] ?? '');
+        $res = register_user($_POST['email'] ?? '', $_POST['password'] ?? '', $redirect);
         if (isset($res['error'])) {
             $error = $res['error'];
         } else {

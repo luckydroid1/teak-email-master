@@ -754,6 +754,7 @@ footer {
         <a href="#audiences" class="nav-item">Workflows</a>
         <a href="#credits-guide" class="nav-item">Credits Guide</a>
         <a href="#pricing" class="nav-item">Pricing</a>
+        <a href="/docs.php" class="nav-item" style="color:#60a5fa;font-weight:700">MCP / API Docs</a>
         <a href="#faq" class="nav-item">FAQ</a>
       </nav>
 
@@ -792,14 +793,26 @@ footer {
       One unified email engine. Equip Claude/Cursor AI with native MCP email tools, manage client brand inboxes in one consolidated stream, and test transactional app flows in an isolated private sandbox.
     </p>
 
-    <div class="hero-cta-group">
+    <div class="hero-cta-group" style="margin-bottom:18px">
       <?php if ($user): ?>
         <a href="/dashboard.php" class="btn btn-glow">Go to Dashboard →</a>
       <?php else: ?>
-        <a href="/signup.php" class="btn btn-glow">Deploy Your First Inbox →</a>
+        <a href="/signup.php" class="btn btn-glow">Start Free Sandbox (No CC Required) →</a>
       <?php endif; ?>
-      <a href="/api_keys.php" class="btn btn-ghost">View MCP & REST API Docs</a>
+      <a href="/docs.php" class="btn btn-ghost">View MCP &amp; REST API Docs</a>
     </div>
+
+    <?php if (!$user): ?>
+      <div style="text-align:center;font-size:0.82rem;color:#94a3b8;margin-bottom:50px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap">
+        <span>✓ No credit card required</span>
+        <span>•</span>
+        <span>✓ 5 free trial operations</span>
+        <span>•</span>
+        <span>✓ Upgrade anytime from $1/mo</span>
+      </div>
+    <?php else: ?>
+      <div style="margin-bottom:50px"></div>
+    <?php endif; ?>
 
     <!-- AI Runtime Code Terminal Simulator -->
     <div class="runtime-terminal-wrap" id="runtime">
@@ -1044,13 +1057,25 @@ footer {
   <div class="container">
     <div class="section-head">
       <div class="section-tag">03 // Flexible Pricing</div>
-      <h2 class="section-title">Transparent Plans. Free Sandbox or $<?= htmlspecialchars((string)($t1['price'] ?? 1)) ?>/mo.</h2>
-      <p class="section-sub">Simple subscriptions via PayPal. Change plan or cancel anytime with non-expiring credits.</p>
+      <h2 class="section-title">Start Free with Sandbox. Scale as You Grow.</h2>
+      <p class="section-sub">Try out our sub-50ms OTP extraction &amp; MCP email tools for free. Upgrade to any plan anytime via PayPal when you need more mailboxes, custom domains, or permanent credits.</p>
+    </div>
+
+    <!-- Recommended Flow Banner: Free Sandbox First -->
+    <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:16px 20px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+      <div style="display:flex;align-items:center;gap:12px;max-width:760px">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <div style="font-size:0.88rem;color:#cbd5e1;line-height:1.5">
+          <strong style="color:#34d399">Recommended for new builders:</strong> Start with the <strong>Free Sandbox ($0)</strong> to test inbox creation and OTP parser with your app or AI agents without entering payment details. Upgrade seamlessly from your dashboard whenever you're ready!
+        </div>
+      </div>
+      <a href="/signup.php" class="btn btn-sm" style="background:#10b981;color:#04150f;font-weight:700;white-space:nowrap;padding:9px 18px">Start Free Sandbox →</a>
     </div>
 
     <div class="pricing-ladder">
       <!-- Tier 0: Free Sandbox -->
-      <div class="pricing-card" style="border-color:rgba(16,185,129,0.35);background:linear-gradient(180deg, rgba(6,40,30,0.4) 0%, rgba(17,24,39,0.9) 100%)">
+      <div class="pricing-card" style="border-color:rgba(16,185,129,0.45);background:linear-gradient(180deg, rgba(6,40,30,0.4) 0%, rgba(17,24,39,0.9) 100%)">
+        <span class="pricing-badge" style="background:#10b981;color:#04150f">Start Here</span>
         <div>
           <div class="p-tier" style="color:#34d399">FREE / DEVELOPER SANDBOX</div>
           <div class="p-cost" style="color:#34d399">$0<span>/forever</span></div>
@@ -1064,7 +1089,7 @@ footer {
             <li>Instant email verification</li>
           </ul>
         </div>
-        <a href="/signup.php" class="btn btn-ghost btn-sm" style="width:100%;border-color:#10b981;color:#6ee7b7">Try Free Sandbox (5x) →</a>
+        <a href="/signup.php" class="btn btn-sm" style="width:100%;background:#10b981;color:#04150f;font-weight:700">Deploy Free Sandbox →</a>
       </div>
 
       <!-- Tier 1 -->
@@ -1153,6 +1178,15 @@ footer {
         <a href="/checkout.php?tier=5" class="btn btn-ghost btn-sm" style="width:100%">Start Enterprise</a>
       </div>
     </div>
+
+    <!-- Automated Lifecycle Transparency Banner -->
+    <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:12px;padding:16px 22px;margin-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-weight:700;color:#93c5fd;font-size:0.92rem;margin-bottom:2px">Automated 2-Stage Lifecycle & Zero-Data Privacy</div>
+        <div style="font-size:0.84rem;color:#94a3b8">To prevent server clutter and protect credentials, emails remain active for 30 days, then gracefully move to Archive for 14 days before permanent zero-data deletion. You can export or backup messages anytime.</div>
+      </div>
+      <a href="#faq" class="btn btn-sm btn-ghost" style="border-color:#3b82f6;color:#93c5fd;white-space:nowrap">Learn More →</a>
+    </div>
   </div>
 </section>
 
@@ -1166,6 +1200,11 @@ footer {
 
     <div class="faq-wrap">
       <details class="faq-item" open>
+        <summary>How does email retention and automatic deletion work?</summary>
+        <p>To ensure strict privacy and prevent disk bloat, Teak Email follows an automated 2-stage retention lifecycle: emails remain active in your primary inbox for 30 days (or 3 days on Free Sandbox), after which they gracefully move to your <strong>Archive</strong> folder for a 14-day grace period. At day 44, emails in archive are permanently purged from the server. You can download raw .EML or export all messages via JSON at any time.</p>
+      </details>
+
+      <details class="faq-item">
         <summary>How does the PayPal subscription and credit allocation work?</summary>
         <p>When you select a plan tier, checkout is processed securely via PayPal REST API. Once verified, your account tier and credits are instantly updated in realtime. Credits never expire and carry over permanently.</p>
       </details>
@@ -1198,6 +1237,7 @@ footer {
         <span>© <?= date('Y') ?> Teak Email. The modern clean email infrastructure.</span>
       </div>
       <div class="footer-links">
+        <a href="/docs.php" style="color:#60a5fa">MCP / API Docs</a>
         <a href="/terms.php">Terms of Service</a>
         <a href="/privacy.php">Privacy Policy</a>
         <a href="/login.php">Log In</a>

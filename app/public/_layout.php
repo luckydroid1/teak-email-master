@@ -46,10 +46,10 @@ function page_header(string $title, array $user = null): void {
         $clean_uri = rtrim($clean_uri, '?&');
         $toggle_url = $clean_uri . (str_contains($clean_uri, '?') ? '&' : '?') . 'set_ui_mode=' . $target_mode;
 
-        $toggle_btn_text = $is_advanced ? '⚡ Advanced' : '🌱 Simple';
+        $toggle_btn_text = $is_advanced ? 'Advanced' : 'Simple';
         $toggle_btn_title = $is_advanced ? 'Switch to Simple Mode (Clean & Beginner Friendly)' : 'Switch to Advanced Mode (Developer & Power Tools)';
-        $toggle_btn_style = $is_advanced 
-            ? 'background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#93c5fd;' 
+        $toggle_btn_style = $is_advanced
+            ? 'background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#93c5fd;'
             : 'background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#34d399;';
 
         $mode_badge_html = '<a href="' . htmlspecialchars($toggle_url) . '" class="nav-mode-pill" style="' . $toggle_btn_style . '" title="' . htmlspecialchars($toggle_btn_title) . '">' . htmlspecialchars($toggle_btn_text) . '</a>';
@@ -69,17 +69,18 @@ function page_header(string $title, array $user = null): void {
 
         $isAdmin = in_array($currentPage, ['index.php', 'settings.php', 'users.php', 'transactions.php'], true) && strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') !== false;
         $adminLink = !empty($user['is_admin'])
-            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">👑 Admin</a>'
+            ? '<a href="/admin/index.php" class="nav-link' . ($isAdmin ? ' active' : '') . '" style="color:#f59e0b;font-weight:700">Admin</a>'
             : '';
 
         if (!$is_advanced) {
             // SIMPLE MODE (Clean, intuitive navigation with Sent & Spam links)
             $nav_links_content = '
-                <a href="/dashboard.php" class="nav-link' . ($isDashboard || $isInboxes ? ' active' : '') . '">📬 Inboxes</a>
-                <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">✉️ Send</a>
-                <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">📤 Sent</a>
-                <a href="/spam.php" class="nav-link' . ($isSpam ? ' active' : '') . '">🚫 Spam</a>
-                <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">💎 Plans</a>
+                <a href="/dashboard.php" class="nav-link' . ($isDashboard || $isInboxes ? ' active' : '') . '">Inboxes</a>
+                <a href="/send.php" class="nav-link' . ($isSend ? ' active' : '') . '">Send</a>
+                <a href="/sent.php" class="nav-link' . ($isSent ? ' active' : '') . '">Sent</a>
+                <a href="/spam.php" class="nav-link' . ($isSpam ? ' active' : '') . '">Spam</a>
+                <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">MCP / API</a>
+                <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">Plans</a>
                 ' . $adminLink;
         } else {
             // ADVANCED MODE (Full developer suite)
@@ -91,7 +92,7 @@ function page_header(string $title, array $user = null): void {
                 <a href="/spam.php" class="nav-link' . ($isSpam ? ' active' : '') . '">Spam</a>
                 <a href="/unified.php" class="nav-link' . ($isUnified ? ' active' : '') . '" style="color:#a78bfa;font-weight:700">Unified</a>
                 <a href="/domains.php" class="nav-link' . ($isDomains ? ' active' : '') . '">Domains</a>
-                <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">API & MCP</a>
+                <a href="/api_keys.php" class="nav-link' . ($isApi ? ' active' : '') . '">MCP / API</a>
                 <a href="/expenses.php" class="nav-link' . ($isExpenses ? ' active' : '') . '">Expenses</a>
                 <a href="/pricing.php" class="nav-link' . ($isPricing ? ' active' : '') . '" style="color:#38bdf8;font-weight:700">Plans</a>
                 ' . $adminLink;
@@ -126,12 +127,25 @@ function page_header(string $title, array $user = null): void {
                     <span class="nav-email nav-desktop-only" title="' . htmlspecialchars($user['email']) . '">' . htmlspecialchars($user['email']) . '</span>
                     <a href="/logout.php" class="nav-logout nav-desktop-only">Logout</a>
                 </div>
-                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                </button>
-            </div>
-        </nav>';
-    }
+	                <button class="nav-toggle" onclick="const n=document.getElementById(\'main-nav-links\');n.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'))" aria-label="Toggle navigation menu" aria-expanded="false">
+	                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+	                </button>
+	            </div>
+	        </nav>';
+	    } else {
+	        $nav = '<nav class="topnav">
+	            <div class="nav-inner" style="max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;height:56px;padding:0 16px">
+	                <a href="/" class="nav-brand" style="display:flex;align-items:center" title="Teak.Email"><img src="/logo.png?v=201" alt="Teak.Email" style="height:22px;width:auto;display:block" /></a>
+	                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+	                    <a href="/#features" class="nav-link">Features</a>
+	                    <a href="/pricing.php" class="nav-link">Pricing</a>
+	                    <a href="/docs.php" class="nav-link active" style="background:#2563eb;color:#fff">MCP / API Docs</a>
+	                    <a href="/login.php" class="nav-link" style="color:#94a3b8">Log In</a>
+	                    <a href="/signup.php" class="btn btn-sm btn-primary" style="padding:5px 12px">Get Started →</a>
+	                </div>
+	            </div>
+	        </nav>';
+	    }
 	    echo '<!DOCTYPE html><html lang="en"><head>
 		<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 		<!-- Disable Cloudflare Email Obfuscation -->

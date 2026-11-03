@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $alert_msg = 'Please provide your registered email address.';
         $alert_type = 'error';
     } else {
-        $res = resend_verification_email($email);
+        $res = resend_verification_email($email, $redirect);
         if (!empty($res['error'])) {
             $alert_msg = $res['error'];
             $alert_type = 'error';

@@ -8,6 +8,7 @@ require_once __DIR__ . '/../src/auth.php';
 
 $error = $success = '';
 $token = $_GET['token'] ?? '';
+$redirect = trim($_GET['redirect'] ?? '');
 if ($token !== '') {
     $verified_user = verify_email_token($token);
     if ($verified_user) {
@@ -15,7 +16,12 @@ if ($token !== '') {
         session_regenerate_id(true);
         $_SESSION['uid'] = (int)$verified_user['id'];
         audit((int)$verified_user['id'], 'login_auto_verify', 'web');
-        header('Location: /getting-started.php');
+
+        if ($redirect !== '' && str_starts_with($redirect, '/') && !str_starts_with($redirect, '//')) {
+            header('Location: ' . $redirect);
+        } else {
+            header('Location: /getting-started.php');
+        }
         exit;
     } else {
         $error = 'Invalid or expired verification link. If you already verified, please log in.';
