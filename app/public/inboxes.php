@@ -15,6 +15,7 @@ $uid = (int)$user['id'];
 $error = $success = '';
 $new_email = null; $new_pw = null;
 $reset_email = null; $reset_pw = null;
+$bulk_created = [];
 
 $tier = user_tier($uid);
 $tier_info = tier_info($tier);
@@ -62,6 +63,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = 'Inbox created successfully!';
         } else {
             $error = $res['error'];
+        }
+    } elseif (isset($_POST['bulk_create_inboxes'])) {
+        $dom = strtolower(trim($_POST['domain'] ?? ''));
+        if ($dom === '' && !empty($eligible['all'])) {
+            $dom = $eligible['all'][0];
+        } elseif (!str_contains($dom, '.')) {
+            foreach ($eligible['all'] as $ed) {
+                if (str_starts_with($ed, $dom . '.')) {
+                    $dom = $ed;
+                    break;
+                }
+            }
+        }
+        $raw_prefixes = $_POST['bulk_prefixes'] ?? '';
+        $prefixes = [];
+        $lines = preg_split('/[\r\n,]+/', trim($raw_prefixes));
+        foreach ($lines as $line) {
+            $line = strtolower(trim($line));
+            if ($line === '') continue;
+
+            if (preg_match('/^([a-z0-9._-]*?)\[(\d+)\.\.(\d+)\]([a-z0-9._-]*)$/i', $line, $m)) {
+                $pfx = $m[1];
+                $start = (int)$m[2];
+                $end = (int)$m[3];
+                $sfx = $m[4];
+                $pad = strlen($m[2]);
+                if ($start <= $end && ($end - $start) <= 50) {
+                    for ($n = $start; $n <= $end; $n++) {
+                        $cand = preg_replace('/[^a-z0-9._-]/', '', $pfx . str_pad((string)$n, $pad, '0', STR_PAD_LEFT) . $sfx);
+                        if ($cand !== '') $prefixes[] = $cand;
+                    }
+                    continue;
+                }
+            }
+
+            if (str_contains($line, '@')) {
+                $line = explode('@', $line)[0];
+            }
+            $cand = preg_replace('/[^a-z0-9._-]/', '', $line);
+            if ($cand !== '') {
+                $prefixes[] = $cand;
+            }
+        }
+        $prefixes = array_values(array_unique($prefixes));
+
+        $existing_inboxes = inbox_list($uid);
+        $current_inboxes_count = count($existing_inboxes);
+        $max_slots = $tier_info ? $tier_info['inbox_slots'] : 1;
+        $available_slots = !empty($user['is_admin']) ? 999 : max(0, $max_slots - $current_inboxes_count);
+
+        if (empty($prefixes)) {
+            $error = 'Please enter at least one valid inbox name or range pattern (e.g. agent-[1..5]).';
+        } elseif (count($prefixes) > $available_slots) {
+            $error = "You requested " . count($prefixes) . " inboxes, but only have $available_slots slot(s) remaining. Upgrade your plan or reduce the list.";
+        } else {
+            $bulk_created = [];
+            $bulk_errors = [];
+            foreach ($prefixes as $p) {
+                $res = inbox_create($uid, $dom, $p, $tier);
+                if (isset($res['ok']) && $res['ok']) {
+                    $bulk_created[] = [
+                        'email' => $res['email'],
+                        'password' => $res['password'] ?? '',
+                    ];
+                } else {
+                    $bulk_errors[] = "$p: " . ($res['error'] ?? 'failed');
+                }
+            }
+
+            if (!empty($bulk_created)) {
+                $success = count($bulk_created) . " inboxes created successfully in bulk!";
+            }
+            if (!empty($bulk_errors)) {
+                $error = ($error ? "$error " : "") . "Some inboxes could not be created: " . implode(', ', array_slice($bulk_errors, 0, 3));
+            }
         }
     }
 }
@@ -111,25 +187,57 @@ if ($new_email):
     <input type="text" readonly value="<?= htmlspecialchars($reset_pw) ?>" style="margin-bottom:0;font-family:monospace;color:#fbbf24">
     <button class="btn-copy" onclick="copyToClipboard('<?= htmlspecialchars($reset_pw, ENT_QUOTES) ?>', this)">Copy</button>
   </div>
-</div>
-<?php endif; ?>
+	</div>
+	<?php endif; ?>
 
-<div class="grid2">
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <h2 style="margin:0">Create New Inbox</h2>
-      <span style="font-size:.78rem;color:#94a3b8">Slots: <strong style="color:#f8fafc"><?= count($inboxes) ?> / <?= $max_slots ?></strong></span>
-    </div>
+	<?php if (!empty($bulk_created)): ?>
+	<div class="card" style="border-color:#22c55e;background:rgba(34,197,94,0.05);margin-bottom:20px">
+	  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+	    <h2 style="color:#86efac;margin:0;font-size:1.15rem">✓ <?= count($bulk_created) ?> New Inboxes Created in Bulk</h2>
+	    <button type="button" class="btn btn-sm btn-ghost" onclick="copyBulkCsv()" style="border-color:#22c55e;color:#86efac">Copy All Credentials (CSV)</button>
+	  </div>
+	  <p class="sub" style="margin-bottom:12px">All inboxes are online and ready to receive incoming mail and OTPs:</p>
+	  <div style="max-height:220px;overflow-y:auto;background:#060a12;border:1px solid #1f2937;border-radius:8px;padding:8px 12px;font-family:monospace;font-size:0.82rem" id="bulk-creds-box">
+	    <?php foreach ($bulk_created as $b): ?>
+	      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #111827">
+	        <span style="color:#f8fafc"><?= htmlspecialchars($b['email']) ?></span>
+	        <span style="color:#fbbf24"><?= htmlspecialchars($b['password']) ?></span>
+	      </div>
+	    <?php endforeach; ?>
+	  </div>
+	  <textarea id="bulk-csv-data" style="display:none"><?php
+	    echo "email,password\n";
+	    foreach ($bulk_created as $b) {
+	        echo htmlspecialchars($b['email']) . ',' . htmlspecialchars($b['password']) . "\n";
+	    }
+	  ?></textarea>
+	  <script>
+	  function copyBulkCsv() {
+	    const data = document.getElementById('bulk-csv-data').value;
+	    navigator.clipboard.writeText(data).then(() => {
+	      alert('✓ ' + <?= count($bulk_created) ?> + ' inbox credentials copied to clipboard as CSV!');
+	    });
+	  }
+	  </script>
+	</div>
+	<?php endif; ?>
 
-    <?php if (false): ?>
-      <div style="background:#1c1917;border:1px solid #78350f;padding:14px;border-radius:8px;margin-bottom:12px">
-        <p style="color:#fbbf24;font-size:.85rem;margin:0 0 8px"><strong>AppSumo Code Required:</strong> Redeem your license code to activate your inbox slots.</p>
-        <a href="/redeem.php" class="btn btn-sm" style="background:#d97706">Redeem Code Now →</a>
-      </div>
-    <?php else: ?>
-    <form method="post" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Creating Inbox...';b.disabled=true;}">
-      <?php csrf_field(); ?>
-      <input type="hidden" name="create_inbox" value="1">
+	<div class="grid2">
+	  <div class="card">
+	    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+	      <h2 style="margin:0">Create Inboxes</h2>
+	      <span style="font-size:.78rem;color:#94a3b8">Slots: <strong style="color:#f8fafc"><?= count($inboxes) ?> / <?= !empty($user['is_admin']) ? '∞' : $max_slots ?></strong></span>
+	    </div>
+
+	    <!-- Mode Selector: Single vs Bulk -->
+	    <div style="display:flex;gap:6px;background:#060a12;border:1px solid #1f2937;border-radius:8px;padding:3px;margin-bottom:14px">
+	      <button type="button" id="tab-single-btn" onclick="switchCreateMode('single')" style="flex:1;padding:6px 12px;border:none;border-radius:6px;font-size:0.82rem;font-weight:700;cursor:pointer;background:#2563eb;color:#fff;transition:all 0.15s">Single Inbox</button>
+	      <button type="button" id="tab-bulk-btn" onclick="switchCreateMode('bulk')" style="flex:1;padding:6px 12px;border:none;border-radius:6px;font-size:0.82rem;font-weight:700;cursor:pointer;background:transparent;color:#94a3b8;transition:all 0.15s">Bulk Create (Batch / Range)</button>
+	    </div>
+
+	    <form method="post" id="create-inbox-form" onsubmit="const b=this.querySelector('button[type=submit]');if(b){b.textContent='Creating Inboxes...';b.disabled=true;}">
+	      <?php csrf_field(); ?>
+	      <input type="hidden" name="create_inbox" id="form-action-mode" value="1">
 
       <?php if ($balance < 60): ?>
       <div style="background:rgba(217,119,6,0.15);border:1px solid #d97706;padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:.82rem;color:#fde68a">
@@ -216,17 +324,65 @@ if ($new_email):
       });
       </script>
 
-      <label>Username / Local Part</label>
-      <input type="text" name="local_part" placeholder="e.g. support, orders.2026, bot-01" required pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]" title="Lowercase letters, numbers, dots, hyphens" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')" autofocus>
+	      <!-- Single Inbox Mode Input -->
+	      <div id="field-single-mode">
+	        <label>Username / Local Part</label>
+	        <input type="text" name="local_part" id="single-local-input" placeholder="e.g. support, orders.2026, bot-01" pattern="[a-z0-9][a-z0-9._-]{0,62}[a-z0-9]" title="Lowercase letters, numbers, dots, hyphens" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')" required autofocus>
+	      </div>
+
+	      <!-- Bulk Mode Input -->
+	      <div id="field-bulk-mode" style="display:none">
+	        <label>Inbox Names (One per line, comma-separated, or range pattern)</label>
+	        <textarea name="bulk_prefixes" id="bulk-prefixes-input" rows="5" placeholder="support&#10;billing&#10;sales&#10;agent-[1..5]" style="margin:0 0 6px;font-family:monospace;font-size:0.85rem;background:#060a12;border-color:#334155;color:#f8fafc"></textarea>
+	        <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:12px;line-height:1.4">
+	          Supports range patterns like <code style="color:#60a5fa">agent-[1..10]</code> or <code style="color:#60a5fa">bot[01..05]</code> (max 50 inboxes per batch).
+	        </div>
+	      </div>
 
 	      <div style="background:#0a0e1a;padding:10px 12px;border-radius:8px;border:1px solid #1f2937;margin-bottom:14px;font-size:.78rem;color:#94a3b8">
 	        Available Balance: <strong style="color:#60a5fa"><?= number_format($balance) ?> credits</strong> · Active Plan: <strong style="color:#cbd5e1"><?= htmlspecialchars($tier_info['name'] ?? ('Tier ' . $tier)) ?></strong>
 	      </div>
 
-      <button type="submit" class="btn" style="width:100%">Create Instant Inbox</button>
-    </form>
-    <?php endif; ?>
-  </div>
+	      <button type="submit" id="submit-create-btn" class="btn" style="width:100%">Create Instant Inbox</button>
+	    </form>
+
+	    <script>
+	    function switchCreateMode(mode) {
+	      const singleBtn = document.getElementById('tab-single-btn');
+	      const bulkBtn = document.getElementById('tab-bulk-btn');
+	      const singleField = document.getElementById('field-single-mode');
+	      const bulkField = document.getElementById('field-bulk-mode');
+	      const singleInput = document.getElementById('single-local-input');
+	      const bulkInput = document.getElementById('bulk-prefixes-input');
+	      const actionInput = document.getElementById('form-action-mode');
+	      const submitBtn = document.getElementById('submit-create-btn');
+
+	      if (mode === 'bulk') {
+	        singleBtn.style.background = 'transparent';
+	        singleBtn.style.color = '#94a3b8';
+	        bulkBtn.style.background = '#2563eb';
+	        bulkBtn.style.color = '#fff';
+	        singleField.style.display = 'none';
+	        bulkField.style.display = 'block';
+	        singleInput.removeAttribute('required');
+	        bulkInput.setAttribute('required', 'required');
+	        actionInput.name = 'bulk_create_inboxes';
+	        submitBtn.textContent = 'Create Inboxes in Bulk';
+	      } else {
+	        bulkBtn.style.background = 'transparent';
+	        bulkBtn.style.color = '#94a3b8';
+	        singleBtn.style.background = '#2563eb';
+	        singleBtn.style.color = '#fff';
+	        bulkField.style.display = 'none';
+	        singleField.style.display = 'block';
+	        bulkInput.removeAttribute('required');
+	        singleInput.setAttribute('required', 'required');
+	        actionInput.name = 'create_inbox';
+	        submitBtn.textContent = 'Create Instant Inbox';
+	      }
+	    }
+	    </script>
+	  </div>
 
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">

@@ -44,13 +44,13 @@ function trust_limits(int $uid): array {
     }
 
     $map = [
-        // Tier 0 = new Free Sandbox accounts: tight throttle, same as tier 1
-        0 => ['max_inboxes_per_hour' => 3,  'max_inboxes' => 1,  'max_api_per_hour' => 30],
-        1 => ['max_inboxes_per_hour' => 3,  'max_inboxes' => 5,  'max_api_per_hour' => 60],
-        2 => ['max_inboxes_per_hour' => 5,  'max_inboxes' => 15, 'max_api_per_hour' => 120],
-        3 => ['max_inboxes_per_hour' => 10, 'max_inboxes' => 999, 'max_api_per_hour' => 600],
-        4 => ['max_inboxes_per_hour' => 20, 'max_inboxes' => 999, 'max_api_per_hour' => 1200],
-        5 => ['max_inboxes_per_hour' => 50, 'max_inboxes' => 999, 'max_api_per_hour' => 3000],
+        // Tier 0 = new Free Sandbox accounts: tight throttle
+        0 => ['max_inboxes_per_hour' => 5,   'max_inboxes' => 1,   'max_api_per_hour' => 30],
+        1 => ['max_inboxes_per_hour' => 10,  'max_inboxes' => 5,   'max_api_per_hour' => 100],
+        2 => ['max_inboxes_per_hour' => 35,  'max_inboxes' => 25,  'max_api_per_hour' => 300],
+        3 => ['max_inboxes_per_hour' => 80,  'max_inboxes' => 70,  'max_api_per_hour' => 800],
+        4 => ['max_inboxes_per_hour' => 150, 'max_inboxes' => 125, 'max_api_per_hour' => 1500],
+        5 => ['max_inboxes_per_hour' => 250, 'max_inboxes' => 999, 'max_api_per_hour' => 3000],
     ];
     return $map[$tier] ?? $map[0];
 }
