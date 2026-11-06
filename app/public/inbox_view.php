@@ -327,21 +327,13 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
               <option value="<?= htmlspecialchars($uib['email_address']) ?>" <?= $uib['email_address'] === $email ? 'selected' : '' ?>>
                 <?= htmlspecialchars($uib['email_address']) ?>
               </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-      <?php else: ?>
-        <div></div>
-      <?php endif; ?>
-
-      <?php if ($read_raw === null && !empty($emails)): ?>
-        <div>
-          <input type="text" id="email-filter" placeholder="Search messages..." oninput="filterMessages()" style="margin-bottom:0;padding:6px 14px;font-size:0.85rem;width:200px;background:#060a12;border-color:#334155">
-        </div>
-      <?php endif; ?>
-    </div>
-  <?php endif; ?>
-</div>
+	            <?php endforeach; ?>
+	          </select>
+	        </div>
+	      <?php endif; ?>
+	    </div>
+	  <?php endif; ?>
+	</div>
 
 <!-- Retention Lifecycle Warning / Notice Banner -->
 <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:8px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.8rem;color:#94a3b8">
