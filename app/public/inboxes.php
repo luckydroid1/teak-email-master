@@ -424,24 +424,28 @@ if ($new_email):
             </div>
             <div class="m">Retention: <?= (int)$in['retention_days'] ?>d · Exp: <?= htmlspecialchars($in['expires_at'] ?? 'Permanent') ?></div>
           </div>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">
-            <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>&folder=inbox" class="btn-sm btn-success" style="padding:6px 10px">Inbox</a>
-            <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>&folder=archive" class="btn-sm btn-ghost" style="padding:6px 10px;border-color:#475569">Archive</a>
-            <a href="/sent.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" style="padding:6px 10px">Sent</a>
-            <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>&folder=spam" class="btn-sm btn-ghost" style="padding:6px 10px;color:#fca5a5;border-color:#7f1d1d">Spam</a>
-            <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm" style="background:#2563eb;padding:6px 10px">Send</a>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;justify-content:space-between">
+            <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+              <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>&folder=inbox" class="btn-sm btn-success" style="padding:6px 12px;font-weight:700">Inbox</a>
+              <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>&folder=archive" class="btn-sm btn-ghost" style="padding:6px 10px;border-color:#475569">Archive</a>
+              <a href="/sent.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm btn-ghost" style="padding:6px 10px">Sent</a>
+              <a href="/inbox_view.php?email=<?= urlencode($in['email_address']) ?>&folder=spam" class="btn-sm btn-ghost" style="padding:6px 10px;color:#fca5a5;border-color:#7f1d1d">Spam</a>
+              <a href="/send.php?from=<?= urlencode($in['email_address']) ?>" class="btn-sm" style="background:#2563eb;padding:6px 10px">Send</a>
+            </div>
 
-            <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Reset mailbox password for <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?>?')">
-              <?php csrf_field(); ?>
-              <input type="hidden" name="reset_password_email" value="<?= htmlspecialchars($in['email_address']) ?>">
-              <button type="submit" class="btn-sm btn-ghost" style="padding:6px 10px" title="Reset Mailbox Password">Reset</button>
-            </form>
+            <div style="display:flex;gap:6px;align-items:center;margin-left:auto;border-left:1px solid #1f2937;padding-left:8px">
+              <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Reset mailbox password for <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?>?')">
+                <?php csrf_field(); ?>
+                <input type="hidden" name="reset_password_email" value="<?= htmlspecialchars($in['email_address']) ?>">
+                <button type="submit" class="btn-sm btn-ghost" style="padding:6px 10px" title="Reset Mailbox Password">Reset</button>
+              </form>
 
-            <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Permanently delete <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?> and all its emails?')">
-              <?php csrf_field(); ?>
-              <input type="hidden" name="delete_email" value="<?= htmlspecialchars($in['email_address']) ?>">
-              <button type="submit" class="btn-danger" style="padding:6px 10px" title="Delete Inbox">Delete</button>
-            </form>
+              <form method="post" style="display:inline;margin:0" onsubmit="return confirm('Permanently delete <?= htmlspecialchars($in['email_address'], ENT_QUOTES) ?> and all its emails? This action cannot be undone.')">
+                <?php csrf_field(); ?>
+                <input type="hidden" name="delete_email" value="<?= htmlspecialchars($in['email_address']) ?>">
+                <button type="submit" class="btn-danger" style="padding:6px 10px;background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#fca5a5" title="Permanently Delete Inbox">Delete</button>
+              </form>
+            </div>
           </div>
         </div>
         <?php endforeach; ?>

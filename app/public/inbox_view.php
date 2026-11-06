@@ -534,7 +534,7 @@ page_header($subject_line ?: 'Inbox ' . $email, $user);
     <input type="text" id="email-filter" placeholder="Search by sender, subject, or code..." oninput="filterMessages()" style="margin:0;padding:6px 10px;font-size:0.85rem;background:transparent;border:none;color:#f8fafc;width:100%;outline:none">
   </div>
   <div style="font-size:0.78rem;color:#94a3b8">
-    Showing <strong style="color:#f8fafc"><?= count($display_emails) ?></strong> of <?= $total_emails ?> messages
+    Showing <strong style="color:#f8fafc" id="search-matched-count"><?= count($display_emails) ?></strong> of <?= $total_emails ?> messages
   </div>
 </div>
 
@@ -622,11 +622,17 @@ function refreshInbox() {
 function filterMessages() {
   const query = (document.getElementById('email-filter')?.value || '').toLowerCase().trim();
   const rows = document.querySelectorAll('.email-item-row');
+  let matched = 0;
   rows.forEach(r => {
-    const from = r.getAttribute('data-from') || '';
-    const subject = r.getAttribute('data-subject') || '';
-    r.style.display = (from.includes(query) || subject.includes(query)) ? 'flex' : 'none';
+    const from = (r.getAttribute('data-from') || '').toLowerCase();
+    const subject = (r.getAttribute('data-subject') || '').toLowerCase();
+    const fullText = (r.textContent || '').toLowerCase();
+    const isMatch = (query === '' || from.includes(query) || subject.includes(query) || fullText.includes(query));
+    r.style.display = isMatch ? 'flex' : 'none';
+    if (isMatch) matched++;
   });
+  const countEl = document.getElementById('search-matched-count');
+  if (countEl) countEl.textContent = matched;
 }
 
 <?php if ($read_raw === null): ?>
